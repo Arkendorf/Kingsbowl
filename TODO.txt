@@ -1,0 +1,18 @@
+player animations - 
+idle 		       CHECK
+victory
+defeat 
+run w/ shield
+run w/ sword
+limping run (w/ arrow) CHECK
+walk w/ shield up
+walk w/ bow
+bow shot
+bow to shield
+sword attack
+sword parried
+death w/ drop shield
+death w/ arrow 
+arrow impact
+get up with sword
+get up with shield
