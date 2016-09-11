@@ -5,7 +5,7 @@ function servermenu_load()
   textBox = ""
   frame = 1
   target = nil
-  players = {{id = "Hawktalon", team = 2}, {id = "host", team = 1}, {id = "ipusername", team = 1}, {id = "Arkendorf", team = 1}, {id = "DrJado", team = 1}, {id = "TheWizardN", team = 1}, {id = "TheDankPig", team = 1}}
+  players = {{id = "Hawktalon", team = 2}, {id = "EQuigs", team = 1}, {id = "ipusername", team = 1}, {id = "Arkendorf", team = 1}, {id = "DrJado", team = 1}, {id = "TheWizardN", team = 1}, {id = "TheDankPig", team = 1}}
   --server = lube.udpServer()
   --server:listen(25565)
 end
