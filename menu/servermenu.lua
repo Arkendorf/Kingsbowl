@@ -1,6 +1,6 @@
 function servermenu_load()
-  team1 = {name = "team 1", r = 125, g = 125, b = 125, playerNum = 0}
-  team2 = {name = "team 2", r = 125, g = 125, b = 125, playerNum = 0}
+  team1 = {name = "Team 1", r = 250, g = 0, b = 0, playerNum = 0}
+  team2 = {name = "Team 2", r = 0, g = 0, b = 255, playerNum = 0}
   slider = {type = ""}
   frame = 1
   target = nil
@@ -71,16 +71,16 @@ function servermenu_draw()
   love.graphics.rectangle("line", 75, 50, 250, 175)
   -- team1
   love.graphics.setColor(team1.r, team1.g, team1.b)
-  love.graphics.rectangle("fill", 75, 50, 75, 62)
+  love.graphics.draw(banner, 75, 50)
   love.graphics.setColor(255, 255, 255)
   love.graphics.print(team1.name, 112 - getPixelWidth(team1.name) / 2, 58)
-  love.graphics.rectangle("fill", 87, 80, 50, 2)
-  love.graphics.rectangle("fill", 87, 88, 50, 2)
-  love.graphics.rectangle("fill", 87, 96, 50, 2)
+  love.graphics.rectangle("fill", 87, 74, 50, 2)
+  love.graphics.rectangle("fill", 87, 82, 50, 2)
+  love.graphics.rectangle("fill", 87, 90, 50, 2)
 
-  love.graphics.rectangle("fill", 87 + team1.r / 5.10, 78, 2, 6)
-  love.graphics.rectangle("fill", 87 + team1.g / 5.10, 86, 2, 6)
-  love.graphics.rectangle("fill", 87 + team1.b / 5.10, 94, 2, 6)
+  love.graphics.rectangle("fill", 87 + team1.r / 5.10, 72, 2, 6)
+  love.graphics.rectangle("fill", 87 + team1.g / 5.10, 80, 2, 6)
+  love.graphics.rectangle("fill", 87 + team1.b / 5.10, 88, 2, 6)
 
   for i = 1, team1.playerNum do
     love.graphics.draw(prep, prepQuad[math.ceil(frame)], 64 + i * 10, 150)
@@ -88,16 +88,16 @@ function servermenu_draw()
 
   --team2
   love.graphics.setColor(team2.r, team2.g, team2.b)
-  love.graphics.rectangle("fill", 250, 50, 75, 62)
+  love.graphics.draw(banner, 250, 50)
   love.graphics.setColor(255, 255, 255)
-  love.graphics.print(team2.name, 287 - getPixelWidth(team1.name) / 2, 58)
-  love.graphics.rectangle("fill", 262, 80, 50, 2)
-  love.graphics.rectangle("fill", 262, 88, 50, 2)
-  love.graphics.rectangle("fill", 262, 96, 50, 2)
+  love.graphics.print(team2.name, 287 - getPixelWidth(team2.name) / 2, 58)
+  love.graphics.rectangle("fill", 262, 74, 50, 2)
+  love.graphics.rectangle("fill", 262, 82, 50, 2)
+  love.graphics.rectangle("fill", 262, 90, 50, 2)
 
-  love.graphics.rectangle("fill", 262 + team2.r / 5.10, 78, 2, 6)
-  love.graphics.rectangle("fill", 262 + team2.g / 5.10, 86, 2, 6)
-  love.graphics.rectangle("fill", 262 + team2.b / 5.10, 94, 2, 6)
+  love.graphics.rectangle("fill", 262 + team2.r / 5.10, 72, 2, 6)
+  love.graphics.rectangle("fill", 262 + team2.g / 5.10, 80, 2, 6)
+  love.graphics.rectangle("fill", 262 + team2.b / 5.10, 88, 2, 6)
 
   for i = 1, team2.playerNum do
     love.graphics.draw(prep, prepQuad[math.ceil(frame)], 336 + i * -10, 150, 0, -1, 1)
@@ -108,16 +108,16 @@ function servermenu_draw()
 
   if target ~= nil then
     if players[target].team == 1 then
-      love.graphics.print(tostring(players[target].id), 106 - getPixelWidth(tostring(players[target].id)) / 2, 125)
+      love.graphics.print(tostring(players[target].id), 112 - getPixelWidth(tostring(players[target].id)) / 2, 125)
       if team1.playerNum < 6 then
-        love.graphics.print("click to swap", 87, 200)
+        love.graphics.print("click to swap", 85, 200)
       else
         love.graphics.print("team full", 87, 200)
       end
     else
-      love.graphics.print(tostring(players[target].id), 286 - getPixelWidth(tostring(players[target].id)) / 2, 125)
+      love.graphics.print(tostring(players[target].id), 287 - getPixelWidth(tostring(players[target].id)) / 2, 125)
       if team2.playerNum < 6 then
-        love.graphics.print("click to swap", 236, 200)
+        love.graphics.print("click to swap", 261, 200)
       else
         love.graphics.print("team full", 87, 200)
       end
@@ -127,17 +127,17 @@ end
 
 function servermenu_mousepressed(x, y, button)
   if button == 1 then
-    if x >= 87 + team1.r / 5.10 and x <= 87 + team1.r / 5.10 + 2 and y >= 78 and y <= 78 + 6 then
+    if x >= 87 + team1.r / 5.10 and x <= 87 + team1.r / 5.10 + 2 and y >= 72 and y <= 72 + 6 then
       slider = {type = "r1", xPos = x, yPos = y, old = team1.r}
-    elseif x >= 87 + team1.g / 5.10 and x <= 87 + team1.g / 5.10 + 2 and y >= 86 and y <= 86 + 6 then
+    elseif x >= 87 + team1.g / 5.10 and x <= 87 + team1.g / 5.10 + 2 and y >= 80 and y <= 80 + 6 then
       slider = {type = "g1", xPos = x, yPos = y, old = team1.g}
-    elseif x >= 87 + team1.b / 5.10 and x <= 87 + team1.b / 5.10 + 2 and y >= 94 and y <= 94 + 6 then
+    elseif x >= 87 + team1.b / 5.10 and x <= 87 + team1.b / 5.10 + 2 and y >= 88 and y <= 88 + 6 then
       slider = {type = "b1", xPos = x, yPos = y, old = team1.b}
-    elseif x >= 262 + team2.r / 5.10 and x <= 262 + team2.r / 5.10 + 2 and y >= 78 and y <= 78 + 6 then
+    elseif x >= 262 + team2.r / 5.10 and x <= 262 + team2.r / 5.10 + 2 and y >= 72 and y <= 72 + 6 then
       slider = {type = "r2", xPos = x, yPos = y, old = team2.r}
-    elseif x >= 262 + team2.g / 5.10 and x <= 262 + team2.g / 5.10 + 2 and y >= 86 and y <= 86 + 6 then
+    elseif x >= 262 + team2.g / 5.10 and x <= 262 + team2.g / 5.10 + 2 and y >= 80 and y <= 80 + 6 then
       slider = {type = "g2", xPos = x, yPos = y, old = team2.g}
-    elseif x >= 262 + team2.b / 5.10 and x <= 262 + team2.b / 5.10 + 2 and y >= 94 and y <= 94 + 6 then
+    elseif x >= 262 + team2.b / 5.10 and x <= 262 + team2.b / 5.10 + 2 and y >= 88 and y <= 88 + 6 then
       slider = {type = "b2", xPos = x, yPos = y, old = team2.b}
     elseif target ~= nil then
       if players[target].team == 1 then
@@ -176,15 +176,17 @@ end
 function getPixelWidth(string)
   l = -1
   for i = 1, string.len(string) do
-    if string.find(" abcdeghjmnopqrsuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ023456789?-+&#+" , string.sub(string, i, i)) ~= nil then
+    if string.find("W" , string.sub(string, i, i)) ~= nil then
+      l = l + 8
+    elseif string.find(" ABCDEFGHJKLMNOPQRSTUVWXYZmw023456789?" , string.sub(string, i, i)) ~= nil then
       l = l + 6
-    elseif string.find("fk" , string.sub(string, i, i)) ~= nil then
+    elseif string.find("ak" , string.sub(string, i, i)) ~= nil then
       l = l + 5
-    elseif string.find("tI1/()%[]\"" , string.sub(string, i, i)) ~= nil then
+    elseif string.find("Ibcdefghnopqrsuvxyz" , string.sub(string, i, i)) ~= nil then
       l = l + 4
-    elseif string.find("l`*" , string.sub(string, i, i)) ~= nil then
+    elseif string.find("jlt1!" , string.sub(string, i, i)) ~= nil then
       l = l + 3
-    elseif string.find("i.m!:;'", string.sub(string, i, i)) ~= nil then
+    elseif string.find("i.", string.sub(string, i, i)) ~= nil then
       l = l + 2
     end
   end

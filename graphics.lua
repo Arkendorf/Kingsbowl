@@ -1,7 +1,17 @@
 function graphics_load()
   love.graphics.setDefaultFilter("nearest", "nearest")
+
+  font = love.graphics.newImageFont("font.png",
+    " ABCDEFGHIJKLMNOPQRSTUVWXYZ" ..
+    "abcdefghijklmnopqrstuvwxyz" ..
+    "0123456789!?.", 1)
+  love.graphics.setFont(font)
+
   prep = love.graphics.newImage("char/prep.png")
   prepQuad = loadSpriteSheet(prep, 32)
+
+  banner = love.graphics.newImage("gui/banner.png") 
+
 end
 
 function loadSpriteSheet(image, size)
