@@ -10,7 +10,7 @@ require("menu.servermenu")
 
 function love.load()
   graphics_load()
-  scale = {x = love.graphics.getWidth() / 800, y = love.graphics.getHeight() / 600}
+  scale = {x = love.graphics.getWidth() / 400, y = love.graphics.getHeight() / 300}
   gamestate = "menu"
   mainmenu_load()
   totalDt = 0
@@ -39,12 +39,19 @@ function love.draw()
 end
 
 function love.mousepressed(x, y, button)
-  x = x * scale.x
-  y = y * scale.y
+  x = x / scale.x
+  y = y / scale.y
   if gamestate == "menu" then
     mainmenu_mousepressed(x, y, button)
   elseif gamestate == "servermenu" then
     servermenu_mousepressed(x, y, button)
   end
 
+end
+
+function onConnect(clientid)
+  if gamestate == "servermenu" then
+    team1.playerNum = team1.playerNum + 1
+    players[#players + 1] = {id = clientid, team = 1}
+  end
 end
