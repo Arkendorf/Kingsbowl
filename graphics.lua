@@ -10,7 +10,13 @@ function graphics_load()
   prep = love.graphics.newImage("char/prep.png")
   prepQuad = loadSpriteSheet(prep, 32)
 
-  banner = love.graphics.newImage("gui/banner.png") 
+  sliderImg = love.graphics.newImage("gui/slider.png")
+  bar = love.graphics.newQuad(0, 2, 50, 2, sliderImg:getDimensions())
+  knob = love.graphics.newQuad(50, 0, 2, 6, sliderImg:getDimensions())
+
+  bannerImg = love.graphics.newImage("gui/banner.png")
+  bannerColor = love.graphics.newQuad(0, 0, 100, 64, bannerImg:getDimensions())
+  banner = love.graphics.newQuad(0, 64, 100, 64, bannerImg:getDimensions())
 
 end
 

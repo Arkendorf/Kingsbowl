@@ -5,7 +5,7 @@ function servermenu_load()
   textBox = ""
   frame = 1
   target = nil
-  players = {{id = "host", team = 1}, {id = "ip/username", team = 2}}
+  players = {{id = "Hawktalon", team = 2}, {id = "host", team = 1}, {id = "ipusername", team = 1}, {id = "Arkendorf", team = 1}, {id = "DrJado", team = 1}, {id = "TheWizardN", team = 1}, {id = "TheDankPig", team = 1}}
   --server = lube.udpServer()
   --server:listen(25565)
 end
@@ -72,16 +72,17 @@ function servermenu_draw()
   love.graphics.rectangle("line", 75, 50, 250, 175)
   -- team1
   love.graphics.setColor(team1.r, team1.g, team1.b)
-  love.graphics.draw(banner, 75, 50)
+  love.graphics.draw(bannerImg, bannerColor, 75, 50)
   love.graphics.setColor(255, 255, 255)
+  love.graphics.draw(bannerImg, banner, 75, 50)
   love.graphics.print(team1.name, 112 - getPixelWidth(team1.name) / 2, 58)
-  love.graphics.rectangle("fill", 87, 74, 50, 2)
-  love.graphics.rectangle("fill", 87, 82, 50, 2)
-  love.graphics.rectangle("fill", 87, 90, 50, 2)
+  love.graphics.draw(sliderImg, bar, 87, 74)
+  love.graphics.draw(sliderImg, bar, 87, 82)
+  love.graphics.draw(sliderImg, bar, 87, 90)
 
-  love.graphics.rectangle("fill", 87 + team1.r / 5.10, 72, 2, 6)
-  love.graphics.rectangle("fill", 87 + team1.g / 5.10, 80, 2, 6)
-  love.graphics.rectangle("fill", 87 + team1.b / 5.10, 88, 2, 6)
+  love.graphics.draw(sliderImg, knob, 87 + math.floor(team1.r / 5.10), 72)
+  love.graphics.draw(sliderImg, knob, 87 + math.floor(team1.g / 5.10), 80)
+  love.graphics.draw(sliderImg, knob, 87 + math.floor(team1.b / 5.10), 88)
 
   for i = 1, team1.playerNum do
     love.graphics.draw(prep, prepQuad[math.ceil(frame)], 64 + i * 10, 150)
@@ -89,16 +90,17 @@ function servermenu_draw()
 
   --team2
   love.graphics.setColor(team2.r, team2.g, team2.b)
-  love.graphics.draw(banner, 250, 50)
+  love.graphics.draw(bannerImg, bannerColor, 325, 50, 0, -1, 1)
   love.graphics.setColor(255, 255, 255)
+  love.graphics.draw(bannerImg, banner, 325, 50, 0, -1, 1)
   love.graphics.print(team2.name, 287 - getPixelWidth(team2.name) / 2, 58)
-  love.graphics.rectangle("fill", 262, 74, 50, 2)
-  love.graphics.rectangle("fill", 262, 82, 50, 2)
-  love.graphics.rectangle("fill", 262, 90, 50, 2)
+  love.graphics.draw(sliderImg, bar, 262, 74)
+  love.graphics.draw(sliderImg, bar, 262, 82)
+  love.graphics.draw(sliderImg, bar, 262, 90)
 
-  love.graphics.rectangle("fill", 262 + team2.r / 5.10, 72, 2, 6)
-  love.graphics.rectangle("fill", 262 + team2.g / 5.10, 80, 2, 6)
-  love.graphics.rectangle("fill", 262 + team2.b / 5.10, 88, 2, 6)
+  love.graphics.draw(sliderImg, knob, 262 + math.floor(team2.r / 5.10), 72)
+  love.graphics.draw(sliderImg, knob, 262 + math.floor(team2.g / 5.10), 80)
+  love.graphics.draw(sliderImg, knob, 262 + math.floor(team2.b / 5.10), 88)
 
   for i = 1, team2.playerNum do
     love.graphics.draw(prep, prepQuad[math.ceil(frame)], 336 + i * -10, 150, 0, -1, 1)
@@ -110,17 +112,17 @@ function servermenu_draw()
   if target ~= nil then
     if players[target].team == 1 then
       love.graphics.print(tostring(players[target].id), 112 - getPixelWidth(tostring(players[target].id)) / 2, 125)
-      if team1.playerNum < 6 then
+      if team2.playerNum < 6 then
         love.graphics.print("click to swap", 85, 200)
       else
-        love.graphics.print("team full", 87, 200)
+        love.graphics.print("team full", 94, 200)
       end
     else
       love.graphics.print(tostring(players[target].id), 287 - getPixelWidth(tostring(players[target].id)) / 2, 125)
-      if team2.playerNum < 6 then
+      if team1.playerNum < 6 then
         love.graphics.print("click to swap", 261, 200)
       else
-        love.graphics.print("team full", 87, 200)
+        love.graphics.print("team full", 270, 200)
       end
     end
   end
