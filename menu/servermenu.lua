@@ -2,11 +2,12 @@ function servermenu_load()
   team1 = {name = "Team 1", r = 250, g = 0, b = 0, playerNum = 0}
   team2 = {name = "Team 2", r = 0, g = 0, b = 255, playerNum = 0}
   slider = {type = ""}
+  textBox = ""
   frame = 1
   target = nil
   players = {{id = "host", team = 1}, {id = "ip/username", team = 2}}
-  server = lube.udpServer()
-  server:listen(25565)
+  --server = lube.udpServer()
+  --server:listen(25565)
 end
 
 function servermenu_update(dt)
@@ -105,7 +106,7 @@ function servermenu_draw()
 
 
 
-
+  -- if a player is targeted, reflect that
   if target ~= nil then
     if players[target].team == 1 then
       love.graphics.print(tostring(players[target].id), 112 - getPixelWidth(tostring(players[target].id)) / 2, 125)
@@ -122,6 +123,13 @@ function servermenu_draw()
         love.graphics.print("team full", 87, 200)
       end
     end
+  end
+
+  -- if player is typing, show where
+  if textBox == "team1" then
+    love.graphics.rectangle("line", 79, 54, 67, 16)
+  elseif textBox == "team2" then
+    love.graphics.rectangle("line", 254, 54, 67, 16)
   end
 end
 
@@ -150,6 +158,31 @@ function servermenu_mousepressed(x, y, button)
         end
       end
     end
+    if x >= 79 and x <= 146 and y >= 54 and y <= 70 then
+      textBox = "team1"
+    elseif x >= 254 and x <= 321 and y >= 54 and y <= 70 then
+      textBox = "team2"
+    else
+      textBox = ""
+    end
+  end
+end
+
+function servermenu_textinput(text)
+  if textBox == "team1" and getPixelWidth(team1.name .. text) < 67 then
+    team1.name = team1.name .. text
+  elseif textBox == "team2" and getPixelWidth(team2.name .. text) < 67 then
+    team2.name = team2.name .. text
+  end
+end
+
+function servermenu_keypressed(key)
+  if key == "backspace" then
+    if textBox == "team1" then
+      team1.name = string.sub(team1.name, 1, -2)
+    elseif textBox == "team2" then
+      team2.name = string.sub(team2.name, 1, -2)
+    end
   end
 end
 
@@ -176,7 +209,9 @@ end
 function getPixelWidth(string)
   l = -1
   for i = 1, string.len(string) do
-    if string.find("W" , string.sub(string, i, i)) ~= nil then
+    if string.find(".i", string.sub(string, i, i)) ~= nil then
+      l = l + 2
+    elseif string.find("W" , string.sub(string, i, i)) ~= nil then
       l = l + 8
     elseif string.find(" ABCDEFGHJKLMNOPQRSTUVWXYZmw023456789?" , string.sub(string, i, i)) ~= nil then
       l = l + 6
@@ -186,8 +221,6 @@ function getPixelWidth(string)
       l = l + 4
     elseif string.find("jlt1!" , string.sub(string, i, i)) ~= nil then
       l = l + 3
-    elseif string.find("i.", string.sub(string, i, i)) ~= nil then
-      l = l + 2
     end
   end
   return l

@@ -46,7 +46,18 @@ function love.mousepressed(x, y, button)
   elseif gamestate == "servermenu" then
     servermenu_mousepressed(x, y, button)
   end
+end
 
+function love.keypressed(key)
+  if gamestate == "servermenu" then
+    servermenu_keypressed(key)
+  end
+end
+
+function love.textinput(text)
+  if gamestate == "servermenu" then
+    servermenu_textinput(text)
+  end
 end
 
 function onConnect(clientid)
