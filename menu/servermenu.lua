@@ -208,25 +208,7 @@ function loop(num, max)
   end
 end
 
-function getPixelWidth(string)
-  l = -1
-  for i = 1, string.len(string) do
-    if string.find(".i", string.sub(string, i, i)) ~= nil then
-      l = l + 2
-    elseif string.find("W" , string.sub(string, i, i)) ~= nil then
-      l = l + 8
-    elseif string.find(" ABCDEFGHJKLMNOPQRSTUVWXYZmw023456789?" , string.sub(string, i, i)) ~= nil then
-      l = l + 6
-    elseif string.find("ak" , string.sub(string, i, i)) ~= nil then
-      l = l + 5
-    elseif string.find("Ibcdefghnopqrsuvxyz" , string.sub(string, i, i)) ~= nil then
-      l = l + 4
-    elseif string.find("jlt1!" , string.sub(string, i, i)) ~= nil then
-      l = l + 3
-    end
-  end
-  return l
-end
+
 
 function updateSlider(slider)
   if love.mouse.isDown(1) == true then

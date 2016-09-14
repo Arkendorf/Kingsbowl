@@ -7,12 +7,13 @@ require("graphics")
 
 require("menu.mainmenu")
 require("menu.servermenu")
+require("menu.clientmenu")
 
 function love.load()
   graphics_load()
+  mainmenu_load()
   scale = {x = love.graphics.getWidth() / 400, y = love.graphics.getHeight() / 300}
   gamestate = "menu"
-  mainmenu_load()
   totalDt = 0
 end
 
@@ -21,6 +22,8 @@ function love.update(dt)
     mainmenu_update(dt)
   elseif gamestate == "servermenu" then
     servermenu_update(dt)
+  elseif gamestate == "clientmenu" then
+    clientmenu_update(dt)
   end
   totalDt = totalDt + dt
 end
@@ -33,6 +36,8 @@ function love.draw()
     mainmenu_draw()
   elseif gamestate == "servermenu" then
     servermenu_draw()
+  elseif gamestate == "clientmenu" then
+    clientmenu_draw()
   end
 
   love.graphics.pop()
@@ -45,18 +50,24 @@ function love.mousepressed(x, y, button)
     mainmenu_mousepressed(x, y, button)
   elseif gamestate == "servermenu" then
     servermenu_mousepressed(x, y, button)
+  elseif gamestate == "clientmenu" then
+    clientmenu_mousepressed(x, y, button)
   end
 end
 
 function love.keypressed(key)
   if gamestate == "servermenu" then
     servermenu_keypressed(key)
+  elseif gamestate == "clientmenu" then
+    clientmenu_keypressed(key)
   end
 end
 
 function love.textinput(text)
   if gamestate == "servermenu" then
     servermenu_textinput(text)
+  elseif gamestate == "clientmenu" then
+    clientmenu_textinput(text)
   end
 end
 
