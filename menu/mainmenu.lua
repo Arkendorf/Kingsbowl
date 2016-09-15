@@ -1,7 +1,10 @@
 function mainmenu_load()
+  playerName = "Placeholder"
+
   tutButton = loadButton("Tutorial", 50, 55, 55, 255)
   hostButton = loadButton("Host", 50)
   joinButton = loadButton("Join", 50)
+  love.keyboard.setKeyRepeat(true)
 end
 
 function mainmenu_update()
@@ -56,14 +59,24 @@ function loadButton(string, w, r, g, b)
   else
     love.graphics.setColor(125, 125, 125)
   end
-  love.graphics.draw(buttonImg, buttonColorSide, 0, 0)
-  love.graphics.draw(buttonImg, buttonColorMiddle, 3, 0, 0, w / 26, 1)
-  love.graphics.draw(buttonImg, buttonColorSide, w, 0, 0, -1, 1)
+  love.graphics.draw(buttonImg, buttonColorSide1, 0, 0)
+  love.graphics.draw(buttonImg, buttonColorMiddle, 15, 0, 0, w / 2, 1)
+  love.graphics.draw(buttonImg, buttonColorSide2, w - 15, 0)
   love.graphics.setColor(255, 255, 255)
-  love.graphics.draw(buttonImg, buttonSide, 0, 0)
-  love.graphics.draw(buttonImg, buttonMiddle, 3, 0, 0, w / 26, 1)
-  love.graphics.draw(buttonImg, buttonSide, w, 0, 0, -1, 1)
+  love.graphics.draw(buttonImg, buttonSide1, 0, 0)
+  love.graphics.draw(buttonImg, buttonMiddle, 15, 0, 0, w / 2, 1)
+  love.graphics.draw(buttonImg, buttonSide2, w - 15, 0)
   love.graphics.print(string, math.ceil(w / 2 - getPixelWidth(string) / 2), 3)
   love.graphics.setCanvas()
   return button
+end
+
+function range(num, min, max)
+  if num > max then
+    return max
+  elseif num < min then
+    return min
+  else
+    return num
+  end
 end

@@ -4,7 +4,7 @@ function graphics_load()
   font = love.graphics.newImageFont("font.png",
     " ABCDEFGHIJKLMNOPQRSTUVWXYZ" ..
     "abcdefghijklmnopqrstuvwxyz" ..
-    "0123456789!?.", 1)
+    "0123456789!?.:", 1)
   love.graphics.setFont(font)
 
   prep = love.graphics.newImage("char/prep.png")
@@ -19,11 +19,16 @@ function graphics_load()
   banner = love.graphics.newQuad(0, 64, 100, 64, bannerImg:getDimensions())
 
   buttonImg = love.graphics.newImage("gui/button.png")
-  buttonSide = love.graphics.newQuad(0, 0, 3, 16, buttonImg:getDimensions())
-  buttonMiddle = love.graphics.newQuad(3, 0, 26, 16, buttonImg:getDimensions())
-  buttonColorSide = love.graphics.newQuad(0, 16, 3, 16, buttonImg:getDimensions())
-  buttonColorMiddle = love.graphics.newQuad(3, 16, 26, 16, buttonImg:getDimensions())
+  buttonSide1 = love.graphics.newQuad(0, 0, 15, 16, buttonImg:getDimensions())
+  buttonMiddle = love.graphics.newQuad(15, 0, 2, 16, buttonImg:getDimensions())
+  buttonSide2 = love.graphics.newQuad(17, 0, 15, 16, buttonImg:getDimensions())
+  buttonColorSide1 = love.graphics.newQuad(0, 16, 15, 16, buttonImg:getDimensions())
+  buttonColorMiddle = love.graphics.newQuad(15, 16, 2, 16, buttonImg:getDimensions())
+  buttonColorSide2 = love.graphics.newQuad(17, 16, 15, 16, buttonImg:getDimensions())
 
+  textboxImg = love.graphics.newImage("gui/textbox.png")
+  textboxSide1 = love.graphics.newQuad(0, 0, 10, 16, textboxImg:getDimensions())
+  textboxSide2 = love.graphics.newQuad(10, 0, 10, 16, textboxImg:getDimensions())
 end
 
 function loadSpriteSheet(image, size)
