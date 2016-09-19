@@ -80,10 +80,15 @@ end
 function servermenu_draw()
   if proceed == false then
     love.graphics.print("Enter port:", 180, 150)
-    love.graphics.draw(textboxImg, textboxSide1, 200 - portBoxLength / 2, 164)
-    love.graphics.draw(textboxImg, textboxSide2, 190 + portBoxLength / 2, 164)
     love.graphics.print(port, 200 - getPixelWidth(port) / 2, 168)
     love.graphics.draw(startButton, 175, 186)
+
+    if textBox == "port" then
+      love.graphics.rectangle("line", 200 - portBoxLength / 2, 164, portBoxLength, 16)
+    else
+      love.graphics.draw(textboxImg, textboxSide1, 200 - portBoxLength / 2, 164)
+      love.graphics.draw(textboxImg, textboxSide2, 190 + portBoxLength / 2, 164)
+    end
   else
     love.graphics.rectangle("line", 75, 50, 250, 175)
     -- team1
