@@ -9,8 +9,6 @@ function servermenu_load()
   port = ""
   proceed = false
   startButton = loadButton("Start", 50)
-
-
 end
 
 function servermenu_update(dt)
@@ -75,6 +73,7 @@ function servermenu_update(dt)
       result = false
     end
   end
+
 end
 
 function servermenu_draw()
@@ -155,6 +154,7 @@ function servermenu_draw()
       love.graphics.rectangle("line", 254, 54, 67, 16)
     end
   end
+
 end
 
 function servermenu_mousepressed(x, y, button)
@@ -281,4 +281,26 @@ function updateSlider(slider)
   else
     slider.type = ""
   end
+end
+
+function loadPlayerButton (name, frame)
+  if frame == 1 then
+    button = love.graphics.newCanvas(2, 16)
+  elseif frame == 2 then
+    button = love.graphics.newCanvas(4, 16)
+  elseif frame == 22 then
+    button = love.graphics.newCanvas(82, 16)
+  else
+    button = love.graphics.newCanvas(frame * 4 - 4, 16)
+  end
+  love.graphics.setCanvas(button)
+  love.graphics.clear()
+  love.graphics.draw(playerButtonImg, playerButton[frame], button:getWidth() / 2 - 41, 0)
+  love.graphics.setColor(0, 0, 0)
+  love.graphics.print(name, math.ceil(button:getWidth() / 2 - getPixelWidth(name) / 2), 5)
+  love.graphics.setColor(255, 255, 255)
+  love.graphics.draw(playerButtonImg, playerButtonOverlay[frame], button:getWidth() / 2 - 41, 0)
+  love.graphics.setCanvas()
+  return button
+
 end

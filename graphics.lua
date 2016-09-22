@@ -29,6 +29,14 @@ function graphics_load()
   textboxImg = love.graphics.newImage("gui/textbox.png")
   textboxSide1 = love.graphics.newQuad(0, 0, 10, 16, textboxImg:getDimensions())
   textboxSide2 = love.graphics.newQuad(10, 0, 10, 16, textboxImg:getDimensions())
+
+  playerButtonImg = love.graphics.newImage("gui/playerbutton.png")
+  playerButton = {}
+  playerButtonOverlay = {}
+  for i = 0, 21 do
+    playerButton[#playerButton + 1] = love.graphics.newQuad(0, i * 32, 82, 16, playerButtonImg:getDimensions())
+    playerButtonOverlay[#playerButtonOverlay + 1] = love.graphics.newQuad(82, i * 32, 82, 16, playerButtonImg:getDimensions())
+  end
 end
 
 function loadSpriteSheet(image, size)
