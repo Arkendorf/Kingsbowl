@@ -71,6 +71,12 @@ function love.textinput(text)
   end
 end
 
+function love.quit()
+  if gamestate == "clientmenu" then
+    client_quit()
+  end
+end
+
 function onConnect(clientid)
   if gamestate == "servermenu" then
     playerQueue[#playerQueue + 1] = {id = clientid, team = 1}
@@ -86,5 +92,28 @@ function onServerReceive(data, clientid)
         break
       end
     end
+  end
+end
+
+function onDisconnect(clientid)
+  for p = 1, #playerQueue do
+    if playerQueue[p].id == clientid then
+      playerQueue[p] = nil
+      break
+    end
+  end
+  for p = 1, #players do
+    if players[p].id == clientid then
+      players[p] = nil
+      break
+    end
+  end
+end
+
+function onClientReceive(data)
+  data = bin:unpack(data)
+  if data.msg == "disconnect" then
+    client:disconnect()
+    gamestate = "mainmenu"
   end
 end

@@ -98,3 +98,7 @@ function connectToServer()
   client = lube.udpClient()
   success, err = client:connect(interpretIp(ip))
 end
+
+function client_quit()
+  client:disconnect()
+end

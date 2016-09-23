@@ -76,10 +76,11 @@ function servermenu_update(dt)
     end
   end
 
+  -- loads join requests
   for p = 1, 3 do
     if #playerQueue >= p then
       if playerQueue[p].dt ~= nil then
-        playerQueue[p].dt = playerQueue[p].dt + dt * 30
+        playerQueue[p].dt = playerQueue[p].dt + dt * 30 -- animation frame
       else
         playerQueue[p].dt = 1
       end
@@ -170,6 +171,7 @@ function servermenu_draw()
       love.graphics.rectangle("line", 254, 54, 67, 16)
     end
 
+    -- draw join requests
     for p = 1, 3 do
       if #playerQueue >= p then
         love.graphics.draw(queue[p], 32 + 84 * p - queue[p]:getWidth() / 2, 229)
@@ -209,6 +211,8 @@ function servermenu_mousepressed(x, y, button)
         slider = {type = "g2", xPos = x, yPos = y, old = team2.g}
       elseif x >= 262 + team2.b / 5.10 and x <= 262 + team2.b / 5.10 + 2 and y >= 88 and y <= 88 + 6 then
         slider = {type = "b2", xPos = x, yPos = y, old = team2.b}
+
+
       elseif target ~= nil then
         if players[target].team == 1 then
           if team2.playerNum < 6 then
@@ -219,6 +223,34 @@ function servermenu_mousepressed(x, y, button)
             players[target].team = 1
           end
         end
+
+      elseif #queue > 0 then
+        for p = 1, 3 do
+          if #playerQueue >= p then
+            if x > -5 + 84 * p and x < 11 + 84 * p and y > 245 and y < 245 + 16 then
+              server:send(bin:pack({msg = "disconnect"}), playerQueue[p].id)
+            elseif x > 37 + 84 * p and x < 53 + 84 * p and y > 245 and y < 245 + 16 then
+              playerQueue[p].team = 1
+              players[#players + 1] = playerQueue[p]
+              if #playerQueue > 3 then
+                playerQueue[p] = playerQueue[4]
+                playerQueue[4] = nil
+              else
+                playerQueue[p] = nil
+              end
+            elseif x > 53 + 84 * p and x < 69 + 84 * p and y > 245 and y < 245 + 16 then
+              playerQueue[p].team = 2
+              players[#players + 1] = playerQueue[p]
+              if #playerQueue > 3 then
+                playerQueue[p] = playerQueue[4]
+                playerQueue[4] = nil
+              else
+                playerQueue[p] = nil
+              end
+            end
+          end
+        end
+
       end
       if x >= 79 and x <= 146 and y >= 54 and y <= 70 then
         textBox = "team1"
