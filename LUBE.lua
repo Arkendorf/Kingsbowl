@@ -51,7 +51,7 @@ function client:init()
 	self.connected = false
 	self.socket = nil
 	self.callbacks = {
-		recv = onReceive
+		recv = onClientReceive
 	}
 	self.handshake = "hi"
 	self.ping = nil
@@ -171,7 +171,7 @@ function server:init()
 	self.clients = {}
 	self.handshake = "hi"
 	self.callbacks = {
-		recv = onClientReceive,
+		recv = onServerReceive,
 		connect = onConnect,
 		disconnect = onDisconnect,
 	}

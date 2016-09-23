@@ -73,16 +73,17 @@ end
 
 function onConnect(clientid)
   if gamestate == "servermenu" then
-    players[#players + 1] = {id = clientid, team = 1}
+    playerQueue[#playerQueue + 1] = {id = clientid, team = 1}
   end
 end
 
-function onClientReceive(data, clientid)
+function onServerReceive(data, clientid)
   data = bin:unpack(data)
   if data.msg == "name" then
-    for p = 1, #players do
-      if players[p].id == clientid then
-        players[p].name = data.name
+    for p = 1, #playerQueue do
+      if playerQueue[p].id == clientid then
+        playerQueue[p].name = data.name
+        break
       end
     end
   end

@@ -6,6 +6,8 @@ function servermenu_load()
   frame = 1
   target = nil
   players = {{name = playerName, id = "host", team = 1}}
+  playerQueue = {}
+  queue = {}
   port = ""
   proceed = false
   startButton = loadButton("Start", 50)
@@ -74,6 +76,20 @@ function servermenu_update(dt)
     end
   end
 
+  for p = 1, 3 do
+    if #playerQueue >= p then
+      if playerQueue[p].dt ~= nil then
+        playerQueue[p].dt = playerQueue[p].dt + dt * 30
+      else
+        playerQueue[p].dt = 1
+      end
+      if playerQueue[p].name ~= nil then
+        queue[p] = loadPlayerButton(playerQueue[p].name, range(math.ceil(playerQueue[p].dt), 1, 40))
+      else
+        queue[p] = loadPlayerButton(playerQueue[p].id, range(math.ceil(playerQueue[p].dt), 1, 40))
+      end
+    end
+  end
 end
 
 function servermenu_draw()
@@ -153,8 +169,13 @@ function servermenu_draw()
     elseif textBox == "team2" then
       love.graphics.rectangle("line", 254, 54, 67, 16)
     end
-  end
 
+    for p = 1, 3 do
+      if #playerQueue >= p then
+        love.graphics.draw(queue[p], 32 + 84 * p - queue[p]:getWidth() / 2, 229)
+      end
+    end
+  end
 end
 
 function servermenu_mousepressed(x, y, button)
@@ -284,22 +305,35 @@ function updateSlider(slider)
 end
 
 function loadPlayerButton (name, frame)
+  scrollFrame = frame
   if frame == 1 then
-    button = love.graphics.newCanvas(2, 16)
+    button = love.graphics.newCanvas(2, 32)
   elseif frame == 2 then
-    button = love.graphics.newCanvas(4, 16)
-  elseif frame == 22 then
-    button = love.graphics.newCanvas(82, 16)
+    button = love.graphics.newCanvas(4, 32)
+  elseif frame >= 22 then
+    button = love.graphics.newCanvas(82, 32)
+    scrollFrame = 22
   else
-    button = love.graphics.newCanvas(frame * 4 - 4, 16)
+    button = love.graphics.newCanvas(frame * 4 - 4, 32)
   end
   love.graphics.setCanvas(button)
   love.graphics.clear()
-  love.graphics.draw(playerButtonImg, playerButton[frame], button:getWidth() / 2 - 41, 0)
+  love.graphics.draw(playerButtonImg, playerButton[scrollFrame], button:getWidth() / 2 - 41, 0)
   love.graphics.setColor(0, 0, 0)
   love.graphics.print(name, math.ceil(button:getWidth() / 2 - getPixelWidth(name) / 2), 5)
   love.graphics.setColor(255, 255, 255)
-  love.graphics.draw(playerButtonImg, playerButtonOverlay[frame], button:getWidth() / 2 - 41, 0)
+  love.graphics.draw(playerButtonImg, playerButtonOverlay[scrollFrame], button:getWidth() / 2 - 41, 0)
+  if frame > 22 then
+    love.graphics.setColor(guiColor.r, guiColor.g, guiColor.b)
+    love.graphics.draw(playerButtonImg, bannerButton[frame - 22], 4, 16)
+
+    love.graphics.setColor(team1.r, team1.g, team1.b)
+    love.graphics.draw(playerButtonImg, bannerButton[frame - 22], 46, 16)
+
+    love.graphics.setColor(team2.r, team2.g, team2.b)
+    love.graphics.draw(playerButtonImg, bannerButton[frame - 22], 62, 16)
+    love.graphics.setColor(255, 255, 255)
+  end
   love.graphics.setCanvas()
   return button
 

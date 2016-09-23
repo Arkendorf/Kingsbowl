@@ -33,9 +33,11 @@ function graphics_load()
   playerButtonImg = love.graphics.newImage("gui/playerbutton.png")
   playerButton = {}
   playerButtonOverlay = {}
+  bannerButton = {}
   for i = 0, 21 do
     playerButton[#playerButton + 1] = love.graphics.newQuad(0, i * 32, 82, 16, playerButtonImg:getDimensions())
     playerButtonOverlay[#playerButtonOverlay + 1] = love.graphics.newQuad(82, i * 32, 82, 16, playerButtonImg:getDimensions())
+    bannerButton[#bannerButton + 1] = love.graphics.newQuad(0, i * 32 + 16, 16, 16, playerButtonImg:getDimensions())
   end
 end
 

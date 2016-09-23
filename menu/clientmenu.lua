@@ -1,6 +1,7 @@
 function clientmenu_load()
   ip = ""
   proceed = false
+  nameSent = false
   connectButton = loadButton("Connect", 50)
   errorMsg = ""
 end
@@ -16,6 +17,9 @@ function clientmenu_update(dt)
       errorMsg = "Unable to connect to server. Check IP"
       textBox = ""
       success = nil
+    elseif success == true and nameSent == false then
+      client:send(bin:pack({msg = "name", name = playerName}))
+      nameSent = true
     end
   end
 end
@@ -93,5 +97,4 @@ function connectToServer()
   proceed = true
   client = lube.udpClient()
   success, err = client:connect(interpretIp(ip))
-  client:send(bin:pack({msg = "name", name = playerName}))
 end

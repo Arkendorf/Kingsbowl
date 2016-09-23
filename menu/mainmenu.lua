@@ -1,6 +1,8 @@
 function mainmenu_load()
   playerName = "Placeholder"
 
+  guiColor = {r = 125, g = 125, b = 125}
+
   tutButton = loadButton("Tutorial", 50, 55, 55, 255)
   hostButton = loadButton("Host", 50)
   joinButton = loadButton("Join", 50)
@@ -57,7 +59,7 @@ function loadButton(string, w, r, g, b)
   if r ~= nil and g ~= nil and b ~= nil then
     love.graphics.setColor(r, g, b)
   else
-    love.graphics.setColor(125, 125, 125)
+    love.graphics.setColor(guiColor.r, guiColor.g, guiColor.b)
   end
   love.graphics.draw(buttonImg, buttonColorSide1, 0, 0)
   love.graphics.draw(buttonImg, buttonColorMiddle, 15, 0, 0, w / 2, 1)
