@@ -3,9 +3,8 @@ function servermenu_load()
   team2 = {name = "Team 2", r = 0, g = 0, b = 255, playerNum = 0}
   slider = {type = ""}
   textBox = ""
-  frame = 1
   target = nil
-  players = {{name = playerName, id = "host", team = 1}}
+  players = {{name = playerName, id = "host", team = 1, delete = false, image = "prep", frame = 1}}
   playerQueue = {false, false, false}
   queue = {}
   port = ""
@@ -34,8 +33,6 @@ function servermenu_update(dt)
     end
 
     updateSlider(slider)
-    frame = frame + dt * 12
-    frame = loop(frame, 6)
 
     -- find targeted player
     for i = 1, team1.playerNum do
@@ -106,6 +103,33 @@ function servermenu_update(dt)
         playerQueue[4] = nil
       end
     end
+
+    -- animate player
+    for p = 1, #players do
+      if players[p].delete == true then
+        if players[p].image ~= "dissapear" then
+          players[p].image = "dissapear"
+          players[p].frame = 1
+        else
+          players[p].frame = players[p].frame + dt * 12
+          if players[p].frame > 18 then
+            --- delete player
+            players[p] = nil
+            target = nil
+          end
+        end
+      elseif players[p].image == "dissapear" then
+        if players[p].frame > 0 then
+          players[p].frame = players[p].frame - dt * 12
+        else
+          players[p].image = "prep"
+          players[p].frame = 1
+        end
+      else
+        players[p].frame = players[p].frame + dt * 6
+        players[p].frame = loop(players[p].frame, 6)
+      end
+    end
   end
 end
 
@@ -137,8 +161,16 @@ function servermenu_draw()
     love.graphics.draw(sliderImg, knob, 87 + math.floor(team1.g / 5.10), 80)
     love.graphics.draw(sliderImg, knob, 87 + math.floor(team1.b / 5.10), 88)
 
-    for i = 1, team1.playerNum do
-      love.graphics.draw(prep, prepQuad[math.ceil(frame)], 64 + i * 10, 150)
+    playersDrawn = 1
+    for p = 1, #players do
+      if players[p].team == 1 then
+        if players[p].image == "prep" then
+          love.graphics.draw(prep, prepQuad[math.ceil(players[p].frame)], 64 + playersDrawn * 10, 150)
+        elseif players[p].image == "dissapear" then
+          love.graphics.draw(dissapear, dissapearQuad[math.ceil(players[p].frame)], 64 + playersDrawn * 10, 150)
+        end
+        playersDrawn = playersDrawn + 1
+      end
     end
 
     --team2
@@ -155,8 +187,16 @@ function servermenu_draw()
     love.graphics.draw(sliderImg, knob, 262 + math.floor(team2.g / 5.10), 80)
     love.graphics.draw(sliderImg, knob, 262 + math.floor(team2.b / 5.10), 88)
 
-    for i = 1, team2.playerNum do
-      love.graphics.draw(prep, prepQuad[math.ceil(frame)], 336 + i * -10, 150, 0, -1, 1)
+    playersDrawn = 1
+    for p = 1, #players do
+      if players[p].team == 2 then
+        if players[p].image == "prep" then
+          love.graphics.draw(prep, prepQuad[math.ceil(players[p].frame)], 336 + playersDrawn * -10, 150, 0, -1, 1)
+        elseif players[p].image == "dissapear" then
+          love.graphics.draw(dissapear, dissapearQuad[math.ceil(players[p].frame)], 336 + playersDrawn * -10, 150, 0, -1, 1)
+        end
+        playersDrawn = playersDrawn + 1
+      end
     end
 
 
@@ -194,6 +234,7 @@ function servermenu_draw()
       end
     end
   end
+  love.graphics.print(tostring(#players), 0, 0)
 end
 
 function servermenu_mousepressed(x, y, button)
@@ -230,13 +271,15 @@ function servermenu_mousepressed(x, y, button)
 
 
       elseif target ~= nil then
-        if players[target].team == 1 then
-          if team2.playerNum < 6 then
-            players[target].team = 2
-          end
-        else
-          if team1.playerNum < 6 then
-            players[target].team = 1
+        if players[target].image == "prep" then
+          if players[target].team == 1 then
+            if team2.playerNum < 6 then
+              players[target].team = 2
+            end
+          else
+            if team1.playerNum < 6 then
+              players[target].team = 1
+            end
           end
         end
 
@@ -246,17 +289,13 @@ function servermenu_mousepressed(x, y, button)
             if playerQueue[p].delete == false then
               if x > -5 + 84 * p and x < 11 + 84 * p and y > 245 and y < 245 + 16 then
                 server:send(bin:pack({msg = "disconnect"}), playerQueue[p].id)
-                playerQueue[p].delete = true
-                playerQueue[p].dt = playerButtonMax
               elseif x > 37 + 84 * p and x < 53 + 84 * p and y > 245 and y < 245 + 16 then
-                playerQueue[p].team = 1
-                players[#players + 1] = playerQueue[p]
+                players[#players + 1] = {id = playerQueue[p].id, name = playerQueue[p].name, team = 1, delete = false, image = "dissapear", frame = 18}
                 playerQueue[p].delete = true
                 playerQueue[p].dt = playerButtonMax
 
               elseif x > 53 + 84 * p and x < 69 + 84 * p and y > 245 and y < 245 + 16 then
-                playerQueue[p].team = 2
-                players[#players + 1] = playerQueue[p]
+                players[#players + 1] = {id = playerQueue[p].id, name = playerQueue[p].name, team = 2, delete = false, image = "dissapear", frame = 18}
                 playerQueue[p].delete = true
                 playerQueue[p].dt = playerButtonMax
               end
@@ -274,7 +313,9 @@ function servermenu_mousepressed(x, y, button)
       end
     elseif button == 2 then
       if target ~= nil then
-        server:send(bin:pack({msg = "disconnect"}), players[target].id)
+        if players[target].id ~= "host" then
+          server:send(bin:pack({msg = "disconnect"}), players[target].id)
+        end
       end
     end
   end

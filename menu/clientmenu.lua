@@ -2,6 +2,7 @@ function clientmenu_load()
   ip = ""
   proceed = false
   nameSent = false
+  success = false
   connectButton = loadButton("Connect", 50)
   errorMsg = ""
 end

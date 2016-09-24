@@ -106,17 +106,21 @@ function onServerReceive(data, clientid)
 end
 
 function onDisconnect(clientid)
-  for p = 1, #playerQueue do
-    if playerQueue[p].id == clientid then
-      playerQueue[p].delete = true
+  removed = false
+  for p = 1, #players do
+    if players[p].id == clientid then
+      players[p].delete = true
+      removed = true
       break
     end
   end
-  for p = 1, #players do
-    if players[p].id == clientid then
-      players[p] = nil
-      target = nil
-      break
+  if removed == false then
+    for p = 1, #playerQueue do
+      if playerQueue[p].id == clientid then
+        playerQueue[p].delete = true
+        playerQueue[p].dt = playerButtonMax
+        break
+      end
     end
   end
 end
@@ -126,7 +130,7 @@ function onClientReceive(data)
   if data.msg == "disconnect" then
     client:disconnect()
     gamestate = "clientmenu"
-    proceed = false
+    clientmenu_load()
     errorMsg = "Kicked by server"
   end
 end
