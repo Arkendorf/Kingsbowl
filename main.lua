@@ -115,6 +115,7 @@ function onDisconnect(clientid)
   for p = 1, #players do
     if players[p].id == clientid then
       players[p] = nil
+      target = nil
       break
     end
   end

@@ -272,6 +272,10 @@ function servermenu_mousepressed(x, y, button)
       else
         textBox = ""
       end
+    elseif button == 2 then
+      if target ~= nil then
+        server:send(bin:pack({msg = "disconnect"}), players[target].id)
+      end
     end
   end
 end
