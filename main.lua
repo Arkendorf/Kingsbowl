@@ -79,7 +79,7 @@ end
 
 function onConnect(clientid)
   if gamestate == "servermenu" then
-    playerQueue[#playerQueue + 1] = {id = clientid, team = 1}
+    playerQueue[#playerQueue + 1] = {id = clientid, team = 1, delete = false}
   end
 end
 
@@ -98,7 +98,7 @@ end
 function onDisconnect(clientid)
   for p = 1, #playerQueue do
     if playerQueue[p].id == clientid then
-      playerQueue[p] = nil
+      playerQueue[p].delete = true
       break
     end
   end

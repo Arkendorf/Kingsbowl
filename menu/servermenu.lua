@@ -11,6 +11,7 @@ function servermenu_load()
   port = ""
   proceed = false
   startButton = loadButton("Start", 50)
+  playerButtonMax = 40
 end
 
 function servermenu_update(dt)
@@ -79,15 +80,31 @@ function servermenu_update(dt)
   -- loads join requests
   for p = 1, 3 do
     if #playerQueue >= p then
-      if playerQueue[p].dt ~= nil then
-        playerQueue[p].dt = playerQueue[p].dt + dt * 30 -- animation frame
+      if playerQueue[p].delete == true then
+        if playerQueue[p].dt > 1 then
+          playerQueue[p].dt = playerQueue[p].dt - dt * 30 -- animation frame
+        else
+          if #playerQueue > 3 then
+            playerQueue[p] = playerQueue[4]
+            playerQueue[4] = nil
+            playerQueue[p].dt = 1
+          else
+            playerQueue[p] = nil
+          end
+        end
       else
-        playerQueue[p].dt = 1
+        if playerQueue[p].dt ~= nil then
+          playerQueue[p].dt = playerQueue[p].dt + dt * 30 -- animation frame
+        else
+          playerQueue[p].dt = 1
+        end
       end
-      if playerQueue[p].name ~= nil then
-        queue[p] = loadPlayerButton(playerQueue[p].name, range(math.ceil(playerQueue[p].dt), 1, 40))
-      else
-        queue[p] = loadPlayerButton(playerQueue[p].id, range(math.ceil(playerQueue[p].dt), 1, 40))
+      if #playerQueue >= p then
+        if playerQueue[p].name ~= nil then
+          queue[p] = loadPlayerButton(playerQueue[p].name, range(math.ceil(playerQueue[p].dt), 1, playerButtonMax))
+        else
+          queue[p] = loadPlayerButton(playerQueue[p].id, range(math.ceil(playerQueue[p].dt), 1, playerButtonMax))
+        end
       end
     end
   end
@@ -227,25 +244,22 @@ function servermenu_mousepressed(x, y, button)
       elseif #queue > 0 then
         for p = 1, 3 do
           if #playerQueue >= p then
-            if x > -5 + 84 * p and x < 11 + 84 * p and y > 245 and y < 245 + 16 then
-              server:send(bin:pack({msg = "disconnect"}), playerQueue[p].id)
-            elseif x > 37 + 84 * p and x < 53 + 84 * p and y > 245 and y < 245 + 16 then
-              playerQueue[p].team = 1
-              players[#players + 1] = playerQueue[p]
-              if #playerQueue > 3 then
-                playerQueue[p] = playerQueue[4]
-                playerQueue[4] = nil
-              else
-                playerQueue[p] = nil
-              end
-            elseif x > 53 + 84 * p and x < 69 + 84 * p and y > 245 and y < 245 + 16 then
-              playerQueue[p].team = 2
-              players[#players + 1] = playerQueue[p]
-              if #playerQueue > 3 then
-                playerQueue[p] = playerQueue[4]
-                playerQueue[4] = nil
-              else
-                playerQueue[p] = nil
+            if playerQueue[p].delete == false then
+              if x > -5 + 84 * p and x < 11 + 84 * p and y > 245 and y < 245 + 16 then
+                server:send(bin:pack({msg = "disconnect"}), playerQueue[p].id)
+                playerQueue[p].delete = true
+                playerQueue[p].dt = playerButtonMax
+              elseif x > 37 + 84 * p and x < 53 + 84 * p and y > 245 and y < 245 + 16 then
+                playerQueue[p].team = 1
+                players[#players + 1] = playerQueue[p]
+                playerQueue[p].delete = true
+                playerQueue[p].dt = playerButtonMax
+
+              elseif x > 53 + 84 * p and x < 69 + 84 * p and y > 245 and y < 245 + 16 then
+                playerQueue[p].team = 2
+                players[#players + 1] = playerQueue[p]
+                playerQueue[p].delete = true
+                playerQueue[p].dt = playerButtonMax
               end
             end
           end
