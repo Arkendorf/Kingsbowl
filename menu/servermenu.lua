@@ -6,7 +6,7 @@ function servermenu_load()
   frame = 1
   target = nil
   players = {{name = playerName, id = "host", team = 1}}
-  playerQueue = {}
+  playerQueue = {false, false, false}
   queue = {}
   port = ""
   proceed = false
@@ -79,18 +79,12 @@ function servermenu_update(dt)
 
   -- loads join requests
   for p = 1, 3 do
-    if #playerQueue >= p then
+    if playerQueue[p] ~= false then
       if playerQueue[p].delete == true then
         if playerQueue[p].dt > 1 then
           playerQueue[p].dt = playerQueue[p].dt - dt * 30 -- animation frame
         else
-          if #playerQueue > 3 then
-            playerQueue[p] = playerQueue[4]
-            playerQueue[4] = nil
-            playerQueue[p].dt = 1
-          else
-            playerQueue[p] = nil
-          end
+          playerQueue[p] = false
         end
       else
         if playerQueue[p].dt ~= nil then
@@ -99,12 +93,17 @@ function servermenu_update(dt)
           playerQueue[p].dt = 1
         end
       end
-      if #playerQueue >= p then
+      if playerQueue[p] ~= false then
         if playerQueue[p].name ~= nil then
           queue[p] = loadPlayerButton(playerQueue[p].name, range(math.ceil(playerQueue[p].dt), 1, playerButtonMax))
         else
           queue[p] = loadPlayerButton(playerQueue[p].id, range(math.ceil(playerQueue[p].dt), 1, playerButtonMax))
         end
+      end
+    else
+      if #playerQueue > 3 then
+        playerQueue[p] = playerQueue[4]
+        playerQueue[4] = nil
       end
     end
   end
@@ -190,7 +189,7 @@ function servermenu_draw()
 
     -- draw join requests
     for p = 1, 3 do
-      if #playerQueue >= p then
+      if playerQueue[p] ~= false then
         love.graphics.draw(queue[p], 32 + 84 * p - queue[p]:getWidth() / 2, 229)
       end
     end
@@ -243,7 +242,7 @@ function servermenu_mousepressed(x, y, button)
 
       elseif #queue > 0 then
         for p = 1, 3 do
-          if #playerQueue >= p then
+          if playerQueue[p] ~= false then
             if playerQueue[p].delete == false then
               if x > -5 + 84 * p and x < 11 + 84 * p and y > 245 and y < 245 + 16 then
                 server:send(bin:pack({msg = "disconnect"}), playerQueue[p].id)

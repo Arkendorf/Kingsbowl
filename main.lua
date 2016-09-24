@@ -79,7 +79,17 @@ end
 
 function onConnect(clientid)
   if gamestate == "servermenu" then
-    playerQueue[#playerQueue + 1] = {id = clientid, team = 1, delete = false}
+    playerAdded = false
+    for p = 1, #playerQueue do
+      if playerQueue[p] == false then
+        playerQueue[p] = {id = clientid, team = 1, delete = false}
+        playerAdded = true
+        break
+      end
+    end
+    if playerAdded == false then
+      playerQueue[#playerQueue + 1] = {id = clientid, team = 1, delete = false}
+    end
   end
 end
 
@@ -114,6 +124,8 @@ function onClientReceive(data)
   data = bin:unpack(data)
   if data.msg == "disconnect" then
     client:disconnect()
-    gamestate = "mainmenu"
+    gamestate = "clientmenu"
+    proceed = false
+    errorMsg = "Kicked by server"
   end
 end
