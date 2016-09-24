@@ -13,6 +13,9 @@ function graphics_load()
   dissapear = love.graphics.newImage("char/dissapear.png")
   dissapearQuad = loadSpriteSheet(dissapear, 32)
 
+  switch = love.graphics.newImage("char/switch.png")
+  switchQuad = loadSpriteSheet(switch, 32)
+
   sliderImg = love.graphics.newImage("gui/slider.png")
   bar = love.graphics.newQuad(0, 2, 50, 2, sliderImg:getDimensions())
   knob = love.graphics.newQuad(50, 0, 2, 6, sliderImg:getDimensions())

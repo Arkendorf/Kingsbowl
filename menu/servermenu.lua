@@ -74,6 +74,53 @@ function servermenu_update(dt)
     end
   end
 
+  -- animate players / change state
+  for p = 1, #players do
+    if players[p].delete == true then
+      if players[p].image ~= "dissapear" then
+        players[p].image = "dissapear"
+        players[p].frame = 1
+      else
+        players[p].frame = players[p].frame + dt * 12
+        if players[p].frame > 18 then
+          --- delete player
+          players[p] = nil
+          target = nil
+        end
+      end
+    elseif players[p].image == "dissapear" then
+      if players[p].frame > 0 then
+        players[p].frame = players[p].frame - dt * 30
+      else
+        players[p].image = "prep"
+        players[p].frame = 1
+      end
+    elseif players[p].image == "switch1" then
+      target = nil
+      if players[p].frame > 22 then
+        if players[p].team == 1 then
+          players[p].team = 2
+        else
+          players[p].team = 1
+        end
+        players[p].image = "switch2"
+        players[p].frame = 22
+      else
+        players[p].frame = players[p].frame + dt * 30
+      end
+    elseif players[p].image == "switch2" then
+      target = nil
+      if players[p].frame > 0 then
+        players[p].frame = players[p].frame - dt * 30
+      else
+        players[p].image = "prep"
+        players[p].frame = 1
+      end
+    else
+      players[p].frame = players[p].frame + dt * 12
+      players[p].frame = loop(players[p].frame, 6)
+    end
+
   -- loads join requests
   for p = 1, 3 do
     if playerQueue[p] ~= false then
@@ -104,31 +151,7 @@ function servermenu_update(dt)
       end
     end
 
-    -- animate player
-    for p = 1, #players do
-      if players[p].delete == true then
-        if players[p].image ~= "dissapear" then
-          players[p].image = "dissapear"
-          players[p].frame = 1
-        else
-          players[p].frame = players[p].frame + dt * 12
-          if players[p].frame > 18 then
-            --- delete player
-            players[p] = nil
-            target = nil
-          end
-        end
-      elseif players[p].image == "dissapear" then
-        if players[p].frame > 0 then
-          players[p].frame = players[p].frame - dt * 12
-        else
-          players[p].image = "prep"
-          players[p].frame = 1
-        end
-      else
-        players[p].frame = players[p].frame + dt * 6
-        players[p].frame = loop(players[p].frame, 6)
-      end
+
     end
   end
 end
@@ -165,9 +188,11 @@ function servermenu_draw()
     for p = 1, #players do
       if players[p].team == 1 then
         if players[p].image == "prep" then
-          love.graphics.draw(prep, prepQuad[math.ceil(players[p].frame)], 64 + playersDrawn * 10, 150)
+          love.graphics.draw(prep, prepQuad[math.ceil(range(players[p].frame, 1, 6))], 64 + playersDrawn * 10, 150)
         elseif players[p].image == "dissapear" then
-          love.graphics.draw(dissapear, dissapearQuad[math.ceil(players[p].frame)], 64 + playersDrawn * 10, 150)
+          love.graphics.draw(dissapear, dissapearQuad[math.ceil(range(players[p].frame, 1, 18))], 64 + playersDrawn * 10, 150)
+        elseif players[p].image == "switch1" or players[p].image == "switch2" then
+          love.graphics.draw(switch, switchQuad[math.ceil(range(players[p].frame, 1, 22))], 64 + playersDrawn * 10, 150)
         end
         playersDrawn = playersDrawn + 1
       end
@@ -191,9 +216,11 @@ function servermenu_draw()
     for p = 1, #players do
       if players[p].team == 2 then
         if players[p].image == "prep" then
-          love.graphics.draw(prep, prepQuad[math.ceil(players[p].frame)], 336 + playersDrawn * -10, 150, 0, -1, 1)
+          love.graphics.draw(prep, prepQuad[math.ceil(range(players[p].frame, 1, 6))], 336 + playersDrawn * -10, 150, 0, -1, 1)
         elseif players[p].image == "dissapear" then
-          love.graphics.draw(dissapear, dissapearQuad[math.ceil(players[p].frame)], 336 + playersDrawn * -10, 150, 0, -1, 1)
+          love.graphics.draw(dissapear, dissapearQuad[math.ceil(range(players[p].frame, 1, 18))], 336 + playersDrawn * -10, 150, 0, -1, 1)
+        elseif players[p].image == "switch1" or players[p].image == "switch2" then
+          love.graphics.draw(switch, switchQuad[math.ceil(range(players[p].frame, 1, 22))], 336 + playersDrawn * -10, 150, 0, -1, 1)
         end
         playersDrawn = playersDrawn + 1
       end
@@ -234,7 +261,6 @@ function servermenu_draw()
       end
     end
   end
-  love.graphics.print(tostring(#players), 0, 0)
 end
 
 function servermenu_mousepressed(x, y, button)
@@ -272,15 +298,8 @@ function servermenu_mousepressed(x, y, button)
 
       elseif target ~= nil then
         if players[target].image == "prep" then
-          if players[target].team == 1 then
-            if team2.playerNum < 6 then
-              players[target].team = 2
-            end
-          else
-            if team1.playerNum < 6 then
-              players[target].team = 1
-            end
-          end
+          players[target].image = "switch1"
+          players[target].frame = 1
         end
 
       elseif #queue > 0 then
