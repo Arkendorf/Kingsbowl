@@ -134,3 +134,13 @@ function onClientReceive(data)
     errorMsg = "Kicked by server"
   end
 end
+
+function drawChar(image, frame)
+  if image == "prep" then
+    return {prep, prepQuad[math.ceil(range(frame, 1, 6))], prepOverlay, prepOverlayQuad[math.ceil(range(frame, 1, 6))]}
+  elseif image == "dissapear" then
+    return {dissapear, dissapearQuad[math.ceil(range(frame, 1, 18))], dissapearOverlay, dissapearOverlayQuad[math.ceil(range(frame, 1, 18))]}
+  elseif image == "switch1" or image == "switch2" then
+    return {switch, switchQuad[math.ceil(range(frame, 1, 22))], switchOverlay, switchOverlayQuad[math.ceil(range(frame, 1, 22))]}
+  end
+end

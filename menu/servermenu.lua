@@ -74,6 +74,37 @@ function servermenu_update(dt)
     end
   end
 
+  -- loads join requests
+  for p = 1, 3 do
+    if playerQueue[p] ~= false then
+      if playerQueue[p].delete == true then
+        if playerQueue[p].dt > 1 then
+          playerQueue[p].dt = playerQueue[p].dt - dt * 30 -- animation frame
+        else
+          playerQueue[p] = false
+        end
+      else
+        if playerQueue[p].dt ~= nil then
+          playerQueue[p].dt = playerQueue[p].dt + dt * 30 -- animation frame
+        else
+          playerQueue[p].dt = 1
+        end
+      end
+      if playerQueue[p] ~= false then
+        if playerQueue[p].name ~= nil then
+          queue[p] = loadPlayerButton(playerQueue[p].name, range(math.ceil(playerQueue[p].dt), 1, playerButtonMax))
+        else
+          queue[p] = loadPlayerButton(playerQueue[p].id, range(math.ceil(playerQueue[p].dt), 1, playerButtonMax))
+        end
+      end
+    else
+      if #playerQueue > 3 then
+        playerQueue[p] = playerQueue[4]
+        playerQueue[4] = nil
+      end
+    end
+  end
+
   -- animate players / change state
   for p = 1, #players do
     if players[p].delete == true then
@@ -81,7 +112,7 @@ function servermenu_update(dt)
         players[p].image = "dissapear"
         players[p].frame = 1
       else
-        players[p].frame = players[p].frame + dt * 12
+        players[p].frame = players[p].frame + dt * 30
         if players[p].frame > 18 then
           --- delete player
           players[p] = nil
@@ -120,41 +151,9 @@ function servermenu_update(dt)
       players[p].frame = players[p].frame + dt * 12
       players[p].frame = loop(players[p].frame, 6)
     end
-
-  -- loads join requests
-  for p = 1, 3 do
-    if playerQueue[p] ~= false then
-      if playerQueue[p].delete == true then
-        if playerQueue[p].dt > 1 then
-          playerQueue[p].dt = playerQueue[p].dt - dt * 30 -- animation frame
-        else
-          playerQueue[p] = false
-        end
-      else
-        if playerQueue[p].dt ~= nil then
-          playerQueue[p].dt = playerQueue[p].dt + dt * 30 -- animation frame
-        else
-          playerQueue[p].dt = 1
-        end
-      end
-      if playerQueue[p] ~= false then
-        if playerQueue[p].name ~= nil then
-          queue[p] = loadPlayerButton(playerQueue[p].name, range(math.ceil(playerQueue[p].dt), 1, playerButtonMax))
-        else
-          queue[p] = loadPlayerButton(playerQueue[p].id, range(math.ceil(playerQueue[p].dt), 1, playerButtonMax))
-        end
-      end
-    else
-      if #playerQueue > 3 then
-        playerQueue[p] = playerQueue[4]
-        playerQueue[4] = nil
-      end
-    end
-
-
-    end
   end
 end
+
 
 function servermenu_draw()
   if proceed == false then
@@ -187,13 +186,11 @@ function servermenu_draw()
     playersDrawn = 1
     for p = 1, #players do
       if players[p].team == 1 then
-        if players[p].image == "prep" then
-          love.graphics.draw(prep, prepQuad[math.ceil(range(players[p].frame, 1, 6))], 64 + playersDrawn * 10, 150)
-        elseif players[p].image == "dissapear" then
-          love.graphics.draw(dissapear, dissapearQuad[math.ceil(range(players[p].frame, 1, 18))], 64 + playersDrawn * 10, 150)
-        elseif players[p].image == "switch1" or players[p].image == "switch2" then
-          love.graphics.draw(switch, switchQuad[math.ceil(range(players[p].frame, 1, 22))], 64 + playersDrawn * 10, 150)
-        end
+        char = drawChar(players[p].image, players[p].frame)
+        love.graphics.draw(char[1], char[2], 64 + playersDrawn * 10, 150)
+        love.graphics.setColor(team1.r, team1.g, team1.b)
+        love.graphics.draw(char[3], char[4], 64 + playersDrawn * 10, 150)
+        love.graphics.setColor(255, 255, 255)
         playersDrawn = playersDrawn + 1
       end
     end
@@ -215,13 +212,11 @@ function servermenu_draw()
     playersDrawn = 1
     for p = 1, #players do
       if players[p].team == 2 then
-        if players[p].image == "prep" then
-          love.graphics.draw(prep, prepQuad[math.ceil(range(players[p].frame, 1, 6))], 336 + playersDrawn * -10, 150, 0, -1, 1)
-        elseif players[p].image == "dissapear" then
-          love.graphics.draw(dissapear, dissapearQuad[math.ceil(range(players[p].frame, 1, 18))], 336 + playersDrawn * -10, 150, 0, -1, 1)
-        elseif players[p].image == "switch1" or players[p].image == "switch2" then
-          love.graphics.draw(switch, switchQuad[math.ceil(range(players[p].frame, 1, 22))], 336 + playersDrawn * -10, 150, 0, -1, 1)
-        end
+        char = drawChar(players[p].image, players[p].frame)
+        love.graphics.draw(char[1], char[2], 336 + playersDrawn * -10, 150, 0, -1, 1)
+        love.graphics.setColor(team2.r, team2.g, team2.b)
+        love.graphics.draw(char[3], char[4], 336 + playersDrawn * -10, 150, 0, -1, 1)
+        love.graphics.setColor(255, 255, 255)
         playersDrawn = playersDrawn + 1
       end
     end
@@ -441,7 +436,13 @@ function loadPlayerButton (name, frame)
 
     love.graphics.setColor(team2.r, team2.g, team2.b)
     love.graphics.draw(playerButtonImg, bannerButton[frame - 22], 62, 16)
+
     love.graphics.setColor(255, 255, 255)
+
+    love.graphics.draw(playerButtonImg, deny[frame - 22], 4, 16)
+    love.graphics.draw(playerButtonImg, checkmark[frame - 22], 46, 16)
+    love.graphics.draw(playerButtonImg, checkmark[frame - 22], 62, 16)
+
   end
   love.graphics.setCanvas()
   return button

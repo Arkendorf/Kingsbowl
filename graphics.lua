@@ -9,12 +9,19 @@ function graphics_load()
 
   prep = love.graphics.newImage("char/prep.png")
   prepQuad = loadSpriteSheet(prep, 32)
+  prepOverlay = love.graphics.newImage("char/prepOverlay.png")
+  prepOverlayQuad = loadSpriteSheet(prepOverlay, 32)
+
 
   dissapear = love.graphics.newImage("char/dissapear.png")
   dissapearQuad = loadSpriteSheet(dissapear, 32)
+  dissapearOverlay = love.graphics.newImage("char/dissapearOverlay.png")
+  dissapearOverlayQuad = loadSpriteSheet(dissapearOverlay, 32)
 
   switch = love.graphics.newImage("char/switch.png")
   switchQuad = loadSpriteSheet(switch, 32)
+  switchOverlay = love.graphics.newImage("char/switchOverlay.png")
+  switchOverlayQuad = loadSpriteSheet(switchOverlay, 32)
 
   sliderImg = love.graphics.newImage("gui/slider.png")
   bar = love.graphics.newQuad(0, 2, 50, 2, sliderImg:getDimensions())
@@ -40,10 +47,14 @@ function graphics_load()
   playerButton = {}
   playerButtonOverlay = {}
   bannerButton = {}
+  checkmark = {}
+  deny = {}
   for i = 0, 21 do
     playerButton[#playerButton + 1] = love.graphics.newQuad(0, i * 32, 82, 16, playerButtonImg:getDimensions())
     playerButtonOverlay[#playerButtonOverlay + 1] = love.graphics.newQuad(82, i * 32, 82, 16, playerButtonImg:getDimensions())
     bannerButton[#bannerButton + 1] = love.graphics.newQuad(0, i * 32 + 16, 16, 16, playerButtonImg:getDimensions())
+    checkmark[#checkmark + 1] = love.graphics.newQuad(32, i * 32 + 16, 16, 16, playerButtonImg:getDimensions())
+    deny[#deny + 1] = love.graphics.newQuad(16, i * 32 + 16, 16, 16, playerButtonImg:getDimensions())
   end
 end
 
