@@ -7,6 +7,8 @@ function graphics_load()
     "0123456789!?.:", 1)
   love.graphics.setFont(font)
 
+  window = love.graphics.newImage("gui/window.png")
+
   prep = love.graphics.newImage("char/prep.png")
   prepQuad = loadSpriteSheet(prep, 32)
   prepOverlay = love.graphics.newImage("char/prepOverlay.png")

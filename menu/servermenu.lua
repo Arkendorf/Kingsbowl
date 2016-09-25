@@ -168,7 +168,7 @@ function servermenu_draw()
       love.graphics.draw(textboxImg, textboxSide2, 190 + portBoxLength / 2, 164)
     end
   else
-    love.graphics.rectangle("line", 75, 50, 250, 175)
+    love.graphics.draw(window, 75, 50)
     -- team1
     love.graphics.setColor(team1.r, team1.g, team1.b)
     love.graphics.draw(bannerImg, bannerColor, 75, 50)
