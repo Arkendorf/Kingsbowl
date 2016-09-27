@@ -3,6 +3,12 @@ function clientmenu_load()
   proceed = false
   nameSent = false
   success = false
+  accepted = false
+  team1 = {r = 255, g = 0, b = 0, name = "Team 1", playerNum = 0}
+  team2 = {r = 0, g = 0, b = 255, name = "Team 2", playerNum = 0}
+  players = {{name = playerName, id = "host", team = 1, delete = false, image = "prep", frame = 1}}
+  target = nil
+
   connectButton = loadButton("Connect", 50)
   errorMsg = ""
 end
@@ -22,6 +28,35 @@ function clientmenu_update(dt)
       client:send(bin:pack({msg = "name", name = playerName}))
       nameSent = true
     end
+
+    -- real stuff
+    x = love.mouse.getX() / scale.x
+    y = love.mouse.getY() / scale.y
+
+    n1 = 0
+    n2 = 0
+    result = false
+    for p = 1, #players do
+      if players[p].team == 1 then
+        n1 = n1 + 1
+        if x > 70 + n1 * 10 and x < 70 + n1 * 10 + 16 and y > 150 and y < 182 then
+          result = true
+          target = p
+        end
+      else
+        n2 = n2 + 1
+        if x < 330 - n2 * 10 and x > 330 - n2 * 10 - 16 and y > 150 and y < 182 then
+          result = true
+          target = p
+        end
+      end
+    end
+    if result == false then
+      target = nil
+    end
+
+
+
   end
 end
 
@@ -41,6 +76,57 @@ function clientmenu_draw()
     else
       love.graphics.draw(textboxImg, textboxSide1, 200 - ipBoxLength / 2, 164)
       love.graphics.draw(textboxImg, textboxSide2, 190 + ipBoxLength / 2, 164)
+    end
+  elseif accepted == false then
+    love.graphics.print("Waiting for response", 159, 150)
+  else
+    love.graphics.draw(window, 75, 50)
+    -- team1
+    love.graphics.setColor(team1.r, team1.g, team1.b)
+    love.graphics.draw(bannerImg, bannerColor, 75, 50)
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.draw(bannerImg, banner, 75, 50)
+    love.graphics.print(team1.name, 112 - getPixelWidth(team1.name) / 2, 58)
+
+    playersDrawn = 1
+    for p = 1, #players do
+      if players[p].team == 1 then
+        char = drawChar(players[p].image, players[p].frame)
+        love.graphics.draw(char[1], char[2], 64 + playersDrawn * 10, 150)
+        love.graphics.setColor(team1.r, team1.g, team1.b)
+        love.graphics.draw(char[3], char[4], 64 + playersDrawn * 10, 150)
+        love.graphics.setColor(255, 255, 255)
+        playersDrawn = playersDrawn + 1
+      end
+    end
+
+    --team2
+    love.graphics.setColor(team2.r, team2.g, team2.b)
+    love.graphics.draw(bannerImg, bannerColor, 325, 50, 0, -1, 1)
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.draw(bannerImg, banner, 325, 50, 0, -1, 1)
+    love.graphics.print(team2.name, 287 - getPixelWidth(team2.name) / 2, 58)
+
+    playersDrawn = 1
+    for p = 1, #players do
+      if players[p].team == 2 then
+        char = drawChar(players[p].image, players[p].frame)
+        love.graphics.draw(char[1], char[2], 336 + playersDrawn * -10, 150, 0, -1, 1)
+        love.graphics.setColor(team2.r, team2.g, team2.b)
+        love.graphics.draw(char[3], char[4], 336 + playersDrawn * -10, 150, 0, -1, 1)
+        love.graphics.setColor(255, 255, 255)
+        playersDrawn = playersDrawn + 1
+      end
+    end
+
+    if target ~= nil then
+      if players[target].team == 1 then
+        love.graphics.print(tostring(players[target].name), 112 - getPixelWidth(tostring(players[target].name)) / 2, 125)
+        love.graphics.print(tostring(players[target].id), 112 - getPixelWidth(tostring(players[target].id)), 200)
+      else
+        love.graphics.print(tostring(players[target].name), 287 - getPixelWidth(tostring(players[target].name)) / 2, 125)
+        love.graphics.print(tostring(players[target].id), 287 - getPixelWidth(tostring(players[target].id)), 200)
+      end
     end
   end
 end

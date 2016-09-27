@@ -129,9 +129,10 @@ function onClientReceive(data)
   data = bin:unpack(data)
   if data.msg == "disconnect" then
     client:disconnect()
-    gamestate = "clientmenu"
     clientmenu_load()
     errorMsg = "Kicked by server"
+  elseif data.msg == "join" then
+    accepted = true
   end
 end
 
