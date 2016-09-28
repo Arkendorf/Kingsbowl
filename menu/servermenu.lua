@@ -35,121 +35,106 @@ function servermenu_update(dt)
     updateSlider(slider)
 
     -- find targeted player
-    for i = 1, team1.playerNum do
-      if x > 70 + i * 10 and x < 70 + i * 10 + 16 and y > 150 and y < 182 then
-        result = true
-        n = 1
-        for p = 1, #players do
-          if players[p].team == 1 then
-            if n == i then
-              target = p
-              break
-            else
-              n = n + 1
-            end
-          end
+
+    n1 = 0
+    n2 = 0
+    result = false
+    for p = 1, #players do
+      if players[p].team == 1 then
+        n1 = n1 + 1
+        if x > 70 + n1 * 10 and x < 70 + n1 * 10 + 16 and y > 150 and y < 182 then
+          result = true
+          target = p
         end
-      end
-    end
-    for i = 1, team2.playerNum do
-      if x < 330 - i * 10 and x > 330 - i * 10 - 16 and y > 150 and y < 182 then
-        result = true
-        n = 1
-        for p = 1, #players do
-          if players[p].team == 2 then
-            if n == i then
-              target = p
-              break
-            else
-              n = n + 1
-            end
-          end
+      else
+        n2 = n2 + 1
+        if x < 330 - n2 * 10 and x > 330 - n2 * 10 - 16 and y > 150 and y < 182 then
+          result = true
+          target = p
         end
       end
     end
     if result == false then
       target = nil
-    else
-      result = false
     end
-  end
 
-  -- loads join requests
-  for p = 1, 3 do
-    if playerQueue[p] ~= false then
-      if playerQueue[p].delete == true then
-        if playerQueue[p].dt > 1 then
-          playerQueue[p].dt = playerQueue[p].dt - dt * 30 -- animation frame
-        else
-          playerQueue[p] = false
-        end
-      else
-        if playerQueue[p].dt ~= nil then
-          playerQueue[p].dt = playerQueue[p].dt + dt * 30 -- animation frame
-        else
-          playerQueue[p].dt = 1
-        end
-      end
+    -- loads join requests
+    for p = 1, 3 do
       if playerQueue[p] ~= false then
-        if playerQueue[p].name ~= nil then
-          queue[p] = loadPlayerButton(playerQueue[p].name, range(math.ceil(playerQueue[p].dt), 1, playerButtonMax))
+        if playerQueue[p].delete == true then
+          if playerQueue[p].dt > 1 then
+            playerQueue[p].dt = playerQueue[p].dt - dt * 30 -- animation frame
+          else
+            playerQueue[p] = false
+          end
         else
-          queue[p] = loadPlayerButton(playerQueue[p].id, range(math.ceil(playerQueue[p].dt), 1, playerButtonMax))
+          if playerQueue[p].dt ~= nil then
+            playerQueue[p].dt = playerQueue[p].dt + dt * 30 -- animation frame
+          else
+            playerQueue[p].dt = 1
+          end
         end
-      end
-    else
-      if #playerQueue > 3 then
-        playerQueue[p] = playerQueue[4]
-        playerQueue[4] = nil
+        if playerQueue[p] ~= false then
+          if playerQueue[p].name ~= nil then
+            queue[p] = loadPlayerButton(playerQueue[p].name, range(math.ceil(playerQueue[p].dt), 1, playerButtonMax))
+          else
+            queue[p] = loadPlayerButton(playerQueue[p].id, range(math.ceil(playerQueue[p].dt), 1, playerButtonMax))
+          end
+        end
+      else
+        if #playerQueue > 3 then
+          playerQueue[p] = playerQueue[4]
+          playerQueue[4] = nil
+        end
       end
     end
-  end
 
-  -- animate players / change state
-  for p = 1, #players do
-    if players[p].delete == true then
-      if players[p].image ~= "dissapear" then
-        players[p].image = "dissapear"
-        players[p].frame = 1
-      else
-        players[p].frame = players[p].frame + dt * 30
-        if players[p].frame > 18 then
-          --- delete player
-          players[p] = nil
-          target = nil
-        end
-      end
-    elseif players[p].image == "dissapear" then
-      if players[p].frame > 0 then
-        players[p].frame = players[p].frame - dt * 30
-      else
-        players[p].image = "prep"
-        players[p].frame = 1
-      end
-    elseif players[p].image == "switch1" then
-      target = nil
-      if players[p].frame > 22 then
-        if players[p].team == 1 then
-          players[p].team = 2
+    -- animate players / change state
+    for p = 1, #players do
+      if players[p].delete == true then
+        if players[p].image ~= "dissapear" then
+          players[p].image = "dissapear"
+          players[p].frame = 1
         else
-          players[p].team = 1
+          players[p].frame = players[p].frame + dt * 30
+          if players[p].frame > 18 then
+            --- delete player
+            players[p] = nil
+            target = nil
+          end
         end
-        players[p].image = "switch2"
-        players[p].frame = 22
+      elseif players[p].image == "dissapear" then
+        if players[p].frame > 0 then
+          players[p].frame = players[p].frame - dt * 30
+        else
+          players[p].image = "prep"
+          players[p].frame = 1
+        end
+      elseif players[p].image == "switch1" then
+        target = nil
+        if players[p].frame > 22 then
+          if players[p].team == 1 then
+            players[p].team = 2
+          else
+            players[p].team = 1
+          end
+          players[p].image = "switch2"
+          players[p].frame = 22
+        else
+          players[p].frame = players[p].frame + dt * 30
+        end
+      elseif players[p].image == "switch2" then
+        target = nil
+        if players[p].frame > 0 then
+          players[p].frame = players[p].frame - dt * 30
+        else
+          players[p].image = "prep"
+          players[p].frame = 1
+        end
       else
-        players[p].frame = players[p].frame + dt * 30
+        players[p].frame = players[p].frame + dt * 12
+        players[p].frame = loop(players[p].frame, 6)
       end
-    elseif players[p].image == "switch2" then
-      target = nil
-      if players[p].frame > 0 then
-        players[p].frame = players[p].frame - dt * 30
-      else
-        players[p].image = "prep"
-        players[p].frame = 1
-      end
-    else
-      players[p].frame = players[p].frame + dt * 12
-      players[p].frame = loop(players[p].frame, 6)
     end
   end
 end
@@ -303,12 +288,14 @@ function servermenu_mousepressed(x, y, button)
             if playerQueue[p].delete == false then
               if x > -5 + 84 * p and x < 11 + 84 * p and y > 245 and y < 245 + 16 then
                 server:send(bin:pack({msg = "disconnect"}), playerQueue[p].id)
-              elseif x > 37 + 84 * p and x < 53 + 84 * p and y > 245 and y < 245 + 16 then
+              elseif x > 37 + 84 * p and x < 53 + 84 * p and y > 245 and y < 245 + 16 and team1.playerNum < 6 then
+                server:send(bin:pack({msg = "join"}), playerQueue[p].id)
                 players[#players + 1] = {id = playerQueue[p].id, name = playerQueue[p].name, team = 1, delete = false, image = "dissapear", frame = 18}
                 playerQueue[p].delete = true
                 playerQueue[p].dt = playerButtonMax
 
-              elseif x > 53 + 84 * p and x < 69 + 84 * p and y > 245 and y < 245 + 16 then
+              elseif x > 53 + 84 * p and x < 69 + 84 * p and y > 245 and y < 245 + 16 and team2.playerNum < 6 then
+                server:send(bin:pack({msg = "join"}), playerQueue[p].id)
                 players[#players + 1] = {id = playerQueue[p].id, name = playerQueue[p].name, team = 2, delete = false, image = "dissapear", frame = 18}
                 playerQueue[p].delete = true
                 playerQueue[p].dt = playerButtonMax
