@@ -2,10 +2,10 @@ function clientmenu_load()
   ip = ""
   proceed = false
   nameSent = false
-  success = false
+  success = nilNum
   accepted = false
-  team1 = {r = 255, g = 0, b = 0, name = "Team 1", playerNum = 0}
-  team2 = {r = 0, g = 0, b = 255, name = "Team 2", playerNum = 0}
+  team1 = {r = 255, g = 0, b = 0, name = "Team 1"}
+  team2 = {r = 0, g = 0, b = 255, name = "Team 2"}
   players = {{name = playerName, id = "host", team = 1, delete = false, image = "prep", frame = 1}}
   target = nil
 

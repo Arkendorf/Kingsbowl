@@ -78,18 +78,16 @@ function love.quit()
 end
 
 function onConnect(clientid)
-  if gamestate == "servermenu" then
-    playerAdded = false
-    for p = 1, #playerQueue do
-      if playerQueue[p] == false then
-        playerQueue[p] = {id = clientid, team = 1, delete = false}
-        playerAdded = true
-        break
-      end
+  playerAdded = false
+  for p = 1, #playerQueue do
+    if playerQueue[p] == false then
+      playerQueue[p] = {id = clientid, team = 1, delete = false}
+      playerAdded = true
+      break
     end
-    if playerAdded == false then
-      playerQueue[#playerQueue + 1] = {id = clientid, team = 1, delete = false}
-    end
+  end
+  if playerAdded == false then
+    playerQueue[#playerQueue + 1] = {id = clientid, team = 1, delete = false}
   end
 end
 
@@ -133,6 +131,9 @@ function onClientReceive(data)
     errorMsg = "Kicked by server"
   elseif data.msg == "join" then
     accepted = true
+  elseif data.msg == "teams" then
+    -- team1 = {data[1]. data[2], data[3], data[4]}
+    -- team2 = {data[5]. data[6], data[7], data[8]}
   end
 end
 
