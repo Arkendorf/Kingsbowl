@@ -132,8 +132,9 @@ function onClientReceive(data)
   elseif data.msg == "join" then
     accepted = true
   elseif data.msg == "teams" then
-    -- team1 = {data[1]. data[2], data[3], data[4]}
-    -- team2 = {data[5]. data[6], data[7], data[8]}
+
+    team1 = {name = data.name1, r = data.r1, g = data.g1, b = data.b1}
+    team2 = {name = data.name2, r = data.r2, g = data.g2, b = data.b2}
   end
 end
 

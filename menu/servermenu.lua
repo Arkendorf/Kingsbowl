@@ -1,9 +1,6 @@
 function servermenu_load()
   team1 = {name = "Team 1", r = 250, g = 0, b = 0, playerNum = 0}
-  team2 = {name = "Team 2", r = 0, g = 0, b = 250, playerNum = 0}
-  sentTeam1 = {}
-  sentTeam2 = {}
-  sendTeams = false
+  team2 = {name = "Team 2", r = 0, g = 0, b = 255, playerNum = 0}
   slider = {type = ""}
   textBox = ""
   target = nil
@@ -21,17 +18,7 @@ function servermenu_update(dt)
     portBoxLength = range(getPixelWidth(port) + 6, 94, math.huge)
   else
     server:update(dt)
-
-    if sentTeam1 ~= team1 or sentTeam2 ~= team2 then
-      sendTeams = true
-    end
-    if sendTeams == true and #players > 1 then
-      server:send(bin:pack({msg = "teams", team1.name, team1.r, team1.g, team1.b, team2.name, team2.r, team2.g, team2.b}))
-      sentTeam1 = team1
-      sentTeam2 = team2
-      sendTeams = false
-    end
-
+    server:send(bin:pack({msg = "teams", name1 = team1.name, r1 = team1.r, g1 = team1.g, b1 = team1.b, name2 = team2.name, r2 = team2.r, g2 = team2.g, b2 = team2.b}))
 
     x = love.mouse.getX() / scale.x
     y = love.mouse.getY() / scale.y
