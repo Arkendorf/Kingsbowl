@@ -74,6 +74,8 @@ end
 function love.quit()
   if gamestate == "clientmenu" then
     client_quit()
+  elseif gamestate == "servermenu" then
+    server_quit()
   end
 end
 
@@ -132,9 +134,20 @@ function onClientReceive(data)
   elseif data.msg == "join" then
     accepted = true
   elseif data.msg == "teams" then
-
     team1 = {name = data.name1, r = data.r1, g = data.g1, b = data.b1}
     team2 = {name = data.name2, r = data.r2, g = data.g2, b = data.b2}
+  elseif data.msg == "player" then
+    playerFound = false
+    for p = 1, #players do
+      if players[p].id == data.id then
+        players[p] = {name = data.name, id = data.id, team = data.team, image = data.image, frame = data.frame}
+        playerFound = true
+        break
+      end
+    end
+    if playerFound == false then
+      players[#players + 1] = {name = data.name, id = data.id, team = data.team, image = data.image, frame = data.frame}
+    end
   end
 end
 

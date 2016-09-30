@@ -19,6 +19,9 @@ function servermenu_update(dt)
   else
     server:update(dt)
     server:send(bin:pack({msg = "teams", name1 = team1.name, r1 = team1.r, g1 = team1.g, b1 = team1.b, name2 = team2.name, r2 = team2.r, g2 = team2.g, b2 = team2.b}))
+    for p = 1, #players do
+      server:send(bin:pack({msg = "player", name = players[p].name, id = players[p].id, team = players[p].team, image = players[p].image, frame = players[p].frame}))
+    end
 
     x = love.mouse.getX() / scale.x
     y = love.mouse.getY() / scale.y
@@ -436,4 +439,8 @@ function loadPlayerButton (name, frame)
   love.graphics.setCanvas()
   return button
 
+end
+
+function server_quit()
+  server:send(bin:pack({msg = "disconnect"}))
 end

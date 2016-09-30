@@ -2,11 +2,11 @@ function clientmenu_load()
   ip = ""
   proceed = false
   nameSent = false
-  success = nilNum
+  success = nil
   accepted = false
-  team1 = {r = 255, g = 0, b = 0, name = "Team 1"}
-  team2 = {r = 0, g = 0, b = 255, name = "Team 2"}
-  players = {{name = playerName, id = "host", team = 1, delete = false, image = "prep", frame = 1}}
+  team1 = {r = 255, g = 0, b = 0, name = "Team 1", playerNum = 0}
+  team2 = {r = 0, g = 0, b = 255, name = "Team 2", playerNum = 0}
+  players = {{name = playerName, id = "host", team = 1, image = "prep", frame = 1}}
   target = nil
 
   connectButton = loadButton("Connect", 50)
@@ -122,10 +122,10 @@ function clientmenu_draw()
     if target ~= nil then
       if players[target].team == 1 then
         love.graphics.print(tostring(players[target].name), 112 - getPixelWidth(tostring(players[target].name)) / 2, 125)
-        love.graphics.print(tostring(players[target].id), 112 - getPixelWidth(tostring(players[target].id)), 200)
+        love.graphics.print(tostring(players[target].id), 112 - getPixelWidth(tostring(players[target].id)) / 2, 200)
       else
         love.graphics.print(tostring(players[target].name), 287 - getPixelWidth(tostring(players[target].name)) / 2, 125)
-        love.graphics.print(tostring(players[target].id), 287 - getPixelWidth(tostring(players[target].id)), 200)
+        love.graphics.print(tostring(players[target].id), 287 - getPixelWidth(tostring(players[target].id)) / 2, 200)
       end
     end
   end
