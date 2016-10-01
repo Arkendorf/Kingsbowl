@@ -1,6 +1,8 @@
 function servermenu_load()
   team1 = {name = "Team 1", r = 250, g = 0, b = 0, playerNum = 0}
   team2 = {name = "Team 2", r = 0, g = 0, b = 255, playerNum = 0}
+  sentTeam1 = {name = "Team 1", r = 250, g = 0, b = 0, playerNum = 0}
+  sentTeam2 = {name = "Team 2", r = 0, g = 0, b = 255, playerNum = 0}
   slider = {type = ""}
   textBox = ""
   target = nil
@@ -11,6 +13,7 @@ function servermenu_load()
   proceed = false
   startButton = loadButton("Start", 50)
   playerButtonMax = 40
+  newPlayer = false
 end
 
 function servermenu_update(dt)
@@ -18,10 +21,16 @@ function servermenu_update(dt)
     portBoxLength = range(getPixelWidth(port) + 6, 94, math.huge)
   else
     server:update(dt)
-    server:send(bin:pack({msg = "teams", name1 = team1.name, r1 = team1.r, g1 = team1.g, b1 = team1.b, name2 = team2.name, r2 = team2.r, g2 = team2.g, b2 = team2.b}))
+
+    if team1.name ~= sentTeam1.name or team1.r + team1.g + team1.b ~= sentTeam1.r + sentTeam1.g + sentTeam1.b or team2.name ~= sentTeam2.name or team2.r + team2.g + team2.b ~= sentTeam2.r + sentTeam2.g + sentTeam2.b or newPlayer == true then
+      server:send(bin:pack({msg = "teams", name1 = team1.name, r1 = team1.r, g1 = team1.g, b1 = team1.b, name2 = team2.name, r2 = team2.r, g2 = team2.g, b2 = team2.b}))
+      sentTeam1.name, sentTeam1.r, sentTeam1.g, sentTeam1.b = team1.name, team1.r, team1.g, team1.b
+      sentTeam2.name, sentTeam2.r, sentTeam2.g, sentTeam2.b = team2.name, team2.r, team2.g, team2.b
+    end
     for p = 1, #players do
       server:send(bin:pack({msg = "player", name = players[p].name, id = players[p].id, team = players[p].team, image = players[p].image, frame = players[p].frame}))
     end
+    newPlayer = false
 
     x = love.mouse.getX() / scale.x
     y = love.mouse.getY() / scale.y
@@ -297,12 +306,14 @@ function servermenu_mousepressed(x, y, button)
                 players[#players + 1] = {id = playerQueue[p].id, name = playerQueue[p].name, team = 1, delete = false, image = "dissapear", frame = 18}
                 playerQueue[p].delete = true
                 playerQueue[p].dt = playerButtonMax
+                newPlayer = true
 
               elseif x > 53 + 84 * p and x < 69 + 84 * p and y > 245 and y < 245 + 16 and team2.playerNum < 6 then
                 server:send(bin:pack({msg = "join"}), playerQueue[p].id)
                 players[#players + 1] = {id = playerQueue[p].id, name = playerQueue[p].name, team = 2, delete = false, image = "dissapear", frame = 18}
                 playerQueue[p].delete = true
                 playerQueue[p].dt = playerButtonMax
+                newPlayer = true
 
               end
             end
