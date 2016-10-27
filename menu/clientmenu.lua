@@ -1,11 +1,11 @@
 function clientmenu_load()
-  ip = ""
+  ip = "127.0.0.1"
   proceed = false
   nameSent = false
   success = nil
   accepted = false
-  team1 = {r = 255, g = 0, b = 0, name = "Team 1", playerNum = 0}
-  team2 = {r = 0, g = 0, b = 255, name = "Team 2", playerNum = 0}
+  team1 = {r = 255, g = 0, b = 0, name = "Team 1"}
+  team2 = {r = 0, g = 0, b = 255, name = "Team 2"}
   players = {{name = playerName, id = "host", team = 1, image = "prep", frame = 1}}
   target = nil
 
@@ -25,13 +25,15 @@ function clientmenu_update(dt)
       textBox = ""
       success = nil
     elseif success == true and nameSent == false then
-      client:send(bin:pack({msg = "name", name = playerName}))
+      client:send(bin:pack({msg = "name", a = playerName}))
       nameSent = true
     end
 
     -- real stuff
     x = love.mouse.getX() / scale.x
     y = love.mouse.getY() / scale.y
+
+    -- find targeted player
 
     n1 = 0
     n2 = 0
@@ -55,7 +57,52 @@ function clientmenu_update(dt)
       target = nil
     end
 
-
+    for p = 1, #players do
+      if players[p].delete == true then
+        if players[p].image ~= "dissapear" then
+          players[p].image = "dissapear"
+          players[p].frame = 1
+        else
+          players[p].frame = players[p].frame + dt * 30
+          if players[p].frame > 18 then
+            --- delete player
+            players[p] = nil
+            target = nil
+          end
+        end
+      elseif players[p].image == "dissapear" then
+        if players[p].frame > 0 then
+          players[p].frame = players[p].frame - dt * 30
+        else
+          players[p].image = "prep"
+          players[p].frame = 1
+        end
+      elseif players[p].image == "switch1" then
+        if players[p].frame > 22 then
+          if players[p].team == 1 then
+            players[p].team = 2
+          else
+            players[p].team = 1
+          end
+          players[p].image = "switch2"
+          players[p].frame = 22
+        else
+          players[p].frame = players[p].frame + dt * 30
+        end
+        target = nil
+      elseif players[p].image == "switch2" then
+        if players[p].frame > 0 then
+          players[p].frame = players[p].frame - dt * 30
+        else
+          players[p].image = "prep"
+          players[p].frame = 1
+        end
+        target = nil
+      else
+        players[p].frame = players[p].frame + dt * 12
+        players[p].frame = loop(players[p].frame, 6)
+      end
+    end
 
   end
 end

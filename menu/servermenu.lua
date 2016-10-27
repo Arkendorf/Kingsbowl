@@ -23,12 +23,14 @@ function servermenu_update(dt)
     server:update(dt)
 
     if team1.name ~= sentTeam1.name or team1.r + team1.g + team1.b ~= sentTeam1.r + sentTeam1.g + sentTeam1.b or team2.name ~= sentTeam2.name or team2.r + team2.g + team2.b ~= sentTeam2.r + sentTeam2.g + sentTeam2.b or newPlayer == true then
-      server:send(bin:pack({msg = "teams", name1 = team1.name, r1 = team1.r, g1 = team1.g, b1 = team1.b, name2 = team2.name, r2 = team2.r, g2 = team2.g, b2 = team2.b}))
+      server:send(bin:pack({msg = "teams", a = team1.name, b = team1.r, c = team1.g, d = team1.b, e = team2.name, f = team2.r, g = team2.g, h = team2.b}))
       sentTeam1.name, sentTeam1.r, sentTeam1.g, sentTeam1.b = team1.name, team1.r, team1.g, team1.b
       sentTeam2.name, sentTeam2.r, sentTeam2.g, sentTeam2.b = team2.name, team2.r, team2.g, team2.b
     end
-    for p = 1, #players do
-      server:send(bin:pack({msg = "player", name = players[p].name, id = players[p].id, team = players[p].team, image = players[p].image, frame = players[p].frame}))
+    if newPlayer == true then
+      for p = 1, #players do
+        server:send(bin:pack({msg = "player", a = players[p].name, b = players[p].id, c = players[p].team, d = players[p].image, e = players[p].frame, f = players[p].delete}))
+      end
     end
     newPlayer = false
 
@@ -108,6 +110,7 @@ function servermenu_update(dt)
         if players[p].image ~= "dissapear" then
           players[p].image = "dissapear"
           players[p].frame = 1
+          server:send(bin:pack({msg = "player", a = players[p].name, b = players[p].id, c = players[p].team, d = players[p].image, e = players[p].frame, f = players[p].delete}))
         else
           players[p].frame = players[p].frame + dt * 30
           if players[p].frame > 18 then
@@ -122,9 +125,9 @@ function servermenu_update(dt)
         else
           players[p].image = "prep"
           players[p].frame = 1
+          server:send(bin:pack({msg = "player", a = players[p].name, b = players[p].id, c = players[p].team, d = players[p].image, e = players[p].frame, f = players[p].delete}))
         end
       elseif players[p].image == "switch1" then
-        target = nil
         if players[p].frame > 22 then
           if players[p].team == 1 then
             players[p].team = 2
@@ -133,17 +136,20 @@ function servermenu_update(dt)
           end
           players[p].image = "switch2"
           players[p].frame = 22
+          server:send(bin:pack({msg = "player", a = players[p].name, b = players[p].id, c = players[p].team, d = players[p].image, e = players[p].frame, f = players[p].delete}))
         else
           players[p].frame = players[p].frame + dt * 30
         end
-      elseif players[p].image == "switch2" then
         target = nil
+      elseif players[p].image == "switch2" then
         if players[p].frame > 0 then
           players[p].frame = players[p].frame - dt * 30
         else
           players[p].image = "prep"
           players[p].frame = 1
+          server:send(bin:pack({msg = "player", a = players[p].name, b = players[p].id, c = players[p].team, d = players[p].image, e = players[p].frame, f = players[p].delete}))
         end
+        target = nil
       else
         players[p].frame = players[p].frame + dt * 12
         players[p].frame = loop(players[p].frame, 6)
@@ -293,6 +299,7 @@ function servermenu_mousepressed(x, y, button)
         if players[target].image == "prep" then
           players[target].image = "switch1"
           players[target].frame = 1
+          server:send(bin:pack({msg = "player", a = players[target].name, b = players[target].id, c = players[target].team, d = players[target].image, e = players[target].frame}))
         end
 
       elseif #queue > 0 then

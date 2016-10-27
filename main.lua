@@ -98,7 +98,7 @@ function onServerReceive(data, clientid)
   if data.msg == "name" then
     for p = 1, #playerQueue do
       if playerQueue[p].id == clientid then
-        playerQueue[p].name = data.name
+        playerQueue[p].name = data.a
         break
       end
     end
@@ -134,19 +134,19 @@ function onClientReceive(data)
   elseif data.msg == "join" then
     accepted = true
   elseif data.msg == "teams" then
-    team1 = {name = data.name1, r = data.r1, g = data.g1, b = data.b1}
-    team2 = {name = data.name2, r = data.r2, g = data.g2, b = data.b2}
+    team1 = {name = data.a, r = data.b, g = data.c, b = data.d}
+    team2 = {name = data.e, r = data.f, g = data.g, b = data.h}
   elseif data.msg == "player" then
     playerFound = false
     for p = 1, #players do
-      if players[p].id == data.id then
-        players[p] = {name = data.name, id = data.id, team = data.team, image = data.image, frame = data.frame}
+      if players[p].id == data.b then
+        players[p] = {name = data.a, id = data.b, team = data.c, image = data.d, frame = data.e, delete = data.f}
         playerFound = true
         break
       end
     end
     if playerFound == false then
-      players[#players + 1] = {name = data.name, id = data.id, team = data.team, image = data.image, frame = data.frame}
+      players[#players + 1] = {name = data.a, id = data.b, team = data.c, image = data.d, frame = data.e}
     end
   end
 end
