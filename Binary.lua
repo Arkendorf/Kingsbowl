@@ -28,8 +28,8 @@
 	information about distribution.
 
 	Also used:
-		-LuaSocket (MIT license) Copyright © 2004-2007 Diego Nehab. All rights reserved. 
-		-Lua (MIT license) Copyright © 1994-2008 Lua.org, PUC-Rio. 
+		-LuaSocket (MIT license) Copyright © 2004-2007 Diego Nehab. All rights reserved.
+		-Lua (MIT license) Copyright © 1994-2008 Lua.org, PUC-Rio.
 ]]--
 
 bin = {}

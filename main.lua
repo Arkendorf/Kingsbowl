@@ -95,10 +95,10 @@ end
 
 function onServerReceive(data, clientid)
   data = bin:unpack(data)
-  if data.msg == "name" then
+  if data["1"] == "name" then
     for p = 1, #playerQueue do
       if playerQueue[p].id == clientid then
-        playerQueue[p].name = data.a
+        playerQueue[p].name = data["2"]
         break
       end
     end
@@ -127,26 +127,26 @@ end
 
 function onClientReceive(data)
   data = bin:unpack(data)
-  if data.msg == "disconnect" then
+  if data["1"] == "disconnect" then
     client:disconnect()
     clientmenu_load()
     errorMsg = "Kicked by server"
-  elseif data.msg == "join" then
+  elseif data["1"] == "join" then
     accepted = true
-  elseif data.msg == "teams" then
-    team1 = {name = data.a, r = data.b, g = data.c, b = data.d}
-    team2 = {name = data.e, r = data.f, g = data.g, b = data.h}
-  elseif data.msg == "player" then
+  elseif data["1"] == "teams" then
+    team1 = {name = data["2"], r = data["3"], g = data["4"], b = data["5"]}
+    team2 = {name = data["6"], r = data["7"], g = data["8"], b = data["9"]}
+  elseif data["1"] == "player" then
     playerFound = false
     for p = 1, #players do
-      if players[p].id == data.b then
-        players[p] = {name = data.a, id = data.b, team = data.c, image = data.d, frame = data.e, delete = data.f}
+      if players[p].id == data["3"] then
+        players[p] = {name = data["2"], id = data["3"], team = data["4"], image = data["5"], frame = data["6"], delete = data["7"]}
         playerFound = true
         break
       end
     end
     if playerFound == false then
-      players[#players + 1] = {name = data.a, id = data.b, team = data.c, image = data.d, frame = data.e}
+      players[#players + 1] = {name = data["2"], id = data["3"], team = data["4"], image = data["5"], frame = data["6"], delete = data["7"]}
     end
   end
 end

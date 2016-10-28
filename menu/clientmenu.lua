@@ -25,7 +25,7 @@ function clientmenu_update(dt)
       textBox = ""
       success = nil
     elseif success == true and nameSent == false then
-      client:send(bin:pack({msg = "name", a = playerName}))
+      client:send(bin:pack({"name", playerName}))
       nameSent = true
     end
 
