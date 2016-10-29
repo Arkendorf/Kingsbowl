@@ -125,7 +125,6 @@ function servermenu_update(dt)
         else
           players[p].image = "prep"
           players[p].frame = 1
-          server:send(bin:pack({"player", players[p].name, players[p].id, players[p].team, players[p].image, players[p].frame, players[p].delete}))
         end
       elseif players[p].image == "switch1" then
         if players[p].frame > 22 then
@@ -136,7 +135,6 @@ function servermenu_update(dt)
           end
           players[p].image = "switch2"
           players[p].frame = 22
-          server:send(bin:pack({"player", players[p].name, players[p].id, players[p].team, players[p].image, players[p].frame, players[p].delete}))
         else
           players[p].frame = players[p].frame + dt * 30
         end
@@ -147,7 +145,6 @@ function servermenu_update(dt)
         else
           players[p].image = "prep"
           players[p].frame = 1
-          server:send(bin:pack({"player", players[p].name, players[p].id, players[p].team, players[p].image, players[p].frame, players[p].delete}))
         end
         target = nil
       else
