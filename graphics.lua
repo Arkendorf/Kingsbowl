@@ -28,6 +28,9 @@ function graphics_load()
   coinImg = love.graphics.newImage("menu/coin.png")
   coinQuad = loadSpriteSheet(coinImg, 32)
 
+  coinShadeImg = love.graphics.newImage("menu/shadow.png")
+  coinShadeQuad = loadSpriteSheet(coinShadeImg, 32)
+
   sliderImg = love.graphics.newImage("gui/slider.png")
   bar = love.graphics.newQuad(0, 2, 50, 2, sliderImg:getDimensions())
   knob = love.graphics.newQuad(50, 0, 2, 6, sliderImg:getDimensions())

@@ -295,6 +295,7 @@ function servermenu_draw()
 
     --beginning stuff
     love.graphics.draw(startButton, 175, 197)
+    love.graphics.draw(coinShadeImg, coinShadeQuad[range(math.abs(math.floor(coin.y / 10)), 1, 7)], 184, 166)
     love.graphics.draw(coinImg, coinQuad[loop(math.floor(coin.frame), 12)], 184, 150 + coin.y)
   end
 end
