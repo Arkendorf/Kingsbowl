@@ -11,6 +11,9 @@ function clientmenu_load()
 
   connectButton = loadButton("Connect", 50)
   errorMsg = ""
+
+  coin = {dt = 0, v = 0, y = 0, frame = 1, result = 1, landed = false, landtime = 0}
+  start = false
 end
 
 function clientmenu_update(dt)
@@ -65,7 +68,7 @@ function clientmenu_update(dt)
         else
           players[p].frame = players[p].frame + dt * 30
           if players[p].frame > 18 then
-            --- delete player
+            -- delete player
             players[p] = nil
             target = nil
           end
@@ -103,7 +106,27 @@ function clientmenu_update(dt)
         players[p].frame = loop(players[p].frame, 6)
       end
     end
-
+    --coinflip stuff
+    if start == true then
+      coin.dt = coin.dt + dt
+      if coin.landed == false then
+        if coin.result == 0 then
+          coin.frame = coin.frame + 0.24 * dt * 50
+        else
+          coin.frame = coin.frame + 0.36 * dt * 50
+        end
+      end
+      if coin.landed == false then
+        coin.y = coin.y + coin.v
+        coin.v = coin.v + 0.2 * dt * 50
+        if coin.y >= 0 then
+          coin.v = 0
+          coin.y = 0
+          coin.landed = true
+          coin.landtime = coin.dt
+        end
+      end
+    end
   end
 end
 
@@ -166,6 +189,18 @@ function clientmenu_draw()
       end
     end
 
+    -- draw defense/offense logos
+    if start == true and coin.landed == true then
+      if coin.result == 0 then
+        love.graphics.draw(defenseImg, defenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 97, 70)
+        love.graphics.draw(offenseImg, offenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 272, 70)
+      else
+        love.graphics.draw(offenseImg, offenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 97, 70)
+        love.graphics.draw(defenseImg, defenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 272, 70)
+      end
+    end
+
+    -- if a player is targeted, reflect that
     if target ~= nil then
       if players[target].team == 1 then
         love.graphics.print(tostring(players[target].name), 112 - getPixelWidth(tostring(players[target].name)) / 2, 125)
@@ -175,6 +210,10 @@ function clientmenu_draw()
         love.graphics.print(tostring(players[target].id), 287 - getPixelWidth(tostring(players[target].id)) / 2, 200)
       end
     end
+
+    --beginning stuff
+    love.graphics.draw(coinShadeImg, coinShadeQuad[range(math.abs(math.floor(coin.y / 10)), 1, 7)], 184, 166)
+    love.graphics.draw(coinImg, coinQuad[loop(math.floor(coin.frame), 12)], 184, 150 + coin.y)
   end
 end
 
