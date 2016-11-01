@@ -15,6 +15,7 @@ function love.load()
   scale = {x = love.graphics.getWidth() / 400, y = love.graphics.getHeight() / 300}
   gamestate = "menu"
   totalDt = 0
+  math.randomseed(os.time())
 end
 
 function love.update(dt)
@@ -148,6 +149,10 @@ function onClientReceive(data)
     if playerFound == false then
       players[#players + 1] = {name = data["2"], id = data["3"], team = data["4"], image = data["5"], frame = data["6"], delete = data["7"]}
     end
+  elseif data["1"] == "coin" then
+    start = true
+    coin.result = data["2"]
+    coin.v = -5
   end
 end
 

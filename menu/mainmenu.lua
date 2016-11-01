@@ -82,3 +82,14 @@ function range(num, min, max)
     return num
   end
 end
+
+
+function loop(num, max)
+  if num > max then
+    return num - max
+  elseif num < 0 then
+    return max
+  else
+    return num
+  end
+end

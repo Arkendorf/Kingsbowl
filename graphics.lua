@@ -25,6 +25,9 @@ function graphics_load()
   switchOverlay = love.graphics.newImage("char/switchOverlay.png")
   switchOverlayQuad = loadSpriteSheet(switchOverlay, 32)
 
+  coinImg = love.graphics.newImage("menu/coin.png")
+  coinQuad = loadSpriteSheet(coinImg, 32)
+
   sliderImg = love.graphics.newImage("gui/slider.png")
   bar = love.graphics.newQuad(0, 2, 50, 2, sliderImg:getDimensions())
   knob = love.graphics.newQuad(50, 0, 2, 6, sliderImg:getDimensions())
@@ -44,6 +47,11 @@ function graphics_load()
   textboxImg = love.graphics.newImage("gui/textbox.png")
   textboxSide1 = love.graphics.newQuad(0, 0, 10, 16, textboxImg:getDimensions())
   textboxSide2 = love.graphics.newQuad(10, 0, 10, 16, textboxImg:getDimensions())
+
+  defenseImg = love.graphics.newImage("gui/defense.png")
+  defenseQuad = loadSpriteSheet(defenseImg, 32)
+  offenseImg = love.graphics.newImage("gui/offense.png")
+  offenseQuad = loadSpriteSheet(offenseImg, 32)
 
   playerButtonImg = love.graphics.newImage("gui/playerbutton.png")
   playerButton = {}

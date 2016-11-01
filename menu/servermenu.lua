@@ -1,8 +1,8 @@
 function servermenu_load()
   team1 = {name = "Team 1", r = 250, g = 0, b = 0, playerNum = 0}
   team2 = {name = "Team 2", r = 0, g = 0, b = 255, playerNum = 0}
-  sentTeam1 = {name = "Team 1", r = 250, g = 0, b = 0, playerNum = 0}
-  sentTeam2 = {name = "Team 2", r = 0, g = 0, b = 255, playerNum = 0}
+  sentTeam1 = {name = "Team 1", r = 250, g = 0, b = 0}
+  sentTeam2 = {name = "Team 2", r = 0, g = 0, b = 255}
   slider = {type = ""}
   textBox = ""
   target = nil
@@ -14,6 +14,8 @@ function servermenu_load()
   startButton = loadButton("Start", 50)
   playerButtonMax = 40
   newPlayer = false
+  coin = {dt = 0, v = 0, y = 0, frame = 1, result = 1, landed = false, landtime = 0}
+  start = false
 end
 
 function servermenu_update(dt)
@@ -114,7 +116,7 @@ function servermenu_update(dt)
         else
           players[p].frame = players[p].frame + dt * 30
           if players[p].frame > 18 then
-            --- delete player
+            -- delete player
             players[p] = nil
             target = nil
           end
@@ -152,6 +154,29 @@ function servermenu_update(dt)
         players[p].frame = loop(players[p].frame, 6)
       end
     end
+    players = removeNil(players)
+
+    --coinflip stuff
+    if start == true then
+      coin.dt = coin.dt + dt
+      if coin.landed == false then
+        if coin.result == 0 then
+          coin.frame = coin.frame + 0.24 * dt * 50
+        else
+          coin.frame = coin.frame + 0.36 * dt * 50
+        end
+      end
+      if coin.landed == false then
+        coin.y = coin.y + coin.v
+        coin.v = coin.v + 0.2 * dt * 50
+        if coin.y >= 0 then
+          coin.v = 0
+          coin.y = 0
+          coin.landed = true
+          coin.landtime = coin.dt
+        end
+      end
+    end
   end
 end
 
@@ -173,16 +198,17 @@ function servermenu_draw()
     -- team1
     love.graphics.setColor(team1.r, team1.g, team1.b)
     love.graphics.draw(bannerImg, bannerColor, 75, 50)
-    love.graphics.setColor(255, 255, 255)
-    love.graphics.draw(bannerImg, banner, 75, 50)
-    love.graphics.print(team1.name, 112 - getPixelWidth(team1.name) / 2, 58)
+
+    love.graphics.setColor(255, 255, 255, 255 - coin.dt * 224)
     love.graphics.draw(sliderImg, bar, 87, 74)
     love.graphics.draw(sliderImg, bar, 87, 82)
     love.graphics.draw(sliderImg, bar, 87, 90)
-
     love.graphics.draw(sliderImg, knob, 87 + math.floor(team1.r / 5.10), 72)
     love.graphics.draw(sliderImg, knob, 87 + math.floor(team1.g / 5.10), 80)
     love.graphics.draw(sliderImg, knob, 87 + math.floor(team1.b / 5.10), 88)
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.draw(bannerImg, banner, 75, 50)
+    love.graphics.print(team1.name, 112 - getPixelWidth(team1.name) / 2, 58)
 
     playersDrawn = 1
     for p = 1, #players do
@@ -199,16 +225,17 @@ function servermenu_draw()
     --team2
     love.graphics.setColor(team2.r, team2.g, team2.b)
     love.graphics.draw(bannerImg, bannerColor, 325, 50, 0, -1, 1)
-    love.graphics.setColor(255, 255, 255)
-    love.graphics.draw(bannerImg, banner, 325, 50, 0, -1, 1)
-    love.graphics.print(team2.name, 287 - getPixelWidth(team2.name) / 2, 58)
+
+    love.graphics.setColor(255, 255, 255, 255 - coin.dt * 224)
     love.graphics.draw(sliderImg, bar, 262, 74)
     love.graphics.draw(sliderImg, bar, 262, 82)
     love.graphics.draw(sliderImg, bar, 262, 90)
-
     love.graphics.draw(sliderImg, knob, 262 + math.floor(team2.r / 5.10), 72)
     love.graphics.draw(sliderImg, knob, 262 + math.floor(team2.g / 5.10), 80)
     love.graphics.draw(sliderImg, knob, 262 + math.floor(team2.b / 5.10), 88)
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.draw(bannerImg, banner, 325, 50, 0, -1, 1)
+    love.graphics.print(team2.name, 287 - getPixelWidth(team2.name) / 2, 58)
 
     playersDrawn = 1
     for p = 1, #players do
@@ -222,7 +249,16 @@ function servermenu_draw()
       end
     end
 
-
+    -- draw defense/offense logos
+    if start == true and coin.landed == true then
+      if coin.result == 0 then
+        love.graphics.draw(defenseImg, defenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 97, 70)
+        love.graphics.draw(offenseImg, offenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 272, 70)
+      else
+        love.graphics.draw(offenseImg, offenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 97, 70)
+        love.graphics.draw(defenseImg, defenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 272, 70)
+      end
+    end
 
     -- if a player is targeted, reflect that
     if target ~= nil then
@@ -256,6 +292,10 @@ function servermenu_draw()
         love.graphics.draw(queue[p], 32 + 84 * p - queue[p]:getWidth() / 2, 229)
       end
     end
+
+    --beginning stuff
+    love.graphics.draw(startButton, 175, 197)
+    love.graphics.draw(coinImg, coinQuad[loop(math.floor(coin.frame), 12)], 184, 150 + coin.y)
   end
 end
 
@@ -278,7 +318,12 @@ function servermenu_mousepressed(x, y, button)
     end
   else
     if button == 1 then
-      if x >= 87 + team1.r / 5.10 and x <= 87 + team1.r / 5.10 + 2 and y >= 72 and y <= 72 + 6 then
+      if x >= 175 and x <= 225 and y >= 197 and y <= 213 and start == false and team1.playerNum > 0 and team2.playerNum > 0 then
+        start = true
+        coin.v = -5
+        coin.result = math.random(0, 1)
+        server:send(bin:pack({"coin", coin.result}))
+      elseif x >= 87 + team1.r / 5.10 and x <= 87 + team1.r / 5.10 + 2 and y >= 72 and y <= 72 + 6 then
         slider = {type = "r1", xPos = x, yPos = y, old = team1.r}
       elseif x >= 87 + team1.g / 5.10 and x <= 87 + team1.g / 5.10 + 2 and y >= 80 and y <= 80 + 6 then
         slider = {type = "g1", xPos = x, yPos = y, old = team1.g}
@@ -323,7 +368,6 @@ function servermenu_mousepressed(x, y, button)
             end
           end
         end
-
       end
       if x >= 79 and x <= 146 and y >= 54 and y <= 70 then
         textBox = "team1"
@@ -381,19 +425,6 @@ function servermenu_keypressed(key)
     end
   end
 end
-
-
-function loop(num, max)
-  if num > max then
-    return num - max
-  elseif num < 0 then
-    return max
-  else
-    return num
-  end
-end
-
-
 
 function updateSlider(slider)
   if love.mouse.isDown(1) == true then
@@ -458,4 +489,12 @@ end
 
 function server_quit()
   server:send(bin:pack({"disconnect"}))
+end
+
+function removeNil(t)
+  local ans = {}
+  for _,v in pairs(t) do
+    ans[ #ans+1 ] = v
+  end
+  return ans
 end
