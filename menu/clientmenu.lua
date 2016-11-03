@@ -12,7 +12,7 @@ function clientmenu_load()
   connectButton = loadButton("Connect", 50)
   errorMsg = ""
 
-  coin = {dt = 0, v = 0, y = 0, frame = 1, result = 1, landed = false, landtime = 0}
+  coin = {dt = 0, v = 0, y = 0, frame = 1, result = 1, landed = false}
   start = false
 end
 
@@ -108,7 +108,7 @@ function clientmenu_update(dt)
     end
     --coinflip stuff
     if start == true then
-      coin.dt = coin.dt + dt
+      target = nil
       if coin.landed == false then
         if coin.result == 0 then
           coin.frame = coin.frame + 0.24 * dt * 50
@@ -123,7 +123,6 @@ function clientmenu_update(dt)
           coin.v = 0
           coin.y = 0
           coin.landed = true
-          coin.landtime = coin.dt
         end
       end
     end
@@ -192,11 +191,11 @@ function clientmenu_draw()
     -- draw defense/offense logos
     if start == true and coin.landed == true then
       if coin.result == 0 then
-        love.graphics.draw(defenseImg, defenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 97, 70)
-        love.graphics.draw(offenseImg, offenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 272, 70)
+        love.graphics.draw(logosImg, defense, 104, 122)
+        love.graphics.draw(logosImg, offense, 280, 122)
       else
-        love.graphics.draw(offenseImg, offenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 97, 70)
-        love.graphics.draw(defenseImg, defenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 272, 70)
+        love.graphics.draw(logosImg, offense, 104, 122)
+        love.graphics.draw(logosImg, defense, 280, 122)
       end
     end
 

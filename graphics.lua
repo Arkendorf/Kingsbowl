@@ -51,10 +51,9 @@ function graphics_load()
   textboxSide1 = love.graphics.newQuad(0, 0, 10, 16, textboxImg:getDimensions())
   textboxSide2 = love.graphics.newQuad(10, 0, 10, 16, textboxImg:getDimensions())
 
-  defenseImg = love.graphics.newImage("gui/defense.png")
-  defenseQuad = loadSpriteSheet(defenseImg, 32)
-  offenseImg = love.graphics.newImage("gui/offense.png")
-  offenseQuad = loadSpriteSheet(offenseImg, 32)
+  logosImg = love.graphics.newImage("gui/logos.png")
+  offense = love.graphics.newQuad(0, 0, 16, 16, logosImg:getDimensions())
+  defense = love.graphics.newQuad(16, 0, 16, 16, logosImg:getDimensions())
 
   playerButtonImg = love.graphics.newImage("gui/playerbutton.png")
   playerButton = {}

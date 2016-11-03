@@ -14,7 +14,7 @@ function servermenu_load()
   startButton = loadButton("Start", 50)
   playerButtonMax = 40
   newPlayer = false
-  coin = {dt = 0, v = 0, y = 0, frame = 1, result = 1, landed = false, landtime = 0}
+  coin = {dt = 0, v = 0, y = 0, frame = 1, result = 1, landed = false}
   start = false
 end
 
@@ -158,7 +158,7 @@ function servermenu_update(dt)
 
     --coinflip stuff
     if start == true then
-      coin.dt = coin.dt + dt
+      target = nil
       if coin.landed == false then
         if coin.result == 0 then
           coin.frame = coin.frame + 0.24 * dt * 50
@@ -173,7 +173,6 @@ function servermenu_update(dt)
           coin.v = 0
           coin.y = 0
           coin.landed = true
-          coin.landtime = coin.dt
         end
       end
     end
@@ -199,7 +198,7 @@ function servermenu_draw()
     love.graphics.setColor(team1.r, team1.g, team1.b)
     love.graphics.draw(bannerImg, bannerColor, 75, 50)
 
-    love.graphics.setColor(255, 255, 255, 255 - coin.dt * 224)
+    love.graphics.setColor(255, 255, 255)
     love.graphics.draw(sliderImg, bar, 87, 74)
     love.graphics.draw(sliderImg, bar, 87, 82)
     love.graphics.draw(sliderImg, bar, 87, 90)
@@ -226,7 +225,7 @@ function servermenu_draw()
     love.graphics.setColor(team2.r, team2.g, team2.b)
     love.graphics.draw(bannerImg, bannerColor, 325, 50, 0, -1, 1)
 
-    love.graphics.setColor(255, 255, 255, 255 - coin.dt * 224)
+    love.graphics.setColor(255, 255, 255)
     love.graphics.draw(sliderImg, bar, 262, 74)
     love.graphics.draw(sliderImg, bar, 262, 82)
     love.graphics.draw(sliderImg, bar, 262, 90)
@@ -252,11 +251,11 @@ function servermenu_draw()
     -- draw defense/offense logos
     if start == true and coin.landed == true then
       if coin.result == 0 then
-        love.graphics.draw(defenseImg, defenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 97, 70)
-        love.graphics.draw(offenseImg, offenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 272, 70)
+        love.graphics.draw(logosImg, defense, 104, 122)
+        love.graphics.draw(logosImg, offense, 280, 122)
       else
-        love.graphics.draw(offenseImg, offenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 97, 70)
-        love.graphics.draw(defenseImg, defenseQuad[range(math.floor((coin.dt - coin.landtime) * 30), 1, 18)], 272, 70)
+        love.graphics.draw(logosImg, offense, 104, 122)
+        love.graphics.draw(logosImg, defense, 280, 122)
       end
     end
 
@@ -318,8 +317,8 @@ function servermenu_mousepressed(x, y, button)
       end
     end
   else
-    if button == 1 then
-      if x >= 175 and x <= 225 and y >= 197 and y <= 213 and start == false and team1.playerNum > 0 and team2.playerNum > 0 then
+    if button == 1 and start == false then
+      if x >= 175 and x <= 225 and y >= 197 and y <= 213 and team1.playerNum > 0 and team2.playerNum > 0 then
         start = true
         coin.v = -5
         coin.result = math.random(0, 1)
