@@ -36,8 +36,7 @@ function servermenu_update(dt)
     end
     newPlayer = false
 
-    x = love.mouse.getX() / scale.x
-    y = love.mouse.getY() / scale.y
+    x, y = adjust(love.mouse.getPosition())
 
     team1.playerNum = 0
     team2.playerNum = 0
@@ -56,16 +55,16 @@ function servermenu_update(dt)
     n1 = 0
     n2 = 0
     result = false
-    for p = 1, #players do
+    for p = #players, 1, -1 do
       if players[p].team == 1 then
         n1 = n1 + 1
-        if x > 70 + n1 * 10 and x < 70 + n1 * 10 + 16 and y > 150 and y < 182 then
+        if x > 60 + n1 * 10 and x < 60 + n1 * 10 + 16 and y > 150 and y < 182 then
           result = true
           target = p
         end
       else
         n2 = n2 + 1
-        if x < 330 - n2 * 10 and x > 330 - n2 * 10 - 16 and y > 150 and y < 182 then
+        if x < 340 - n2 * 10 and x > 340 - n2 * 10 - 16 and y > 150 and y < 182 then
           result = true
           target = p
         end
@@ -149,9 +148,20 @@ function servermenu_update(dt)
           players[p].frame = 1
         end
         target = nil
+      elseif players[p].image == "unsheathSword" or players[p].image == "grabShield" then
+        if players[p].frame < 13 then
+          players[p].frame = players[p].frame + dt * 12
+        else
+          players[p].frame = 14
+        end
       else
         players[p].frame = players[p].frame + dt * 12
         players[p].frame = loop(players[p].frame, 6)
+      end
+      if players[p].image == "prep" and coin.landed == true and players[p].frame < 2 then
+        animation = {{"unsheathSword", "grabShield"}, { "grabShield", "unsheathSword"}}
+        players[p].image = animation[coin.result][players[p].team]
+        players[p].frame = 1
       end
     end
     players = removeNil(players)
@@ -160,7 +170,7 @@ function servermenu_update(dt)
     if start == true then
       target = nil
       if coin.landed == false then
-        if coin.result == 0 then
+        if coin.result == 1 then
           coin.frame = coin.frame + 0.24 * dt * 50
         else
           coin.frame = coin.frame + 0.36 * dt * 50
@@ -209,18 +219,6 @@ function servermenu_draw()
     love.graphics.draw(bannerImg, banner, 75, 50)
     love.graphics.print(team1.name, 112 - getPixelWidth(team1.name) / 2, 58)
 
-    playersDrawn = 1
-    for p = 1, #players do
-      if players[p].team == 1 then
-        char = drawChar(players[p].image, players[p].frame)
-        love.graphics.draw(char[1], char[2], 64 + playersDrawn * 10, 150)
-        love.graphics.setColor(team1.r, team1.g, team1.b)
-        love.graphics.draw(char[3], char[4], 64 + playersDrawn * 10, 150)
-        love.graphics.setColor(255, 255, 255)
-        playersDrawn = playersDrawn + 1
-      end
-    end
-
     --team2
     love.graphics.setColor(team2.r, team2.g, team2.b)
     love.graphics.draw(bannerImg, bannerColor, 325, 50, 0, -1, 1)
@@ -236,21 +234,38 @@ function servermenu_draw()
     love.graphics.draw(bannerImg, banner, 325, 50, 0, -1, 1)
     love.graphics.print(team2.name, 287 - getPixelWidth(team2.name) / 2, 58)
 
-    playersDrawn = 1
+    --players
+    playerNum = {0, 0}
     for p = 1, #players do
-      if players[p].team == 2 then
+      if players[p].team == 1 then
+        playerNum[1] = playerNum[1] + 1
+      else
+        playerNum[2] = playerNum[2] + 1
+      end
+    end
+    playerNum[3] = 1
+    playerNum[4] = 1
+    for p = 1, #players do
+      if players[p].team == 1 then
         char = drawChar(players[p].image, players[p].frame)
-        love.graphics.draw(char[1], char[2], 336 + playersDrawn * -10, 150, 0, -1, 1)
-        love.graphics.setColor(team2.r, team2.g, team2.b)
-        love.graphics.draw(char[3], char[4], 336 + playersDrawn * -10, 150, 0, -1, 1)
+        love.graphics.draw(char[1], char[2], 64 + (playerNum[1] - playerNum[3]) * 10, 150)
+        love.graphics.setColor(team1.r, team1.g, team1.b)
+        love.graphics.draw(char[3], char[4], 64 + (playerNum[1] - playerNum[3]) * 10, 150)
         love.graphics.setColor(255, 255, 255)
-        playersDrawn = playersDrawn + 1
+        playerNum[3] = playerNum[3] + 1
+      else
+        char = drawChar(players[p].image, players[p].frame)
+        love.graphics.draw(char[1], char[2], 336 + (playerNum[2] - playerNum[4]) * -10, 150, 0, -1, 1)
+        love.graphics.setColor(team2.r, team2.g, team2.b)
+        love.graphics.draw(char[3], char[4], 336 + (playerNum[2] - playerNum[4]) * -10, 150, 0, -1, 1)
+        love.graphics.setColor(255, 255, 255)
+        playerNum[4] = playerNum[4] + 1
       end
     end
 
     -- draw defense/offense logos
     if start == true and coin.landed == true then
-      if coin.result == 0 then
+      if coin.result == 1 then
         love.graphics.draw(logosImg, defense, 104, 122)
         love.graphics.draw(logosImg, offense, 280, 122)
       else
@@ -321,7 +336,7 @@ function servermenu_mousepressed(x, y, button)
       if x >= 175 and x <= 225 and y >= 197 and y <= 213 and team1.playerNum > 0 and team2.playerNum > 0 then
         start = true
         coin.v = -5
-        coin.result = math.random(0, 1)
+        coin.result = math.floor(math.random(1, 2) + 0.5)
         server:send(bin:pack({"coin", coin.result}))
       elseif x >= 87 + team1.r / 5.10 and x <= 87 + team1.r / 5.10 + 2 and y >= 72 and y <= 72 + 6 then
         slider = {type = "r1", xPos = x, yPos = y, old = team1.r}

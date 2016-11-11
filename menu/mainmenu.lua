@@ -73,6 +73,36 @@ function loadButton(string, w, r, g, b)
   return button
 end
 
+function loadDropDown(items, selected, open, w)
+  DropDown = love.graphics.newCanvas(w, 16 + #items * 16)
+  love.graphics.setCanvas(DropDown)
+  love.graphics.clear()
+  love.graphics.draw(dropDownImg, dropDownSide1, 0, 0)
+  love.graphics.draw(dropDownImg, dropDownMiddle1, 15, 0, 0, w / 2, 1)
+  love.graphics.draw(dropDownImg, dropDownSide2, w - 15, 0)
+  love.graphics.print(items[selected], math.ceil((w - 10) / 2 - getPixelWidth(items[selected]) / 2), 3)
+  if open == true then
+    for i = 1, #items do
+      if i == 1 then
+        love.graphics.draw(dropDownImg, dropDownSide3, 0, i * 16)
+        love.graphics.draw(dropDownImg, dropDownMiddle2, 15, i * 16, 0, w / 2, 1)
+        love.graphics.draw(dropDownImg, dropDownSide4, w - 15, i * 16)
+      elseif i == #items then
+        love.graphics.draw(dropDownImg, dropDownSide7, 0, i * 16)
+        love.graphics.draw(dropDownImg, dropDownMiddle4, 15, i * 16, 0, w / 2, 1)
+        love.graphics.draw(dropDownImg, dropDownSide8, w - 15, i * 16)
+      else
+        love.graphics.draw(dropDownImg, dropDownSide5, 0, i * 16)
+        love.graphics.draw(dropDownImg, dropDownMiddle3, 15, i * 16, 0, w / 2, 1)
+        love.graphics.draw(dropDownImg, dropDownSide6, w - 15, i * 16)
+      end
+      love.graphics.print(items[i], math.ceil(w / 2 - getPixelWidth(items[i]) / 2), 3 + i * 16)
+    end
+  end
+  love.graphics.setCanvas()
+  return DropDown
+end
+
 function range(num, min, max)
   if num > max then
     return max

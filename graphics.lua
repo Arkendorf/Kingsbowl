@@ -25,6 +25,14 @@ function graphics_load()
   switchOverlay = love.graphics.newImage("char/switchOverlay.png")
   switchOverlayQuad = loadSpriteSheet(switchOverlay, 32)
 
+  unsheathSword = love.graphics.newImage("char/unsheathSword.png")
+  unsheathSwordQuad = loadSpriteSheet(unsheathSword, 32)
+  unsheathSwordOverlay = love.graphics.newImage("char/unsheathSwordOverlay.png")
+  unsheathSwordOverlayQuad = loadSpriteSheet(unsheathSwordOverlay, 32)
+
+  grabShield = love.graphics.newImage("char/grabShield.png")
+  grabShieldQuad = loadSpriteSheet(grabShield, 32)
+
   coinImg = love.graphics.newImage("menu/coin.png")
   coinQuad = loadSpriteSheet(coinImg, 32)
 
@@ -46,6 +54,25 @@ function graphics_load()
   buttonColorSide1 = love.graphics.newQuad(0, 16, 15, 16, buttonImg:getDimensions())
   buttonColorMiddle = love.graphics.newQuad(15, 16, 2, 16, buttonImg:getDimensions())
   buttonColorSide2 = love.graphics.newQuad(17, 16, 15, 16, buttonImg:getDimensions())
+
+  valueImg = love.graphics.newImage("gui/values.png")
+  arrowLeft = love.graphics.newQuad(0, 0, 8, 16, valueImg:getDimensions())
+  arrowRight = love.graphics.newQuad(8, 0, 8, 16, valueImg:getDimensions())
+
+  dropDownImg = love.graphics.newImage("gui/dropdown.png")
+  dropDownSide1 = love.graphics.newQuad(0, 0, 15, 16, dropDownImg:getDimensions())
+  dropDownMiddle1 = love.graphics.newQuad(15, 0, 2, 16, dropDownImg:getDimensions())
+  dropDownSide2 = love.graphics.newQuad(17, 0, 15, 16, dropDownImg:getDimensions())
+  dropDownSide3 = love.graphics.newQuad(0, 16, 15, 16, dropDownImg:getDimensions())
+  dropDownMiddle2 = love.graphics.newQuad(15, 16, 2, 16, dropDownImg:getDimensions())
+  dropDownSide4 = love.graphics.newQuad(17, 16, 15, 16, dropDownImg:getDimensions())
+  dropDownSide5 = love.graphics.newQuad(0, 32, 15, 16, dropDownImg:getDimensions())
+  dropDownMiddle3 = love.graphics.newQuad(15, 32, 2, 16, dropDownImg:getDimensions())
+  dropDownSide6 = love.graphics.newQuad(17, 32, 15, 16, dropDownImg:getDimensions())
+  dropDownSide7 = love.graphics.newQuad(0, 48, 15, 16, dropDownImg:getDimensions())
+  dropDownMiddle4 = love.graphics.newQuad(15, 48, 2, 16, dropDownImg:getDimensions())
+  dropDownSide8 = love.graphics.newQuad(17, 48, 15, 16, dropDownImg:getDimensions())
+
 
   textboxImg = love.graphics.newImage("gui/textbox.png")
   textboxSide1 = love.graphics.newQuad(0, 0, 10, 16, textboxImg:getDimensions())

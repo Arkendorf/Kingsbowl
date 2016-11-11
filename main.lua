@@ -8,14 +8,21 @@ require("graphics")
 require("menu.mainmenu")
 require("menu.servermenu")
 require("menu.clientmenu")
+require("menu.pausemenu")
 
 function love.load()
+  math.randomseed(os.time())
   graphics_load()
   mainmenu_load()
-  scale = {x = love.graphics.getWidth() / 400, y = love.graphics.getHeight() / 300}
+  pausemenu_load()
+  scaleFactor = 2
+  scale = {x = love.graphics.getWidth() / 800 * scaleFactor, y = love.graphics.getHeight() / 600 * scaleFactor}
+  offset = {x = (love.graphics.getWidth() - 400  * scaleFactor) / 2, y = (love.graphics.getHeight() - 300  * scaleFactor) / 2}
   gamestate = "menu"
   totalDt = 0
-  math.randomseed(os.time())
+  love.graphics.setLineWidth(1)
+  pause = false
+  mainScreen = love.graphics.newCanvas(800, 600)
 end
 
 function love.update(dt)
@@ -26,28 +33,42 @@ function love.update(dt)
   elseif gamestate == "clientmenu" then
     clientmenu_update(dt)
   end
+  if pause == true then
+    pausemenu_update(dt)
+  end
   totalDt = totalDt + dt
 end
 
 function love.draw()
-  love.graphics.push()
-  love.graphics.scale(scale.x, scale.y)
+  love.graphics.setCanvas(mainScreen)
+  love.graphics.clear()
 
-  if gamestate == "menu" then
-    mainmenu_draw()
-  elseif gamestate == "servermenu" then
-    servermenu_draw()
-  elseif gamestate == "clientmenu" then
-    clientmenu_draw()
+  if pause == false then
+    if gamestate == "menu" then
+      mainmenu_draw()
+    elseif gamestate == "servermenu" then
+      servermenu_draw()
+    elseif gamestate == "clientmenu" then
+      clientmenu_draw()
+    end
+  else
+    pausemenu_draw()
   end
 
+  love.graphics.setCanvas()
+  love.graphics.push()
+  love.graphics.translate(offset.x, offset.y)
+  love.graphics.scale(scale.x, scale.y)
+
+  love.graphics.draw(mainScreen)
   love.graphics.pop()
 end
 
 function love.mousepressed(x, y, button)
-  x = x / scale.x
-  y = y / scale.y
-  if gamestate == "menu" then
+  x, y = adjust(x, y)
+  if pause == true then
+    pausemenu_mousepressed(x, y, button)
+  elseif gamestate == "menu" then
     mainmenu_mousepressed(x, y, button)
   elseif gamestate == "servermenu" then
     servermenu_mousepressed(x, y, button)
@@ -61,6 +82,13 @@ function love.keypressed(key)
     servermenu_keypressed(key)
   elseif gamestate == "clientmenu" then
     clientmenu_keypressed(key)
+  end
+  if key == "escape" then
+    if pause == true then
+      pause = false
+    else
+      pause = true
+    end
   end
 end
 
@@ -78,6 +106,10 @@ function love.quit()
   elseif gamestate == "servermenu" then
     server_quit()
   end
+end
+
+function adjust(x, y)
+  return (x - offset.x) / scale.x, (y - offset.y) / scale.y
 end
 
 function onConnect(clientid)
@@ -163,5 +195,9 @@ function drawChar(image, frame)
     return {dissapear, dissapearQuad[math.ceil(range(frame, 1, 18))], dissapearOverlay, dissapearOverlayQuad[math.ceil(range(frame, 1, 18))]}
   elseif image == "switch1" or image == "switch2" then
     return {switch, switchQuad[math.ceil(range(frame, 1, 22))], switchOverlay, switchOverlayQuad[math.ceil(range(frame, 1, 22))]}
+  elseif image == "unsheathSword" then
+    return {unsheathSword, unsheathSwordQuad[math.ceil(range(frame, 1, 14))], unsheathSwordOverlay, unsheathSwordOverlayQuad[math.ceil(range(frame, 1, 14))]}
+  elseif image == "grabShield" then
+    return {grabShield, grabShieldQuad[math.ceil(range(frame, 1, 14))], switchOverlay, switchOverlayQuad[math.ceil(range(frame, 1, 22))]}
   end
 end
