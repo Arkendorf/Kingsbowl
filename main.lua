@@ -16,13 +16,10 @@ function love.load()
   mainmenu_load()
   pausemenu_load()
   scaleFactor = 2
-  scale = {x = love.graphics.getWidth() / 800 * scaleFactor, y = love.graphics.getHeight() / 600 * scaleFactor}
-  offset = {x = (love.graphics.getWidth() - 400  * scaleFactor) / 2, y = (love.graphics.getHeight() - 300  * scaleFactor) / 2}
-  gamestate = "menu"
+  adjustScreen()
   totalDt = 0
-  love.graphics.setLineWidth(1)
   pause = false
-  mainScreen = love.graphics.newCanvas(800, 600)
+  gamestate = "menu"
 end
 
 function love.update(dt)
@@ -40,8 +37,10 @@ function love.update(dt)
 end
 
 function love.draw()
-  love.graphics.setCanvas(mainScreen)
-  love.graphics.clear()
+  love.graphics.setCanvas()
+  love.graphics.push()
+  love.graphics.translate(offset.x, offset.y)
+  love.graphics.scale(scale.x, scale.y)
 
   if pause == false then
     if gamestate == "menu" then
@@ -55,13 +54,15 @@ function love.draw()
     pausemenu_draw()
   end
 
-  love.graphics.setCanvas()
-  love.graphics.push()
-  love.graphics.translate(offset.x, offset.y)
-  love.graphics.scale(scale.x, scale.y)
-
-  love.graphics.draw(mainScreen)
   love.graphics.pop()
+
+  -- fullscreen borders
+  if love.window.getFullscreen() == true then
+    love.graphics.rectangle("fill", 0, 0, offset.x, screenH)
+    love.graphics.rectangle("fill", screenW - offset.x, 0, offset.x, screenH)
+    love.graphics.rectangle("fill", 0, 0, screenW, offset.y)
+    love.graphics.rectangle("fill", 0, screenH - offset.y, screenW, offset.y)
+  end
 end
 
 function love.mousepressed(x, y, button)
@@ -86,6 +87,8 @@ function love.keypressed(key)
   if key == "escape" then
     if pause == true then
       pause = false
+      screentype.state = false
+      refresh = true
     else
       pause = true
     end

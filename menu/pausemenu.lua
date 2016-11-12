@@ -23,6 +23,7 @@ function pausemenu_draw()
     love.graphics.draw(valueImg, arrowRight, 217, 186)
   else
     love.graphics.draw(screentype.open, 162, 168)
+    love.graphics.rectangle("line", 162, 168 + screentype.selected * 16, 75, 16)
   end
 end
 
@@ -45,20 +46,37 @@ function pausemenu_mousepressed(x, y, button)
             love.window.setFullscreen(true)
           end
           offset = {x = (love.graphics.getWidth() - 800) / 2, y = (love.graphics.getHeight() - 600) / 2}
+          if love.window.getFullscreen() == false then
+            love.window.setMode(400 * scaleFactor, 300 * scaleFactor)
+          end
+          adjustScreen()
           refresh = true
         end
       end
-    elseif x >= 202 and x <= 209 and y >= 186 and y <= 202 then
-      scaleFactor = range(scaleFactor - 1, 1, 4)
-      scale = {x = love.graphics.getWidth() / 800 * scaleFactor, y = love.graphics.getHeight() / 600 * scaleFactor}
-      offset = {x = (love.graphics.getWidth() - 400  * scaleFactor) / 2, y = (love.graphics.getHeight() - 300  * scaleFactor) / 2}
-    elseif x >= 218 and x <= 225 and y >= 186 and y <= 202 then
-      scaleFactor = range(scaleFactor + 1, 1, 4)
-      scale = {x = love.graphics.getWidth() / 800 * scaleFactor, y = love.graphics.getHeight() / 600 * scaleFactor}
-      offset = {x = (love.graphics.getWidth() - 400  * scaleFactor) / 2, y = (love.graphics.getHeight() - 300  * scaleFactor) / 2}
-    else
-      screentype.state = false
+      if refresh == false then
+        screentype.state = false
+        refresh = true
+      end
+    elseif x >= 202 and x <= 209 and y >= 186 and y <= 202 and scaleFactor > 1 then
+      scaleFactor = scaleFactor - 1
+      if love.window.getFullscreen() == false then
+        love.window.setMode(400 * scaleFactor, 300 * scaleFactor)
+      end
+      adjustScreen()
+      refresh = true
+    elseif x >= 218 and x <= 225 and y >= 186 and y <= 202 and scaleFactor < 4 then
+      scaleFactor = scaleFactor + 1
+      if love.window.getFullscreen() == false then
+        love.window.setMode(400 * scaleFactor, 300 * scaleFactor)
+      end
+      adjustScreen()
       refresh = true
     end
   end
+end
+
+function adjustScreen()
+  scale = {x = scaleFactor, y = scaleFactor}
+  offset = {x = (love.graphics.getWidth() - 400  * scaleFactor) / 2, y = (love.graphics.getHeight() - 300  * scaleFactor) / 2}
+  screenW, screenH = love.graphics.getDimensions()
 end
