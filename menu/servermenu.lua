@@ -179,8 +179,6 @@ function servermenu_update(dt)
         else
           coin.frame = coin.frame + 0.36 * dt * 50
         end
-      end
-      if coin.landed == false then
         coin.y = coin.y + coin.v
         coin.v = coin.v + 0.2 * dt * 50
         if coin.y >= 0 then
@@ -188,6 +186,8 @@ function servermenu_update(dt)
           coin.y = 0
           coin.landed = true
         end
+      else
+        coin.dt = coin.dt + dt
       end
     end
   end

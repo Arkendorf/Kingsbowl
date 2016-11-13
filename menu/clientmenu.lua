@@ -120,6 +120,7 @@ function clientmenu_update(dt)
         end
       end
     end
+
     --coinflip stuff
     if start == true then
       target = nil
@@ -129,8 +130,6 @@ function clientmenu_update(dt)
         else
           coin.frame = coin.frame + 0.36 * dt * 50
         end
-      end
-      if coin.landed == false then
         coin.y = coin.y + coin.v
         coin.v = coin.v + 0.2 * dt * 50
         if coin.y >= 0 then
@@ -138,10 +137,13 @@ function clientmenu_update(dt)
           coin.y = 0
           coin.landed = true
         end
+      else
+        coin.dt = coin.dt + dt
       end
     end
   end
 end
+
 
 function clientmenu_draw()
   if proceed == false then
