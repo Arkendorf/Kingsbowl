@@ -127,3 +127,12 @@ function loop(num, max)
     return num
   end
 end
+
+
+function removeNil(t)
+  local ans = {}
+  for _,v in pairs(t) do
+    ans[ #ans+1 ] = v
+  end
+  return ans
+end

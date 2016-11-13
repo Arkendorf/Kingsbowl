@@ -11,7 +11,7 @@ function clientmenu_load()
 
   errorMsg = ""
   clientmenu_canvas()
-  
+
   coin = {dt = 0, v = 0, y = 0, frame = 1, result = 1, landed = false}
   start = false
 end
@@ -113,8 +113,6 @@ function clientmenu_update(dt)
       else
         players[p].frame = players[p].frame + dt * 12
         players[p].frame = loop(players[p].frame, 6)
-      end
-      if players[p].image == "prep" and coin.landed == true and players[p].frame < 2 then
         if players[p].image == "prep" and coin.landed == true and players[p].frame < 2 then
           animation = {{"unsheathSword", "grabShield"}, { "grabShield", "unsheathSword"}}
           players[p].image = animation[coin.result][players[p].team]

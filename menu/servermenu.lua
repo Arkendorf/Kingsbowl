@@ -161,11 +161,11 @@ function servermenu_update(dt)
       else
         players[p].frame = players[p].frame + dt * 12
         players[p].frame = loop(players[p].frame, 6)
-      end
-      if players[p].image == "prep" and coin.landed == true and players[p].frame < 2 then
-        animation = {{"unsheathSword", "grabShield"}, { "grabShield", "unsheathSword"}}
-        players[p].image = animation[coin.result][players[p].team]
-        players[p].frame = 1
+        if players[p].image == "prep" and coin.landed == true and players[p].frame < 2 then
+          animation = {{"unsheathSword", "grabShield"}, { "grabShield", "unsheathSword"}}
+          players[p].image = animation[coin.result][players[p].team]
+          players[p].frame = 1
+        end
       end
     end
     players = removeNil(players)
@@ -508,12 +508,4 @@ end
 
 function server_quit()
   server:send(bin:pack({"disconnect"}))
-end
-
-function removeNil(t)
-  local ans = {}
-  for _,v in pairs(t) do
-    ans[ #ans+1 ] = v
-  end
-  return ans
 end
