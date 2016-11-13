@@ -11,11 +11,15 @@ function servermenu_load()
   queue = {}
   port = ""
   proceed = false
-  startButton = loadButton("Start", 50)
+  servermenu_canvas()
   playerButtonMax = 40
   newPlayer = false
   coin = {dt = 0, v = 0, y = 0, frame = 1, result = 1, landed = false}
   start = false
+end
+
+function servermenu_canvas()
+  startButton = loadButton("Start", 50)
 end
 
 function servermenu_update(dt)

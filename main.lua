@@ -37,7 +37,6 @@ function love.update(dt)
 end
 
 function love.draw()
-  love.graphics.setCanvas()
   love.graphics.push()
   love.graphics.translate(offset.x, offset.y)
   love.graphics.scale(scale.x, scale.y)
@@ -79,10 +78,12 @@ function love.mousepressed(x, y, button)
 end
 
 function love.keypressed(key)
-  if gamestate == "servermenu" then
-    servermenu_keypressed(key)
-  elseif gamestate == "clientmenu" then
-    clientmenu_keypressed(key)
+  if pause == false then
+    if gamestate == "servermenu" then
+      servermenu_keypressed(key)
+    elseif gamestate == "clientmenu" then
+      clientmenu_keypressed(key)
+    end
   end
   if key == "escape" then
     if pause == true then

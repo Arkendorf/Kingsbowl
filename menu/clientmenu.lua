@@ -9,11 +9,15 @@ function clientmenu_load()
   players = {{name = playerName, id = "host", team = 1, image = "prep", frame = 1}}
   target = nil
 
-  connectButton = loadButton("Connect", 50)
   errorMsg = ""
-
+  clientmenu_canvas()
+  
   coin = {dt = 0, v = 0, y = 0, frame = 1, result = 1, landed = false}
   start = false
+end
+
+function clientmenu_canvas()
+  connectButton = loadButton("Connect", 50)
 end
 
 function clientmenu_update(dt)

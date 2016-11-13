@@ -14,7 +14,6 @@ function graphics_load()
   prepOverlay = love.graphics.newImage("char/prepOverlay.png")
   prepOverlayQuad = loadSpriteSheet(prepOverlay, 32)
 
-
   dissapear = love.graphics.newImage("char/dissapear.png")
   dissapearQuad = loadSpriteSheet(dissapear, 32)
   dissapearOverlay = love.graphics.newImage("char/dissapearOverlay.png")

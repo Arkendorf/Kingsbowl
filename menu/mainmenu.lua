@@ -2,11 +2,15 @@ function mainmenu_load()
   playerName = "Placeholder"
 
   guiColor = {r = 125, g = 125, b = 125}
+  mainmenu_canvas()
 
+  love.keyboard.setKeyRepeat(true)
+end
+
+function mainmenu_canvas()
   tutButton = loadButton("Tutorial", 50, 55, 55, 255)
   hostButton = loadButton("Host", 50)
   joinButton = loadButton("Join", 50)
-  love.keyboard.setKeyRepeat(true)
 end
 
 function mainmenu_update()
