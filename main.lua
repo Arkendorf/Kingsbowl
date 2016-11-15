@@ -16,10 +16,14 @@ function love.load()
   mainmenu_load()
   pausemenu_load()
   scaleFactor = 2
-  adjustScreen()
-  totalDt = 0
-  pause = false
+  scale = {x = love.graphics.getWidth() / 800 * scaleFactor, y = love.graphics.getHeight() / 600 * scaleFactor}
+  offset = {x = (love.graphics.getWidth() - 400  * scaleFactor) / 2, y = (love.graphics.getHeight() - 300  * scaleFactor) / 2}
   gamestate = "menu"
+  totalDt = 0
+  love.graphics.setLineStyle("rough")
+  love.graphics.setLineWidth(1)
+  pause = false
+  mainScreen = love.graphics.newCanvas(800, 600)
 end
 
 function love.update(dt)
@@ -37,9 +41,8 @@ function love.update(dt)
 end
 
 function love.draw()
-  love.graphics.push()
-  love.graphics.translate(offset.x, offset.y)
-  love.graphics.scale(scale.x, scale.y)
+  love.graphics.setCanvas(mainScreen)
+  love.graphics.clear()
 
   if pause == false then
     if gamestate == "menu" then
@@ -53,15 +56,14 @@ function love.draw()
     pausemenu_draw()
   end
 
-  love.graphics.pop()
+  love.graphics.setCanvas()
+  love.graphics.push()
+  love.graphics.translate(offset.x, offset.y)
+  love.graphics.scale(scale.x, scale.y)
 
-  -- fullscreen borders
-  if love.window.getFullscreen() == true then
-    love.graphics.rectangle("fill", 0, 0, offset.x, screenH)
-    love.graphics.rectangle("fill", screenW - offset.x, 0, offset.x, screenH)
-    love.graphics.rectangle("fill", 0, 0, screenW, offset.y)
-    love.graphics.rectangle("fill", 0, screenH - offset.y, screenW, offset.y)
-  end
+  love.graphics.draw(mainScreen)
+
+  love.graphics.pop()
 end
 
 function love.mousepressed(x, y, button)
@@ -78,18 +80,14 @@ function love.mousepressed(x, y, button)
 end
 
 function love.keypressed(key)
-  if pause == false then
-    if gamestate == "servermenu" then
-      servermenu_keypressed(key)
-    elseif gamestate == "clientmenu" then
-      clientmenu_keypressed(key)
-    end
+  if gamestate == "servermenu" then
+    servermenu_keypressed(key)
+  elseif gamestate == "clientmenu" then
+    clientmenu_keypressed(key)
   end
   if key == "escape" then
     if pause == true then
       pause = false
-      screentype.state = false
-      refresh = true
     else
       pause = true
     end

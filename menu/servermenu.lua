@@ -197,7 +197,7 @@ end
 function servermenu_draw()
   if proceed == false then
     love.graphics.print("Enter port:", 180, 150)
-    love.graphics.print(port, 200 - getPixelWidth(port) / 2, 168)
+    love.graphics.print(port, 200 - math.floor(getPixelWidth(port) / 2), 168)
     love.graphics.draw(startButton, 175, 186)
 
     if textBox == "port" then
@@ -221,7 +221,7 @@ function servermenu_draw()
     love.graphics.draw(sliderImg, knob, 87 + math.floor(team1.b / 5.10), 88)
     love.graphics.setColor(255, 255, 255)
     love.graphics.draw(bannerImg, banner, 75, 50)
-    love.graphics.print(team1.name, 112 - getPixelWidth(team1.name) / 2, 58)
+    love.graphics.print(team1.name, 112 - math.floor(getPixelWidth(team1.name) / 2), 58)
 
     --team2
     love.graphics.setColor(team2.r, team2.g, team2.b)
@@ -236,7 +236,7 @@ function servermenu_draw()
     love.graphics.draw(sliderImg, knob, 262 + math.floor(team2.b / 5.10), 88)
     love.graphics.setColor(255, 255, 255)
     love.graphics.draw(bannerImg, banner, 325, 50, 0, -1, 1)
-    love.graphics.print(team2.name, 287 - getPixelWidth(team2.name) / 2, 58)
+    love.graphics.print(team2.name, 287 - math.floor(getPixelWidth(team2.name) / 2), 58)
 
     --players
     playerNum = {0, 0}
@@ -269,26 +269,27 @@ function servermenu_draw()
 
     -- draw defense/offense logos
     if start == true and coin.landed == true then
+      logoScale = range(coin.dt * 2, 0, 1)
       if coin.result == 1 then
-        love.graphics.draw(logosImg, defense, 104, 122)
-        love.graphics.draw(logosImg, offense, 280, 122)
+        love.graphics.draw(logosImg, defense, 112, 130, 0, logoScale, logoScale, 8, 8)
+        love.graphics.draw(logosImg, offense, 288, 130, 0, logoScale, logoScale, 8, 8)
       else
-        love.graphics.draw(logosImg, offense, 104, 122)
-        love.graphics.draw(logosImg, defense, 280, 122)
+        love.graphics.draw(logosImg, offense, 112, 130, 0, logoScale, logoScale, 8, 8)
+        love.graphics.draw(logosImg, defense, 288, 130, 0, logoScale, logoScale, 8, 8)
       end
     end
 
     -- if a player is targeted, reflect that
     if target ~= nil then
       if players[target].team == 1 then
-        love.graphics.print(tostring(players[target].name), 112 - getPixelWidth(tostring(players[target].name)) / 2, 125)
+        love.graphics.print(tostring(players[target].name), 112 - math.floor(getPixelWidth(tostring(players[target].name)) / 2), 125)
         if team2.playerNum < 6 then
           love.graphics.print("click to swap", 85, 200)
         else
           love.graphics.print("team full", 94, 200)
         end
       else
-        love.graphics.print(tostring(players[target].name), 287 - getPixelWidth(tostring(players[target].name)) / 2, 125)
+        love.graphics.print(tostring(players[target].name), 287 - math.floor(getPixelWidth(tostring(players[target].name)) / 2), 125)
         if team1.playerNum < 6 then
           love.graphics.print("click to swap", 261, 200)
         else
@@ -481,7 +482,7 @@ function loadPlayerButton (name, frame)
   love.graphics.clear()
   love.graphics.draw(playerButtonImg, playerButton[scrollFrame], button:getWidth() / 2 - 41, 0)
   love.graphics.setColor(0, 0, 0)
-  love.graphics.print(name, math.ceil(button:getWidth() / 2 - getPixelWidth(name) / 2), 5)
+  love.graphics.print(name, math.floor(button:getWidth() / 2 - getPixelWidth(name) / 2), 5)
   love.graphics.setColor(255, 255, 255)
   love.graphics.draw(playerButtonImg, playerButtonOverlay[scrollFrame], button:getWidth() / 2 - 41, 0)
   if frame > 22 then

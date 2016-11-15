@@ -149,11 +149,11 @@ function clientmenu_draw()
   if proceed == false then
     love.graphics.print("Enter IP:", 181, 150)
 
-    love.graphics.print(ip, 200 - getPixelWidth(ip) / 2, 168)
+    love.graphics.print(ip, 200 - math.floor(getPixelWidth(ip) / 2), 168)
     love.graphics.draw(connectButton, 175, 186)
 
     love.graphics.setColor(255, 55, 55)
-    love.graphics.print(errorMsg, 200 - getPixelWidth(errorMsg) / 2, 208)
+    love.graphics.print(errorMsg, 200 - math.floor(getPixelWidth(errorMsg) / 2), 208)
     love.graphics.setColor(255, 255, 255)
 
     if textBox == "ip" then
@@ -171,14 +171,14 @@ function clientmenu_draw()
     love.graphics.draw(bannerImg, bannerColor, 75, 50)
     love.graphics.setColor(255, 255, 255)
     love.graphics.draw(bannerImg, banner, 75, 50)
-    love.graphics.print(team1.name, 112 - getPixelWidth(team1.name) / 2, 58)
+    love.graphics.print(team1.name, 112 - math.floor(getPixelWidth(team1.name) / 2), 58)
 
     --team2
     love.graphics.setColor(team2.r, team2.g, team2.b)
     love.graphics.draw(bannerImg, bannerColor, 325, 50, 0, -1, 1)
     love.graphics.setColor(255, 255, 255)
     love.graphics.draw(bannerImg, banner, 325, 50, 0, -1, 1)
-    love.graphics.print(team2.name, 287 - getPixelWidth(team2.name) / 2, 58)
+    love.graphics.print(team2.name, 287 - math.floor(getPixelWidth(team2.name) / 2), 58)
 
     --players
     playerNum = {0, 0}
@@ -211,23 +211,24 @@ function clientmenu_draw()
 
     -- draw defense/offense logos
     if start == true and coin.landed == true then
+      logoScale = range(coin.dt * 2, 0, 1)
       if coin.result == 1 then
-        love.graphics.draw(logosImg, defense, 104, 122)
-        love.graphics.draw(logosImg, offense, 280, 122)
+        love.graphics.draw(logosImg, defense, 112, 130, 0, logoScale, logoScale, 8, 8)
+        love.graphics.draw(logosImg, offense, 288, 130, 0, logoScale, logoScale, 8, 8)
       else
-        love.graphics.draw(logosImg, offense, 104, 122)
-        love.graphics.draw(logosImg, defense, 280, 122)
+        love.graphics.draw(logosImg, offense, 112, 130, 0, logoScale, logoScale, 8, 8)
+        love.graphics.draw(logosImg, defense, 288, 130, 0, logoScale, logoScale, 8, 8)
       end
     end
 
     -- if a player is targeted, reflect that
     if target ~= nil then
       if players[target].team == 1 then
-        love.graphics.print(tostring(players[target].name), 112 - getPixelWidth(tostring(players[target].name)) / 2, 125)
-        love.graphics.print(tostring(players[target].id), 112 - getPixelWidth(tostring(players[target].id)) / 2, 200)
+        love.graphics.print(tostring(players[target].name), 112 - math.floor(getPixelWidth(tostring(players[target].name)) / 2), 125)
+        love.graphics.print(tostring(players[target].id), 112 - math.floor(getPixelWidth(tostring(players[target].id)) / 2), 200)
       else
-        love.graphics.print(tostring(players[target].name), 287 - getPixelWidth(tostring(players[target].name)) / 2, 125)
-        love.graphics.print(tostring(players[target].id), 287 - getPixelWidth(tostring(players[target].id)) / 2, 200)
+        love.graphics.print(tostring(players[target].name), 287 - math.floor(getPixelWidth(tostring(players[target].name)) / 2), 125)
+        love.graphics.print(tostring(players[target].id), 287 - math.floor(getPixelWidth(tostring(players[target].id)) / 2), 200)
       end
     end
 
