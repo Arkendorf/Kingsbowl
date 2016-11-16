@@ -18,6 +18,7 @@ end
 
 function clientmenu_canvas()
   connectButton = loadButton("Connect", 50)
+  settingsMenu = love.graphics.newCanvas(250, 225)
 end
 
 function clientmenu_update(dt)
@@ -165,20 +166,52 @@ function clientmenu_draw()
   elseif accepted == false then
     love.graphics.print("Waiting for response", 159, 150)
   else
-    love.graphics.draw(window, 75, 50)
+    love.graphics.setCanvas(settingsMenu)
+    love.graphics.clear()
+
+    love.graphics.draw(window, 0, 0)
     -- team1
     love.graphics.setColor(team1.r, team1.g, team1.b)
-    love.graphics.draw(bannerImg, bannerColor, 75, 50)
+    love.graphics.draw(bannerImg, bannerColor, 0, 0)
     love.graphics.setColor(255, 255, 255)
-    love.graphics.draw(bannerImg, banner, 75, 50)
-    love.graphics.print(team1.name, 112 - math.floor(getPixelWidth(team1.name) / 2), 58)
+    love.graphics.draw(bannerImg, banner, 0, 0)
+    love.graphics.print(team1.name, 37 - math.floor(getPixelWidth(team1.name) / 2), 8)
 
     --team2
     love.graphics.setColor(team2.r, team2.g, team2.b)
-    love.graphics.draw(bannerImg, bannerColor, 325, 50, 0, -1, 1)
+    love.graphics.draw(bannerImg, bannerColor, 250, 0, 0, -1, 1)
     love.graphics.setColor(255, 255, 255)
-    love.graphics.draw(bannerImg, banner, 325, 50, 0, -1, 1)
-    love.graphics.print(team2.name, 287 - math.floor(getPixelWidth(team2.name) / 2), 58)
+    love.graphics.draw(bannerImg, banner, 250, 0, 0, -1, 1)
+    love.graphics.print(team2.name, 212 - math.floor(getPixelWidth(team2.name) / 2), 8)
+
+    -- draw defense/offense logos
+    if start == true and coin.landed == true then
+      logoScale = range(coin.dt * 2, 0, 1)
+      if coin.result == 1 then
+        love.graphics.draw(logosImg, defense, 37, 80, 0, logoScale, logoScale, 8, 8)
+        love.graphics.draw(logosImg, offense, 213, 80, 0, logoScale, logoScale, 8, 8)
+      else
+        love.graphics.draw(logosImg, offense, 37, 80, 0, logoScale, logoScale, 8, 8)
+        love.graphics.draw(logosImg, defense, 213, 80, 0, logoScale, logoScale, 8, 8)
+      end
+    end
+
+    -- if a player is targeted, reflect that
+    if target ~= nil then
+      if players[target].team == 1 then
+        love.graphics.print(tostring(players[target].name), 37 - math.floor(getPixelWidth(tostring(players[target].name)) / 2), 75)
+        love.graphics.print(tostring(players[target].id), 37 - math.floor(getPixelWidth(tostring(players[target].id)) / 2), 150)
+      else
+        love.graphics.print(tostring(players[target].name), 212 - math.floor(getPixelWidth(tostring(players[target].name)) / 2), 75)
+        love.graphics.print(tostring(players[target].id), 212 - math.floor(getPixelWidth(tostring(players[target].id)) / 2), 150)
+      end
+    end
+
+    --beginning stuff
+    love.graphics.draw(coinShadeImg, coinShadeQuad[range(math.abs(math.floor(coin.y / 10)), 1, 7)], 109, 116)
+    love.graphics.draw(coinImg, coinQuad[loop(math.floor(coin.frame), 12)], 109, 100 + coin.y)
+
+    love.graphics.setCanvas(mainScreen)
 
     --players
     playerNum = {0, 0}
@@ -209,32 +242,8 @@ function clientmenu_draw()
       end
     end
 
-    -- draw defense/offense logos
-    if start == true and coin.landed == true then
-      logoScale = range(coin.dt * 2, 0, 1)
-      if coin.result == 1 then
-        love.graphics.draw(logosImg, defense, 112, 130, 0, logoScale, logoScale, 8, 8)
-        love.graphics.draw(logosImg, offense, 288, 130, 0, logoScale, logoScale, 8, 8)
-      else
-        love.graphics.draw(logosImg, offense, 112, 130, 0, logoScale, logoScale, 8, 8)
-        love.graphics.draw(logosImg, defense, 288, 130, 0, logoScale, logoScale, 8, 8)
-      end
-    end
-
-    -- if a player is targeted, reflect that
-    if target ~= nil then
-      if players[target].team == 1 then
-        love.graphics.print(tostring(players[target].name), 112 - math.floor(getPixelWidth(tostring(players[target].name)) / 2), 125)
-        love.graphics.print(tostring(players[target].id), 112 - math.floor(getPixelWidth(tostring(players[target].id)) / 2), 200)
-      else
-        love.graphics.print(tostring(players[target].name), 287 - math.floor(getPixelWidth(tostring(players[target].name)) / 2), 125)
-        love.graphics.print(tostring(players[target].id), 287 - math.floor(getPixelWidth(tostring(players[target].id)) / 2), 200)
-      end
-    end
-
-    --beginning stuff
-    love.graphics.draw(coinShadeImg, coinShadeQuad[range(math.abs(math.floor(coin.y / 10)), 1, 7)], 184, 166)
-    love.graphics.draw(coinImg, coinQuad[loop(math.floor(coin.frame), 12)], 184, 150 + coin.y)
+    settingsScale = range((4 - coin.dt), 0, 1)
+    love.graphics.draw(settingsMenu, 200, 162, 0, settingsScale, settingsScale, 125, 112)
   end
 end
 

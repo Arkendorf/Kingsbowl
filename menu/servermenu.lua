@@ -20,6 +20,7 @@ end
 
 function servermenu_canvas()
   startButton = loadButton("Start", 50)
+  settingsMenu = love.graphics.newCanvas(250, 225)
 end
 
 function servermenu_update(dt)
@@ -207,36 +208,89 @@ function servermenu_draw()
       love.graphics.draw(textboxImg, textboxSide2, 190 + portBoxLength / 2, 164)
     end
   else
-    love.graphics.draw(window, 75, 50)
+    love.graphics.setCanvas(settingsMenu)
+    love.graphics.clear()
+
+    love.graphics.draw(window, 0, 0)
     -- team1
     love.graphics.setColor(team1.r, team1.g, team1.b)
-    love.graphics.draw(bannerImg, bannerColor, 75, 50)
+    love.graphics.draw(bannerImg, bannerColor, 0, 0)
 
     love.graphics.setColor(255, 255, 255)
-    love.graphics.draw(sliderImg, bar, 87, 74)
-    love.graphics.draw(sliderImg, bar, 87, 82)
-    love.graphics.draw(sliderImg, bar, 87, 90)
-    love.graphics.draw(sliderImg, knob, 87 + math.floor(team1.r / 5.10), 72)
-    love.graphics.draw(sliderImg, knob, 87 + math.floor(team1.g / 5.10), 80)
-    love.graphics.draw(sliderImg, knob, 87 + math.floor(team1.b / 5.10), 88)
-    love.graphics.setColor(255, 255, 255)
-    love.graphics.draw(bannerImg, banner, 75, 50)
-    love.graphics.print(team1.name, 112 - math.floor(getPixelWidth(team1.name) / 2), 58)
+    love.graphics.draw(sliderImg, bar, 12, 24)
+    love.graphics.draw(sliderImg, bar, 12, 32)
+    love.graphics.draw(sliderImg, bar, 12, 40)
+    love.graphics.draw(sliderImg, knob, 12 + math.floor(team1.r / 5.10), 22)
+    love.graphics.draw(sliderImg, knob, 12 + math.floor(team1.g / 5.10), 30)
+    love.graphics.draw(sliderImg, knob, 12 + math.floor(team1.b / 5.10), 38)
+    love.graphics.draw(bannerImg, banner, 0, 0)
+    love.graphics.print(team1.name, 37 - math.floor(getPixelWidth(team1.name) / 2), 8)
 
     --team2
     love.graphics.setColor(team2.r, team2.g, team2.b)
-    love.graphics.draw(bannerImg, bannerColor, 325, 50, 0, -1, 1)
+    love.graphics.draw(bannerImg, bannerColor, 250, 0, 0, -1, 1)
 
     love.graphics.setColor(255, 255, 255)
-    love.graphics.draw(sliderImg, bar, 262, 74)
-    love.graphics.draw(sliderImg, bar, 262, 82)
-    love.graphics.draw(sliderImg, bar, 262, 90)
-    love.graphics.draw(sliderImg, knob, 262 + math.floor(team2.r / 5.10), 72)
-    love.graphics.draw(sliderImg, knob, 262 + math.floor(team2.g / 5.10), 80)
-    love.graphics.draw(sliderImg, knob, 262 + math.floor(team2.b / 5.10), 88)
-    love.graphics.setColor(255, 255, 255)
-    love.graphics.draw(bannerImg, banner, 325, 50, 0, -1, 1)
-    love.graphics.print(team2.name, 287 - math.floor(getPixelWidth(team2.name) / 2), 58)
+    love.graphics.draw(sliderImg, bar, 187, 24)
+    love.graphics.draw(sliderImg, bar, 187, 32)
+    love.graphics.draw(sliderImg, bar, 187, 40)
+    love.graphics.draw(sliderImg, knob, 187 + math.floor(team2.r / 5.10), 22)
+    love.graphics.draw(sliderImg, knob, 187 + math.floor(team2.g / 5.10), 30)
+    love.graphics.draw(sliderImg, knob, 187 + math.floor(team2.b / 5.10), 38)
+    love.graphics.draw(bannerImg, banner, 250, 0, 0, -1, 1)
+    love.graphics.print(team2.name, 212 - math.floor(getPixelWidth(team2.name) / 2), 8)
+
+    -- draw defense/offense logos
+    if start == true and coin.landed == true then
+      logoScale = range(coin.dt * 2, 0, 1)
+      if coin.result == 1 then
+        love.graphics.draw(logosImg, defense, 37, 80, 0, logoScale, logoScale, 8, 8)
+        love.graphics.draw(logosImg, offense, 213, 80, 0, logoScale, logoScale, 8, 8)
+      else
+        love.graphics.draw(logosImg, offense, 37, 80, 0, logoScale, logoScale, 8, 8)
+        love.graphics.draw(logosImg, defense, 213, 80, 0, logoScale, logoScale, 8, 8)
+      end
+    end
+
+    -- if a player is targeted, reflect that
+    if target ~= nil then
+      if players[target].team == 1 then
+        love.graphics.print(tostring(players[target].name), 37 - math.floor(getPixelWidth(tostring(players[target].name)) / 2), 75)
+        if team2.playerNum < 6 then
+          love.graphics.print("click to swap", 10, 150)
+        else
+          love.graphics.print("team full", 19, 150)
+        end
+      else
+        love.graphics.print(tostring(players[target].name), 212 - math.floor(getPixelWidth(tostring(players[target].name)) / 2), 75)
+        if team1.playerNum < 6 then
+          love.graphics.print("click to swap", 186, 150)
+        else
+          love.graphics.print("team full", 195, 150)
+        end
+      end
+    end
+
+    -- if player is typing, show where
+    if textBox == "team1" then
+      love.graphics.rectangle("line", 4, 5, 68, 16)
+    elseif textBox == "team2" then
+      love.graphics.rectangle("line", 179, 5, 68, 16)
+    end
+
+    -- draw join requests
+    for p = 1, 3 do
+      if playerQueue[p] ~= false then
+        love.graphics.draw(queue[p], -43 + 84 * p - queue[p]:getWidth() / 2, 179)
+      end
+    end
+
+    --beginning stuff
+    love.graphics.draw(startButton, 100, 147)
+    love.graphics.draw(coinShadeImg, coinShadeQuad[range(math.abs(math.floor(coin.y / 10)), 1, 7)], 109, 116)
+    love.graphics.draw(coinImg, coinQuad[loop(math.floor(coin.frame), 12)], 109, 100 + coin.y)
+
+    love.graphics.setCanvas(mainScreen)
 
     --players
     playerNum = {0, 0}
@@ -267,55 +321,8 @@ function servermenu_draw()
       end
     end
 
-    -- draw defense/offense logos
-    if start == true and coin.landed == true then
-      logoScale = range(coin.dt * 2, 0, 1)
-      if coin.result == 1 then
-        love.graphics.draw(logosImg, defense, 112, 130, 0, logoScale, logoScale, 8, 8)
-        love.graphics.draw(logosImg, offense, 288, 130, 0, logoScale, logoScale, 8, 8)
-      else
-        love.graphics.draw(logosImg, offense, 112, 130, 0, logoScale, logoScale, 8, 8)
-        love.graphics.draw(logosImg, defense, 288, 130, 0, logoScale, logoScale, 8, 8)
-      end
-    end
-
-    -- if a player is targeted, reflect that
-    if target ~= nil then
-      if players[target].team == 1 then
-        love.graphics.print(tostring(players[target].name), 112 - math.floor(getPixelWidth(tostring(players[target].name)) / 2), 125)
-        if team2.playerNum < 6 then
-          love.graphics.print("click to swap", 85, 200)
-        else
-          love.graphics.print("team full", 94, 200)
-        end
-      else
-        love.graphics.print(tostring(players[target].name), 287 - math.floor(getPixelWidth(tostring(players[target].name)) / 2), 125)
-        if team1.playerNum < 6 then
-          love.graphics.print("click to swap", 261, 200)
-        else
-          love.graphics.print("team full", 270, 200)
-        end
-      end
-    end
-
-    -- if player is typing, show where
-    if textBox == "team1" then
-      love.graphics.rectangle("line", 79, 54, 67, 16)
-    elseif textBox == "team2" then
-      love.graphics.rectangle("line", 254, 54, 67, 16)
-    end
-
-    -- draw join requests
-    for p = 1, 3 do
-      if playerQueue[p] ~= false then
-        love.graphics.draw(queue[p], 32 + 84 * p - queue[p]:getWidth() / 2, 229)
-      end
-    end
-
-    --beginning stuff
-    love.graphics.draw(startButton, 175, 197)
-    love.graphics.draw(coinShadeImg, coinShadeQuad[range(math.abs(math.floor(coin.y / 10)), 1, 7)], 184, 166)
-    love.graphics.draw(coinImg, coinQuad[loop(math.floor(coin.frame), 12)], 184, 150 + coin.y)
+    settingsScale = range((4 - coin.dt), 0, 1)
+    love.graphics.draw(settingsMenu, 200, 162, 0, settingsScale, settingsScale, 125, 112)
   end
 end
 
