@@ -200,6 +200,6 @@ function drawChar(image, frame)
   elseif image == "unsheathSword" then
     return {unsheathSword, unsheathSwordQuad[math.ceil(range(frame, 1, 14))], unsheathSwordOverlay, unsheathSwordOverlayQuad[math.ceil(range(frame, 1, 14))]}
   elseif image == "grabShield" then
-    return {grabShield, grabShieldQuad[math.ceil(range(frame, 1, 14))], switchOverlay, switchOverlayQuad[math.ceil(range(frame, 1, 22))]}
+    return {grabShield, grabShieldQuad[math.ceil(range(frame, 1, 14))], grabShieldOverlay, grabShieldOverlayQuad[math.ceil(range(frame, 1, 14))]}
   end
 end
