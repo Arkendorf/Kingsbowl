@@ -74,16 +74,16 @@ function server_update(dt)
 
   avatar.xV = avatar.xV * 0.4
   avatar.yV = avatar.yV * 0.4
-  if math.abs((players[avatar.num].x + math.floor((mX - 200) / 2)) - camera.x) > 10 then
-    camera.x = camera.x + math.floor(((warpX(players[avatar.num].x, players[avatar.num].y) + (mX - 200) / 2) - warpX(camera.x, camera.y)) * 0.5)
-  else
-    camera.x = players[avatar.num].x + math.floor((mX - 200) / 2)
-  end
 
-  if math.abs((players[avatar.num].y + math.floor((mY - 150) / 2)) - camera.y) > 10 then
-    camera.y = camera.y + math.floor(((warpY(players[1].y) + (mY - 150) / 2) - warpY(camera.y)) * 0.5)
+  if math.abs((players[avatar.num].x + mX - 200) - camera.x) > 10 then
+    camera.x = camera.x + (warpX((players[avatar.num].x + mX - 200), (players[avatar.num].y + mY - 150)) - warpX(camera.x, camera.y)) * 0.5
   else
-    camera.y = players[avatar.num].y + math.floor((mY - 150) / 2)
+    camera.x = (players[avatar.num].x + mX - 200)
+  end
+  if math.abs((players[avatar.num].y + mY - 150) - camera.y) > 10 then
+    camera.y = camera.y + (warpY((players[avatar.num].y + mY - 150)) - warpY(camera.y)) * 0.5
+  else
+    camera.y = (players[avatar.num].y + mY - 150)
   end
 end
 
@@ -122,9 +122,9 @@ function server_onReceive(data, clientid)
 end
 
 function warpX(x, y)
-  return math.floor(x * (y / 1600 + 0.5))
+  return x * (y / 1600 + 0.5)
 end
 
 function warpY(y)
-  return math.floor(y / 2)
+  return y / 2
 end
