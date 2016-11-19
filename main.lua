@@ -10,6 +10,9 @@ require("menu.servermenu")
 require("menu.clientmenu")
 require("menu.pausemenu")
 
+require("client")
+require("server")
+
 function love.load()
   math.randomseed(os.time())
   graphics_load()
@@ -23,7 +26,7 @@ function love.load()
   love.graphics.setLineStyle("rough")
   love.graphics.setLineWidth(1)
   pause = false
-  mainScreen = love.graphics.newCanvas(800, 600)
+  mainScreen = love.graphics.newCanvas(400, 300)
 end
 
 function love.update(dt)
@@ -33,6 +36,10 @@ function love.update(dt)
     servermenu_update(dt)
   elseif gamestate == "clientmenu" then
     clientmenu_update(dt)
+  elseif gamestate == "server" then
+    server_update(dt)
+  elseif gamestate == "client" then
+    client_update(dt)
   end
   if pause == true then
     pausemenu_update(dt)
@@ -51,6 +58,10 @@ function love.draw()
       servermenu_draw()
     elseif gamestate == "clientmenu" then
       clientmenu_draw()
+    elseif gamestate == "server" then
+      server_draw()
+    elseif gamestate == "client" then
+      client_draw()
     end
   else
     pausemenu_draw()
@@ -115,78 +126,34 @@ function adjust(x, y)
 end
 
 function onConnect(clientid)
-  playerAdded = false
-  for p = 1, #playerQueue do
-    if playerQueue[p] == false then
-      playerQueue[p] = {id = clientid, team = 1, delete = false}
-      playerAdded = true
-      break
-    end
-  end
-  if playerAdded == false then
-    playerQueue[#playerQueue + 1] = {id = clientid, team = 1, delete = false}
+  if gamestate == "servermenu" then
+    servermenu_onConnect(clientid)
+  elseif gamestate == "server" then
+    server_onConnect(clientid)
   end
 end
 
 function onServerReceive(data, clientid)
-  data = bin:unpack(data)
-  if data["1"] == "name" then
-    for p = 1, #playerQueue do
-      if playerQueue[p].id == clientid then
-        playerQueue[p].name = data["2"]
-        break
-      end
-    end
+  if gamestate == "servermenu" then
+    servermenu_onReceive(data, clientid)
+  elseif gamestate == "server" then
+    server_onReceive(data, clientid)
   end
 end
 
 function onDisconnect(clientid)
-  removed = false
-  for p = 1, #players do
-    if players[p].id == clientid then
-      players[p].delete = true
-      removed = true
-      break
-    end
-  end
-  if removed == false then
-    for p = 1, #playerQueue do
-      if playerQueue[p].id == clientid then
-        playerQueue[p].delete = true
-        playerQueue[p].dt = playerButtonMax
-        break
-      end
-    end
+  if gamestate == "servermenu" then
+    servermenu_onDisconnect(clientid)
+  elseif gamestate == "server" then
+    server_onDisconnect(clientid)
   end
 end
 
 function onClientReceive(data)
-  data = bin:unpack(data)
-  if data["1"] == "disconnect" then
-    client:disconnect()
-    clientmenu_load()
-    errorMsg = "Kicked by server"
-  elseif data["1"] == "join" then
-    accepted = true
-  elseif data["1"] == "teams" then
-    team1 = {name = data["2"], r = data["3"], g = data["4"], b = data["5"]}
-    team2 = {name = data["6"], r = data["7"], g = data["8"], b = data["9"]}
-  elseif data["1"] == "player" then
-    playerFound = false
-    for p = 1, #players do
-      if players[p].id == data["3"] then
-        players[p] = {name = data["2"], id = data["3"], team = data["4"], image = data["5"], frame = data["6"], delete = data["7"]}
-        playerFound = true
-        break
-      end
-    end
-    if playerFound == false then
-      players[#players + 1] = {name = data["2"], id = data["3"], team = data["4"], image = data["5"], frame = data["6"], delete = data["7"]}
-    end
-  elseif data["1"] == "coin" then
-    start = true
-    coin.result = data["2"]
-    coin.v = -5
+  if gamestate == "clientmenu" then
+    clientmenu_onReceive(data)
+  elseif gamestate == "client" then
+    client_onReceive(data)
   end
 end
 

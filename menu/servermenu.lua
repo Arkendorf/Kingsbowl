@@ -191,6 +191,11 @@ function servermenu_update(dt)
         coin.dt = coin.dt + dt
       end
     end
+    if coin.dt > 4 then
+      server:send(bin:pack({"begin"}))
+      server_load()
+      gamestate = "server"
+    end
   end
 end
 
@@ -291,6 +296,8 @@ function servermenu_draw()
     love.graphics.draw(coinImg, coinQuad[loop(math.floor(coin.frame), 12)], 109, 100 + coin.y)
 
     love.graphics.setCanvas(mainScreen)
+
+    love.graphics.draw(fieldImg, 200, 150, 0, 1, 1, 900, 200)
 
     --players
     playerNum = {0, 0}
@@ -516,4 +523,50 @@ end
 
 function server_quit()
   server:send(bin:pack({"disconnect"}))
+end
+
+function servermenu_onConnect(clientid)
+  playerAdded = false
+  for p = 1, #playerQueue do
+    if playerQueue[p] == false then
+      playerQueue[p] = {id = clientid, team = 1, delete = false}
+      playerAdded = true
+      break
+    end
+  end
+  if playerAdded == false then
+    playerQueue[#playerQueue + 1] = {id = clientid, team = 1, delete = false}
+  end
+end
+
+function servermenu_onDisconnect(clientid)
+  removed = false
+  for p = 1, #players do
+    if players[p].id == clientid then
+      players[p].delete = true
+      removed = true
+      break
+    end
+  end
+  if removed == false then
+    for p = 1, #playerQueue do
+      if playerQueue[p].id == clientid then
+        playerQueue[p].delete = true
+        playerQueue[p].dt = playerButtonMax
+        break
+      end
+    end
+  end
+end
+
+function servermenu_onReceive(data, clientid)
+  data = bin:unpack(data)
+  if data["1"] == "name" then
+    for p = 1, #playerQueue do
+      if playerQueue[p].id == clientid then
+        playerQueue[p].name = data["2"]
+        break
+      end
+    end
+  end
 end
