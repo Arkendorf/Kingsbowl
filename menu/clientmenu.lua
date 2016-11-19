@@ -213,6 +213,8 @@ function clientmenu_draw()
 
     love.graphics.setCanvas(mainScreen)
 
+    love.graphics.draw(fieldImg, 200, 150, 0, 1, 1, 900, 200)
+
     --players
     playerNum = {0, 0}
     for p = 1, #players do
@@ -304,4 +306,37 @@ end
 
 function client_quit()
   client:disconnect()
+end
+
+function clientmenu_onReceive(data)
+  data = bin:unpack(data)
+  if data["1"] == "disconnect" then
+    client:disconnect()
+    clientmenu_load()
+    errorMsg = "Kicked by server"
+  elseif data["1"] == "join" then
+    accepted = true
+  elseif data["1"] == "teams" then
+    team1 = {name = data["2"], r = data["3"], g = data["4"], b = data["5"]}
+    team2 = {name = data["6"], r = data["7"], g = data["8"], b = data["9"]}
+  elseif data["1"] == "player" then
+    playerFound = false
+    for p = 1, #players do
+      if players[p].id == data["3"] then
+        players[p] = {name = data["2"], id = data["3"], team = data["4"], image = data["5"], frame = data["6"], delete = data["7"]}
+        playerFound = true
+        break
+      end
+    end
+    if playerFound == false then
+      players[#players + 1] = {name = data["2"], id = data["3"], team = data["4"], image = data["5"], frame = data["6"], delete = data["7"]}
+    end
+  elseif data["1"] == "coin" then
+    start = true
+    coin.result = data["2"]
+    coin.v = -5
+  elseif data["1"] == "begin" then
+    client_load()
+    gamestate = "client"
+  end
 end

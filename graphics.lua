@@ -96,6 +96,8 @@ function graphics_load()
     checkmark[#checkmark + 1] = love.graphics.newQuad(32, i * 32 + 16, 16, 16, playerButtonImg:getDimensions())
     deny[#deny + 1] = love.graphics.newQuad(16, i * 32 + 16, 16, 16, playerButtonImg:getDimensions())
   end
+
+  fieldImg = love.graphics.newImage("field.png")
 end
 
 function loadSpriteSheet(image, size)
