@@ -14,6 +14,7 @@ function clientmenu_load()
 
   coin = {dt = 0, v = 0, y = 0, frame = 1, result = 1, landed = false}
   start = false
+  identifier = ""
 end
 
 function clientmenu_canvas()
@@ -338,5 +339,7 @@ function clientmenu_onReceive(data)
   elseif data["1"] == "begin" then
     client_load()
     gamestate = "client"
+  elseif data["1"] == "id" then
+    identifier = data["2"]
   end
 end

@@ -300,7 +300,7 @@ function servermenu_draw()
     love.graphics.draw(fieldImg, 200, 150, 0, 1, 1, 900, 200)
 
     --players
-    playerNum = {0, 0}
+        playerNum = {0, 0}
     for p = 1, #players do
       if players[p].team == 1 then
         playerNum[1] = playerNum[1] + 1
@@ -537,6 +537,7 @@ function servermenu_onConnect(clientid)
   if playerAdded == false then
     playerQueue[#playerQueue + 1] = {id = clientid, team = 1, delete = false}
   end
+  server:send(bin:pack({"id", clientid}))
 end
 
 function servermenu_onDisconnect(clientid)
