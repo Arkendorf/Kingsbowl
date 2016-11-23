@@ -214,7 +214,7 @@ function clientmenu_draw()
 
     love.graphics.setCanvas(mainScreen)
 
-    love.graphics.draw(fieldImg, 200, 150, 0, 1, 1, 900, 200)
+    love.graphics.draw(fieldImg, 200, 150, 0, 1, 1, 1000, 300)
 
     --players
     playerNum = {0, 0}

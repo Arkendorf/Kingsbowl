@@ -103,7 +103,7 @@ end
 function server_draw()
   love.graphics.push()
   love.graphics.translate(warpX(-1 * camera.x, camera.y) + 200, warpY(-1 * camera.y) + 150)
-  love.graphics.draw(fieldImg, -900, 0)
+  love.graphics.draw(fieldImg, -1000, -100)
 
   -- draw players
   for p = 1, #players do
