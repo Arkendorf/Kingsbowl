@@ -313,6 +313,7 @@ function servermenu_draw()
     for p = 1, #players do
       if players[p].team == 1 then
         char = drawChar(players[p].image, players[p].frame)
+        love.graphics.draw(charShadow, 64 + (playerNum[1] - playerNum[3]) * 10, 166)
         love.graphics.draw(char[1], char[2], 64 + (playerNum[1] - playerNum[3]) * 10, 150)
         love.graphics.setColor(team1.r, team1.g, team1.b)
         love.graphics.draw(char[3], char[4], 64 + (playerNum[1] - playerNum[3]) * 10, 150)
@@ -320,6 +321,7 @@ function servermenu_draw()
         playerNum[3] = playerNum[3] + 1
       else
         char = drawChar(players[p].image, players[p].frame)
+        love.graphics.draw(charShadow, 336 + (playerNum[2] - playerNum[4]) * -10, 166, 0, -1, 1)
         love.graphics.draw(char[1], char[2], 336 + (playerNum[2] - playerNum[4]) * -10, 150, 0, -1, 1)
         love.graphics.setColor(team2.r, team2.g, team2.b)
         love.graphics.draw(char[3], char[4], 336 + (playerNum[2] - playerNum[4]) * -10, 150, 0, -1, 1)

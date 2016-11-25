@@ -9,6 +9,8 @@ function graphics_load()
 
   window = love.graphics.newImage("gui/window.png")
 
+  charShadow = love.graphics.newImage("char/charShadow.png")
+
   prep = love.graphics.newImage("char/prep.png")
   prepQuad = loadSpriteSheet(prep, 32)
   prepOverlay = love.graphics.newImage("char/prepOverlay.png")

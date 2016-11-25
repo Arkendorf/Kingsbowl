@@ -108,7 +108,8 @@ function server_draw()
   -- draw players
   for p = 1, #players do
     char = drawChar(players[p].image, players[p].frame)
-    love.graphics.draw(char[1], char[2],warpX(players[p].x, players[p].y), warpY(players[p].y), 0, players[p].direction, 1, 16, 16)
+    love.graphics.draw(charShadow, warpX(players[p].x, players[p].y), warpY(players[p].y) + 16, 0, 1, 1, 16, 16)
+    love.graphics.draw(char[1], char[2], warpX(players[p].x, players[p].y), warpY(players[p].y), 0, players[p].direction, 1, 16, 16)
     if players[p].team == 1 then
       love.graphics.setColor(team1.r, team1.g, team1.b)
     else
