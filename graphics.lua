@@ -11,6 +11,8 @@ function graphics_load()
 
   charShadow = love.graphics.newImage("char/charShadow.png")
 
+  arrowTarget = love.graphics.newImage("art/target.png")
+
   prep = love.graphics.newImage("char/prep.png")
   prepQuad = loadSpriteSheet(prep, 32)
   prepOverlay = love.graphics.newImage("char/prepOverlay.png")

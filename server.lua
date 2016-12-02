@@ -24,7 +24,7 @@ function server_load()
     end
   end
 
-  camera = {x = 0, y = 400}
+  camera = {x = 200, y = -50}
   avatar = {num = 0, xV = 0, yV = 0}
   oldPos = {x = 0, y = 0}
 end
@@ -88,21 +88,21 @@ function server_update(dt)
   end
 
   -- set camera position
-  if math.abs((players[avatar.num].x + warpX(mX - 200, players[avatar.num].y)) - camera.x) > 10 then
-    camera.x = camera.x + (warpX((players[avatar.num].x + warpX(mX - 200, players[avatar.num].y)), (players[avatar.num].y + mY - 150)) - warpX(camera.x, camera.y)) * 0.5
+  if math.abs((-1 * warpX(players[avatar.num].x, players[avatar.num].y) - math.floor(mX) + 400) - camera.x) > 1 then
+    camera.x = camera.x + ((-1 * warpX(players[avatar.num].x, players[avatar.num].y) - math.floor(mX) + 400) - camera.x) * 0.4
   else
-    camera.x = (players[avatar.num].x + warpX(mX - 200, players[avatar.num].y))
+    camera.x = -1 * warpX(players[avatar.num].x, players[avatar.num].y) - math.floor(mX) + 400
   end
-  if math.abs((players[avatar.num].y + mY - 150) - camera.y) > 10 then
-    camera.y = camera.y + (warpY((players[avatar.num].y + mY - 150)) - warpY(camera.y)) * 0.5
+  if math.abs((warpY(-1 * players[avatar.num].y) - math.floor(mY) + 300) - camera.y) > 1 then
+    camera.y = camera.y + ((warpY(-1 * players[avatar.num].y) - math.floor(mY) + 300) - camera.y) * 0.4
   else
-    camera.y = (players[avatar.num].y + mY - 150)
+    camera.y = warpY(-1 * players[avatar.num].y) - math.floor(mY) + 300
   end
 end
 
 function server_draw()
   love.graphics.push()
-  love.graphics.translate(warpX(-1 * camera.x, camera.y) + 200, warpY(-1 * camera.y) + 150)
+  love.graphics.translate(camera.x, camera.y)
   love.graphics.draw(fieldImg, -1000, -100)
 
   -- draw players
@@ -159,9 +159,9 @@ end
 
 -- adjust coordinates to fit perspective
 function warpX(x, y)
-  return x * (y / 1600 + 0.5)
+  return math.floor(x * (y / 1600 + 0.5))
 end
 
 function warpY(y)
-  return y / 2
+  return math.floor(y / 2)
 end
