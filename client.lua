@@ -27,6 +27,13 @@ function client_load()
 
   camera = {x = 200, y = -50}
   avatar = {num = 0, xV = 0, yV = 0}
+
+  qb = 2
+  targetPos = {}
+  gameDt = 0
+  otherTeamDelay = 2
+
+  down = {num = 1, dt = 0}
 end
 
 function client_update(dt)
@@ -48,16 +55,16 @@ function client_update(dt)
 
   -- move player
   if love.keyboard.isDown("d") then
-    avatar.xV = avatar.xV + 1
+    avatar.xV = avatar.xV + dt * 30
   end
   if love.keyboard.isDown("a") then
-    avatar.xV = avatar.xV - 1
+    avatar.xV = avatar.xV - dt * 30
   end
   if love.keyboard.isDown("w") then
-    avatar.yV = avatar.yV - 1
+    avatar.yV = avatar.yV - dt * 30
   end
   if love.keyboard.isDown("s") then
-    avatar.yV = avatar.yV + 1
+    avatar.yV = avatar.yV + dt * 30
   end
   players[avatar.num].x = players[avatar.num].x + avatar.xV
   players[avatar.num].y = players[avatar.num].y + avatar.yV
@@ -98,6 +105,21 @@ function client_update(dt)
   else
     camera.y = warpY(-1 * players[avatar.num].y) - math.floor(mY) + 300
   end
+
+  --quarterback's target
+  if avatar.num == qb then
+    qbTargetX, qbTargetY = (players[avatar.num].x + math.floor(mX) - 200), (players[avatar.num].y + math.floor(mY) - 150)
+    client:send(bin:pack({"target", qbTargetX, qbTargetY, gameDt}))
+    targetPos[#targetPos + 1] = {qbTargetX, qbTargetY, gameDt}
+    if #targetPos > 200 then
+      targetPos[1] = nil
+    end
+    targetPos = removeNil(targetPos)
+  end
+
+  gameDt = gameDt + dt
+  --temporary downDt
+  down.dt = gameDt
 end
 
 function client_draw()
@@ -120,10 +142,31 @@ function client_draw()
     love.graphics.setColor(255, 255, 255)
   end
 
-  love.graphics.pop()
-  love.graphics.setColor(0, 0, 0)
-  love.graphics.print(tostring(identifier))
+  -- draw qb targetPos
+  if players[qb].team == 1 then
+    love.graphics.setColor(team1.r, team1.g, team1.b)
+  else
+    love.graphics.setColor(team2.r, team2.g, team2.b)
+  end
+  if targetPos[#targetPos] ~= nil then
+    if players[avatar.num].team == players[qb].team then
+      love.graphics.draw(arrowTarget, warpX(targetPos[#targetPos][1], targetPos[#targetPos][2]), warpY(targetPos[#targetPos][2]), 0, range(down.dt, 0, 1), range(down.dt, 0, 1), 16, 8)
+    else
+      for i = 1, #targetPos do
+        if targetPos[i + 1] ~= nil then
+          if math.abs(targetPos[i][3] - (gameDt - otherTeamDelay)) < math.abs(targetPos[i + 1][3] - (gameDt - otherTeamDelay)) then
+            love.graphics.draw(arrowTarget, warpX(targetPos[i][1], targetPos[i][2]), warpY(targetPos[i][2]), 0, range(down.dt - 2, 0, 1), range(down.dt - 2, 0, 1), 16, 8)
+            break
+          end
+        else
+          break
+        end
+      end
+    end
+  end
   love.graphics.setColor(255, 255, 255)
+
+  love.graphics.pop()
 end
 
 function client_onReceive(data)
@@ -140,6 +183,20 @@ function client_onReceive(data)
         players[p].y = data["4"]
         break
       end
+    end
+  elseif data["1"] == "target" then
+    local alreadyAdded = false
+    if #targetPos > 0 then
+      if data["4"] == targetPos[#targetPos][3] then
+        alreadyAdded = true
+      end
+    end
+    if alreadyAdded == false then
+      targetPos[#targetPos + 1] = {data["2"], data["3"], data["4"]}
+      if #targetPos > 200 then
+        targetPos[1] = nil
+      end
+      targetPos = removeNil(targetPos)
     end
   end
 end
