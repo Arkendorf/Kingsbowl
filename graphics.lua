@@ -38,6 +38,9 @@ function graphics_load()
   grabShieldOverlay = love.graphics.newImage("char/grabShieldOverlay.png")
   grabShieldOverlayQuad = loadSpriteSheet(grabShieldOverlay, 32)
 
+  run = love.graphics.newImage("char/runArms.png")
+  runQuad = loadSpriteSheet(run, 32)
+
   coinImg = love.graphics.newImage("menu/coin.png")
   coinQuad = loadSpriteSheet(coinImg, 32)
 

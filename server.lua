@@ -11,6 +11,7 @@ function server_load()
   playerNum[3] = 1
   playerNum[4] = 1
   for p = 1, #players do
+    players[p].image = "run"
     if players[p].team == 1 then
       players[p].x = (-125 + (playerNum[1] - playerNum[3]) * 10) * 1.25
       players[p].y = 433
@@ -190,13 +191,22 @@ function server_onReceive(data, clientid)
     server:send(bin:pack({"coords", clientid, data["2"], data["3"]}))
     for p = 1, #players do
       if players[p].id == clientid then
-        if data["2"] - players[p].x > 0 and players[p].direction == -1 then
-          players[p].direction = 1
-        elseif data["2"] - players[p].x < 0 and players[p].direction == 1 then
-          players[p].direction = -1
-        end
+        local tempXV = data["2"] - players[p].x
+        local tempYV = data["3"] - players[p].y
         players[p].x = data["2"]
         players[p].y = data["3"]
+        if tempXV > 0 and players[p].direction == -1 then
+          players[p].direction = 1
+        elseif tempXV < 0 and players[p].direction == 1 then
+          players[p].direction = -1
+        end
+        if players[p].image == "run" then
+          if (math.abs(tempXV) + math.abs(tempYV)) / 2 < 1 then
+            players[p].frame = loop(players[p].frame + (math.abs(tempXV) + math.abs(tempYV)) / 2, 8)
+          else
+            players[p].frame = 1
+          end
+        end
         break
       end
     end
