@@ -77,13 +77,30 @@ function server_update(dt)
   -- confine player to field
   if players[avatar.num].x > 900 then
     players[avatar.num].x = 900
+    avatar.xV = 0
   elseif players[avatar.num].x < -900 then
     players[avatar.num].x = -900
+    avatar.xV = 0
   end
   if players[avatar.num].y > 800 then
     players[avatar.num].y = 800
+    avatar.yV = 0
   elseif players[avatar.num].y < 0 then
     players[avatar.num].y = 0
+    avatar.yV = 0
+  end
+
+  --animate avatar
+  if players[avatar.num].image == "run" then
+    if math.abs(avatar.xV) > 0.1 or math.abs(avatar.yV) > 0.1 then
+      if math.abs(avatar.xV) > math.abs(avatar.yV) then
+        players[avatar.num].frame = loop(players[avatar.num].frame + math.abs(avatar.xV) / 2, 8)
+      else
+        players[avatar.num].frame = loop(players[avatar.num].frame + math.abs(avatar.yV) / 2, 8)
+      end
+    else
+      players[avatar.num].frame = 1
+    end
   end
 
   avatar.xV = avatar.xV * 0.4
@@ -201,8 +218,12 @@ function server_onReceive(data, clientid)
           players[p].direction = -1
         end
         if players[p].image == "run" then
-          if (math.abs(tempXV) + math.abs(tempYV)) / 2 < 1 then
-            players[p].frame = loop(players[p].frame + (math.abs(tempXV) + math.abs(tempYV)) / 2, 8)
+          if math.abs(tempXV) > 0.1 or math.abs(tempYV) > 0.1 then
+            if math.abs(tempXV) > math.abs(tempYV) then
+              players[p].frame = loop(players[p].frame + math.abs(tempXV) / 2, 8)
+            else
+              players[p].frame = loop(players[p].frame + math.abs(tempYV) / 2, 8)
+            end
           else
             players[p].frame = 1
           end
