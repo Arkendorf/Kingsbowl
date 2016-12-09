@@ -41,6 +41,16 @@ function graphics_load()
   run = love.graphics.newImage("char/runArms.png")
   runQuad = loadSpriteSheet(run, 32)
 
+  runSword = love.graphics.newImage("char/runSword.png")
+  runSwordQuad = loadSpriteSheet(runSword, 32)
+  runSwordOverlay = love.graphics.newImage("char/runSwordOverlay.png")
+  runSwordOverlayQuad = loadSpriteSheet(runSwordOverlay, 32)
+
+  runShield = love.graphics.newImage("char/runShield.png")
+  runShieldQuad = loadSpriteSheet(runShield, 32)
+  runShieldOverlay = love.graphics.newImage("char/runShieldOverlay.png")
+  runShieldOverlayQuad = loadSpriteSheet(runShieldOverlay, 32)
+
   coinImg = love.graphics.newImage("menu/coin.png")
   coinQuad = loadSpriteSheet(coinImg, 32)
 

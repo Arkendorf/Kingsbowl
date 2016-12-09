@@ -4,8 +4,7 @@ function clientmenu_load()
   nameSent = false
   success = nil
   accepted = false
-  team1 = {r = 255, g = 0, b = 0, name = "Team 1"}
-  team2 = {r = 0, g = 0, b = 255, name = "Team 2"}
+  team = {{r = 255, g = 0, b = 0, name = "Team 1"}, {r = 0, g = 0, b = 255, name = "Team 2"}}
   players = {{name = playerName, id = "host", team = 1, image = "prep", frame = 1}}
   target = nil
 
@@ -172,18 +171,18 @@ function clientmenu_draw()
 
     love.graphics.draw(window, 0, 0)
     -- team1
-    love.graphics.setColor(team1.r, team1.g, team1.b)
+    love.graphics.setColor(team[1].r, team[1].g, team[1].b)
     love.graphics.draw(bannerImg, bannerColor, 0, 0)
     love.graphics.setColor(255, 255, 255)
     love.graphics.draw(bannerImg, banner, 0, 0)
-    love.graphics.print(team1.name, 37 - math.floor(getPixelWidth(team1.name) / 2), 8)
+    love.graphics.print(team[1].name, 37 - math.floor(getPixelWidth(team[1].name) / 2), 8)
 
     --team2
-    love.graphics.setColor(team2.r, team2.g, team2.b)
+    love.graphics.setColor(team[2].r, team[2].g, team[2].b)
     love.graphics.draw(bannerImg, bannerColor, 250, 0, 0, -1, 1)
     love.graphics.setColor(255, 255, 255)
     love.graphics.draw(bannerImg, banner, 250, 0, 0, -1, 1)
-    love.graphics.print(team2.name, 212 - math.floor(getPixelWidth(team2.name) / 2), 8)
+    love.graphics.print(team[2].name, 212 - math.floor(getPixelWidth(team[2].name) / 2), 8)
 
     -- draw defense/offense logos
     if start == true and coin.landed == true then
@@ -232,7 +231,7 @@ function clientmenu_draw()
         char = drawChar(players[p].image, players[p].frame)
         love.graphics.draw(charShadow, 64 + (playerNum[1] - playerNum[3]) * 10, 166)
         love.graphics.draw(char[1], char[2], 64 + (playerNum[1] - playerNum[3]) * 10, 150)
-        love.graphics.setColor(team1.r, team1.g, team1.b)
+        love.graphics.setColor(team[1].r, team[1].g, team[1].b)
         love.graphics.draw(char[3], char[4], 64 + (playerNum[1] - playerNum[3]) * 10, 150)
         love.graphics.setColor(255, 255, 255)
         playerNum[3] = playerNum[3] + 1
@@ -240,7 +239,7 @@ function clientmenu_draw()
         char = drawChar(players[p].image, players[p].frame)
         love.graphics.draw(charShadow, 336 + (playerNum[2] - playerNum[4]) * -10, 166, 0, -1, 1)
         love.graphics.draw(char[1], char[2], 336 + (playerNum[2] - playerNum[4]) * -10, 150, 0, -1, 1)
-        love.graphics.setColor(team2.r, team2.g, team2.b)
+        love.graphics.setColor(team[2].r, team[2].g, team[2].b)
         love.graphics.draw(char[3], char[4], 336 + (playerNum[2] - playerNum[4]) * -10, 150, 0, -1, 1)
         love.graphics.setColor(255, 255, 255)
         playerNum[4] = playerNum[4] + 1
@@ -320,8 +319,8 @@ function clientmenu_onReceive(data)
   elseif data["1"] == "join" then
     accepted = true
   elseif data["1"] == "teams" then
-    team1 = {name = data["2"], r = data["3"], g = data["4"], b = data["5"]}
-    team2 = {name = data["6"], r = data["7"], g = data["8"], b = data["9"]}
+    team[1] = {name = data["2"], r = data["3"], g = data["4"], b = data["5"]}
+    team[2] = {name = data["6"], r = data["7"], g = data["8"], b = data["9"]}
   elseif data["1"] == "player" then
     playerFound = false
     for p = 1, #players do

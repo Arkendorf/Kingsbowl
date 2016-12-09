@@ -133,9 +133,9 @@ function client_draw()
     love.graphics.draw(charShadow, warpX(players[p].x, players[p].y), warpY(players[p].y) + 16, 0, 1, 1, 16, 16)
     love.graphics.draw(char[1], char[2], warpX(players[p].x, players[p].y), warpY(players[p].y), 0, players[p].direction, 1, 16, 16)
     if players[p].team == 1 then
-      love.graphics.setColor(team1.r, team1.g, team1.b)
+      love.graphics.setColor(team[1].r, team[1].g, team[1].b)
     else
-      love.graphics.setColor(team2.r, team2.g, team2.b)
+      love.graphics.setColor(team[2].r, team[2].g, team[2].b)
     end
     love.graphics.draw(char[3], char[4], warpX(players[p].x, players[p].y), warpY(players[p].y), 0, players[p].direction, 1, 16, 16)
     love.graphics.print(players[p].name, warpX(players[p].x, players[p].y) - getPixelWidth(players[p].name) / 2, warpY(players[p].y) - 32)
@@ -144,9 +144,9 @@ function client_draw()
 
   -- draw qb targetPos
   if players[qb].team == 1 then
-    love.graphics.setColor(team1.r, team1.g, team1.b)
+    love.graphics.setColor(team[1].r, team[1].g, team[1].b)
   else
-    love.graphics.setColor(team2.r, team2.g, team2.b)
+    love.graphics.setColor(team[2].r, team[2].g, team[2].b)
   end
   if targetPos[#targetPos] ~= nil then
     if players[avatar.num].team == players[qb].team then
