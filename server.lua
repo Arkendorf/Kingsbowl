@@ -11,7 +11,6 @@ function server_load()
   playerNum[3] = 1
   playerNum[4] = 1
   for p = 1, #players do
-    players[p].image = "run"
     if players[p].team == 1 then
       players[p].x = (-125 + (playerNum[1] - playerNum[3]) * 10) * 1.25
       players[p].y = 433
@@ -91,17 +90,7 @@ function server_update(dt)
   end
 
   --animate avatar
-  if players[avatar.num].image == "run" then
-    if math.abs(avatar.xV) > 0.1 or math.abs(avatar.yV) > 0.1 then
-      if math.abs(avatar.xV) > math.abs(avatar.yV) then
-        players[avatar.num].frame = loop(players[avatar.num].frame + math.abs(avatar.xV) / 2, 8)
-      else
-        players[avatar.num].frame = loop(players[avatar.num].frame + math.abs(avatar.yV) / 2, 8)
-      end
-    else
-      players[avatar.num].frame = 1
-    end
-  end
+  animatePlayer(avatar.num, avatar.xV, avatar.yV)
 
   avatar.xV = avatar.xV * 0.4
   avatar.yV = avatar.yV * 0.4
@@ -217,17 +206,9 @@ function server_onReceive(data, clientid)
         elseif tempXV < 0 and players[p].direction == 1 then
           players[p].direction = -1
         end
-        if players[p].image == "run" then
-          if math.abs(tempXV) > 0.1 or math.abs(tempYV) > 0.1 then
-            if math.abs(tempXV) > math.abs(tempYV) then
-              players[p].frame = loop(players[p].frame + math.abs(tempXV) / 2, 8)
-            else
-              players[p].frame = loop(players[p].frame + math.abs(tempYV) / 2, 8)
-            end
-          else
-            players[p].frame = 1
-          end
-        end
+
+        -- animate player
+        animatePlayer(p, tempXV, tempYV)
         break
       end
     end
@@ -248,4 +229,27 @@ end
 
 function warpY(y)
   return math.floor(y / 2)
+end
+
+function animatePlayer(p, xV, yV)
+  local teamPos = team[players[p].team].position
+  if math.abs(xV) > 0.1 or math.abs(yV) > 0.1 then
+    if teamPos == "offense" then
+      players[p].image = "runShield"
+    elseif teamPos == "defense" then
+      players[p].image = "runSword"
+    end
+    if math.abs(xV) > math.abs(yV) then
+      players[p].frame = loop(players[p].frame + math.abs(xV) / 2, 8)
+    else
+      players[p].frame = loop(players[p].frame + math.abs(yV) / 2, 8)
+    end
+  else
+    if teamPos == "offense" then
+      players[p].image = "grabShield"
+    elseif teamPos == "defense" then
+      players[p].image = "unsheathSword"
+    end
+    players[p].frame = 14
+  end
 end

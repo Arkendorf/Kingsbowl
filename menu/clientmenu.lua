@@ -14,6 +14,7 @@ function clientmenu_load()
   coin = {dt = 0, v = 0, y = 0, frame = 1, result = 1, landed = false}
   start = false
   identifier = ""
+  initialPositions = false
 end
 
 function clientmenu_canvas()
@@ -115,8 +116,19 @@ function clientmenu_update(dt)
         players[p].frame = players[p].frame + dt * 12
         players[p].frame = loop(players[p].frame, 6)
         if players[p].image == "prep" and coin.landed == true and players[p].frame < 2 then
-          animation = {{"unsheathSword", "grabShield"}, { "grabShield", "unsheathSword"}}
-          players[p].image = animation[coin.result][players[p].team]
+          if coin.result == 1 then
+            if players[p].team == 1 then
+              players[p].image = "unsheathSword"
+            else
+              players[p].image = "grabShield"
+            end
+          else
+            if players[p].team == 1 then
+              players[p].image = "grabShield"
+            else
+              players[p].image = "unsheathSword"
+            end
+          end
           players[p].frame = 1
         end
       end
@@ -141,6 +153,18 @@ function clientmenu_update(dt)
       else
         coin.dt = coin.dt + dt
       end
+    end
+
+    -- initial positions
+    if coin.landed == true and initialPositions == false then
+      if coin.result == 1 then
+        team[1].position = "defense"
+        team[2].position = "offense"
+      else
+        team[1].position = "offense"
+        team[2].position = "defense"
+      end
+      initialPositions = true
     end
   end
 end
