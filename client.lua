@@ -85,6 +85,9 @@ function client_update(dt)
     players[avatar.num].y = 0
   end
 
+  --animate avatar
+  animatePlayer(avatar.num, avatar.xV, avatar.yV)
+
   avatar.xV = avatar.xV * 0.4
   avatar.yV = avatar.yV * 0.4
 
@@ -92,6 +95,7 @@ function client_update(dt)
   if players[avatar.num].x ~= oldPos.x or players[avatar.num].y ~= oldPos.y then
     client:send(bin:pack{"coords", players[avatar.num].x, players[avatar.num].y})
     oldPos.x, oldPos.y = players[avatar.num].x, players[avatar.num].y
+
   end
 
   -- set camera position
@@ -172,26 +176,27 @@ end
 function client_onReceive(data)
   data = bin:unpack(data)
   if data["1"] == "coords" then
-    for p = 1, #players do
-      if players[p].id == data["2"] then
-        if data["3"] - players[p].x > 0 and players[p].direction == -1 then
-          players[p].direction = 1
-        elseif data["3"] - players[p].x < 0 and players[p].direction == 1 then
-          players[p].direction = -1
+    if data["2"] ~= identifier then
+      for p = 1, #players do
+        if players[p].id == data["2"] then
+          local tempXV = data["3"] - players[p].x
+          local tempYV = data["4"] - players[p].y
+          players[p].x = data["3"]
+          players[p].y = data["4"]
+          if tempXV > 0 and players[p].direction == -1 then
+            players[p].direction = 1
+          elseif tempXV < 0 and players[p].direction == 1 then
+            players[p].direction = -1
+          end
+
+          -- animate player
+          animatePlayer(p, tempXV, tempYV)
+          break
         end
-        players[p].x = data["3"]
-        players[p].y = data["4"]
-        break
       end
     end
   elseif data["1"] == "target" then
-    local alreadyAdded = false
-    if #targetPos > 0 then
-      if data["4"] == targetPos[#targetPos][3] then
-        alreadyAdded = true
-      end
-    end
-    if alreadyAdded == false then
+    if qb ~= avatar.num and #targetPos > 0 then
       targetPos[#targetPos + 1] = {data["2"], data["3"], data["4"]}
       if #targetPos > 200 then
         targetPos[1] = nil
