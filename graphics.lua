@@ -13,6 +13,10 @@ function graphics_load()
 
   arrowTarget = love.graphics.newImage("art/target.png")
 
+  arrowImg = love.graphics.newImage("art/arrow.png")
+  arrowWobble = love.graphics.newImage("art/arrowWobble.png")
+  arrowWobbleQuad =loadSpriteSheet(arrowWobble, 32)
+
   prep = love.graphics.newImage("char/prep.png")
   prepQuad = loadSpriteSheet(prep, 32)
   prepOverlay = love.graphics.newImage("char/prepOverlay.png")

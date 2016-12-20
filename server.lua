@@ -28,12 +28,15 @@ function server_load()
   avatar = {num = 0, xV = 0, yV = 0}
   oldPos = {x = 0, y = 0}
 
-  qb = 2
+  qb = 1
   targetPos = {}
   gameDt = 0
   otherTeamDelay = 2
 
   down = {num = 1, dt = 0}
+  arrow = {}
+  objects = {}
+  particles = {}
 end
 
 function server_update(dt)
@@ -124,6 +127,38 @@ function server_update(dt)
     targetPos = removeNil(targetPos)
   end
 
+  if arrow.currentX ~= nil and arrow.currentY ~= nil then
+    arrow.oldX = arrow.currentX
+    arrow.oldY = arrow.currentY
+    arrow.oldZ = arrow.z
+    local distance = math.sqrt((arrow.targetX - arrow.currentX) * (arrow.targetX - arrow.currentX) + (arrow.targetY - arrow.currentY) * (arrow.targetY - arrow.currentY))
+    if distance >= 5 then
+      arrow.r = arrow.r + 5
+      arrow.currentX = arrow.startX + arrow.r * math.cos(arrow.theta)
+      arrow.currentY = arrow.startY + arrow.r * math.sin(arrow.theta)
+      if arrow.theta > 180 then
+        arrow.z = (((arrow.distance / 2 - arrow.r) * (arrow.distance / 2 - arrow.r)) * -1 + ((arrow.distance / 2) * (arrow.distance / 2))) / 200
+      else
+        arrow.z = (((arrow.distance / 2 - arrow.r) * (arrow.distance / 2 - arrow.r)) - ((arrow.distance / 2) * (arrow.distance / 2))) / 200
+      end
+      arrow.angle = math.atan2((arrow.currentY + arrow.z) - (arrow.oldY + arrow.oldZ), arrow.currentX - arrow.oldX)
+    else
+      objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY, dt = 0}
+      arrow = {}
+    end
+  end
+
+  --objects
+  for i = 1, #objects do
+    if objects[i].type == "arrow" then
+      objects[i].dt = objects[i].dt + dt
+      if objects[i].dt > 127.5 then
+        objects[i] = nil
+      end
+    end
+  end
+  objects = removeNil(objects)
+
   gameDt = gameDt + dt
   --temporary downDt
   down.dt = gameDt
@@ -133,6 +168,16 @@ function server_draw()
   love.graphics.push()
   love.graphics.translate(camera.x, camera.y)
   love.graphics.draw(fieldImg, -1000, -100)
+
+
+  --draw objects
+  for i = 1, #objects do
+    if objects[i].type == "arrow" then
+      love.graphics.setColor(255, 255, 255, 255 - (objects[i].dt * 2))
+      love.graphics.draw(arrowWobble, arrowWobbleQuad[range(math.floor(objects[i].dt * 50), 1, 11)], warpX(objects[i].x, objects[i].y), warpY(objects[i].y), 0, 1, 1, 16, 32)
+      love.graphics.setColor(255, 255, 255, 255)
+    end
+  end
 
   -- draw players
   for p = 1, #players do
@@ -173,7 +218,22 @@ function server_draw()
   end
   love.graphics.setColor(255, 255, 255)
 
+  if arrow.currentX ~= nil and arrow.currentY ~= nil then
+    love.graphics.draw(arrowImg, warpX(arrow.currentX, arrow.currentY), warpY(arrow.currentY) + arrow.z, arrow.angle, 1, 1, 16, 16)
+  end
+
   love.graphics.pop()
+end
+
+function server_mousepressed(x, y, button)
+  if button == 1 then
+    if qb == avatar.num and arrow.currentX == nil and arrow.currentY == nil then
+      arrowTargetX, arrowTargetY = (players[avatar.num].x + math.floor(x) - 200), (players[avatar.num].y + math.floor(y) - 150)
+      server:send(bin:pack({"arrow", arrowTargetX, arrowTargetY}))
+      arrow = {oldX = players[avatar.num].x, oldY = players[avatar.num].y, startX = players[avatar.num].x, startY = players[avatar.num].y, currentX = players[avatar.num].x, currentY = players[avatar.num].y, theta = math.atan2(arrowTargetY - players[avatar.num].y, arrowTargetX - players[avatar.num].x), r = 0, targetX = arrowTargetX, targetY = arrowTargetY, z = 0, angle = 0, dt = 0}
+      arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
+    end
+  end
 end
 
 function server_onConnect(clientid)

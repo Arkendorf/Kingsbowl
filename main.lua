@@ -87,6 +87,8 @@ function love.mousepressed(x, y, button)
     servermenu_mousepressed(x, y, button)
   elseif gamestate == "clientmenu" then
     clientmenu_mousepressed(x, y, button)
+  elseif gamestate == "server" then
+    server_mousepressed(x, y, button)
   end
 end
 

@@ -28,7 +28,7 @@ function client_load()
   camera = {x = 200, y = -50}
   avatar = {num = 0, xV = 0, yV = 0}
 
-  qb = 2
+  qb = 1
   targetPos = {}
   gameDt = 0
   otherTeamDelay = 2
@@ -93,7 +93,7 @@ function client_update(dt)
 
   -- send coords if change is detected
   if players[avatar.num].x ~= oldPos.x or players[avatar.num].y ~= oldPos.y then
-    client:send(bin:pack{"coords", players[avatar.num].x, players[avatar.num].y})
+    client:send(bin:pack({"coords", players[avatar.num].x, players[avatar.num].y}))
     oldPos.x, oldPos.y = players[avatar.num].x, players[avatar.num].y
 
   end
