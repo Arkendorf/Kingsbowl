@@ -222,6 +222,7 @@ function client_draw()
   end
 
   love.graphics.pop()
+  love.graphics.print(identifier)
 end
 
 function client_mousepressed(x, y, button)
