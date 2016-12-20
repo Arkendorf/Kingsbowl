@@ -148,6 +148,11 @@ function clientmenu_update(dt)
         if coin.y >= 0 then
           coin.v = 0
           coin.y = 0
+          if coin.result == 1 then
+            coin.frame = 1
+          else
+            coin.frame = 7
+          end
           coin.landed = true
         end
       else

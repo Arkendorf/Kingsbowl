@@ -28,15 +28,16 @@ function server_load()
   avatar = {num = 0, xV = 0, yV = 0}
   oldPos = {x = 0, y = 0}
 
-  qb = 1
+  qb = 2
   targetPos = {}
   gameDt = 0
-  otherTeamDelay = 2
+  otherTeamDelay = 0.5
 
   down = {num = 1, dt = 0}
   arrow = {}
   objects = {}
   particles = {}
+  arrowShot = false
 end
 
 function server_update(dt)
@@ -100,7 +101,7 @@ function server_update(dt)
 
   -- send coords if change is detected
   if players[avatar.num].x ~= oldPos.x or players[avatar.num].y ~= oldPos.y then
-    server:send(bin:pack{"coords", "host", players[avatar.num].x, players[avatar.num].y})
+    server:send(bin:pack({"coords", "host", players[avatar.num].x, players[avatar.num].y}))
     oldPos.x, oldPos.y = players[avatar.num].x, players[avatar.num].y
   end
 
@@ -169,7 +170,6 @@ function server_draw()
   love.graphics.translate(camera.x, camera.y)
   love.graphics.draw(fieldImg, -1000, -100)
 
-
   --draw objects
   for i = 1, #objects do
     if objects[i].type == "arrow" then
@@ -207,7 +207,7 @@ function server_draw()
       for i = 1, #targetPos do
         if targetPos[i + 1] ~= nil then
           if math.abs(targetPos[i][3] - (gameDt - otherTeamDelay)) < math.abs(targetPos[i + 1][3] - (gameDt - otherTeamDelay)) then
-            love.graphics.draw(arrowTarget, warpX(targetPos[i][1], targetPos[i][2]), warpY(targetPos[i][2]), 0, range(down.dt - 2, 0, 1), range(down.dt - 2, 0, 1), 16, 8)
+            love.graphics.draw(arrowTarget, warpX(targetPos[i][1], targetPos[i][2]), warpY(targetPos[i][2]), 0, range(down.dt - otherTeamDelay, 0, 1), range(down.dt - otherTeamDelay, 0, 1), 16, 8)
             break
           end
         else
@@ -218,6 +218,7 @@ function server_draw()
   end
   love.graphics.setColor(255, 255, 255)
 
+  -- draw arrow
   if arrow.currentX ~= nil and arrow.currentY ~= nil then
     love.graphics.draw(arrowImg, warpX(arrow.currentX, arrow.currentY), warpY(arrow.currentY) + arrow.z, arrow.angle, 1, 1, 16, 16)
   end
@@ -227,11 +228,12 @@ end
 
 function server_mousepressed(x, y, button)
   if button == 1 then
-    if qb == avatar.num and arrow.currentX == nil and arrow.currentY == nil then
+    if qb == avatar.num and arrow.currentX == nil and arrow.currentY == nil and arrowShot == false then
       arrowTargetX, arrowTargetY = (players[avatar.num].x + math.floor(x) - 200), (players[avatar.num].y + math.floor(y) - 150)
       server:send(bin:pack({"arrow", arrowTargetX, arrowTargetY}))
-      arrow = {oldX = players[avatar.num].x, oldY = players[avatar.num].y, startX = players[avatar.num].x, startY = players[avatar.num].y, currentX = players[avatar.num].x, currentY = players[avatar.num].y, theta = math.atan2(arrowTargetY - players[avatar.num].y, arrowTargetX - players[avatar.num].x), r = 0, targetX = arrowTargetX, targetY = arrowTargetY, z = 0, angle = 0, dt = 0}
+      arrow = {oldX = players[avatar.num].x, oldY = players[avatar.num].y, startX = players[avatar.num].x, startY = players[avatar.num].y, currentX = players[avatar.num].x, currentY = players[avatar.num].y, theta = math.atan2(arrowTargetY - players[avatar.num].y, arrowTargetX - players[avatar.num].x), r = 0, targetX = arrowTargetX, targetY = arrowTargetY, z = 0, angle = 0}
       arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
+      arrowShot = true
     end
   end
 end
@@ -266,8 +268,6 @@ function server_onReceive(data, clientid)
         elseif tempXV < 0 and players[p].direction == 1 then
           players[p].direction = -1
         end
-
-        -- animate player
         animatePlayer(p, tempXV, tempYV)
         break
       end
@@ -279,6 +279,11 @@ function server_onReceive(data, clientid)
       targetPos[1] = nil
     end
     targetPos = removeNil(targetPos)
+  elseif data["1"] == "arrow" then
+    server:send(bin:pack(data))
+    arrow = {oldX = players[qb].x, oldY = players[qb].y, startX = players[qb].x, startY = players[qb].y, currentX = players[qb].x, currentY = players[qb].y, theta = math.atan2(data["3"] - players[qb].y, data["2"] - players[qb].x), r = 0, targetX = data["2"], targetY = data["3"], z = 0, angle = 0}
+    arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
+    arrowShot = true
   end
 end
 
