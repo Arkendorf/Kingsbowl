@@ -51,7 +51,7 @@ function server_update(dt)
 
   -- find which player is the "avatar"
   for p = 1, #players do
-    if players[p].id == "host" then
+    if players[p].id == 1 then
       avatar.num = p
       break
     end
@@ -101,7 +101,7 @@ function server_update(dt)
 
   -- send coords if change is detected
   if players[avatar.num].x ~= oldPos.x or players[avatar.num].y ~= oldPos.y then
-    server:send(bin:pack({"coords", "host", players[avatar.num].x, players[avatar.num].y}))
+    server:send(bin:pack({"coords", 1, players[avatar.num].x, players[avatar.num].y}))
     oldPos.x, oldPos.y = players[avatar.num].x, players[avatar.num].y
   end
 
@@ -239,30 +239,23 @@ function server_mousepressed(x, y, button)
 end
 
 function server_onConnect(clientid)
-  server:send(bin:pack({"disconnect"}), clientid)
+  server:send(bin:pack({"late"}))
 end
 
 function server_onDisconnect(clientid)
-  removed = false
-  for p = 1, #players do
-    if players[p].id == clientid then
-      players[p].delete = true
-      removed = true
-      break
-    end
-  end
+
 end
 
 function server_onReceive(data, clientid)
   data = bin:unpack(data)
   if data["1"] == "coords" then
-    server:send(bin:pack({"coords", clientid, data["2"], data["3"]}))
+    server:send(bin:pack({"coords", data["2"], data["3"], data["4"]}))
     for p = 1, #players do
-      if players[p].id == clientid then
-        local tempXV = data["2"] - players[p].x
-        local tempYV = data["3"] - players[p].y
-        players[p].x = data["2"]
-        players[p].y = data["3"]
+      if players[p].id == data["2"] then
+        local tempXV = data["3"] - players[p].x
+        local tempYV = data["4"] - players[p].y
+        players[p].x = data["3"]
+        players[p].y = data["4"]
         if tempXV > 0 and players[p].direction == -1 then
           players[p].direction = 1
         elseif tempXV < 0 and players[p].direction == 1 then

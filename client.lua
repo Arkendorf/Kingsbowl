@@ -22,11 +22,11 @@ function client_load()
       players[p].direction = -1
       playerNum[4] = playerNum[4] + 1
     end
-    oldPos = {x = 0, y = 0}
   end
 
   camera = {x = 200, y = -50}
   avatar = {num = 0, xV = 0, yV = 0}
+  oldPos = {x = 0, y = 0}
 
   qb = 2
   targetPos = {}
@@ -97,7 +97,7 @@ function client_update(dt)
 
   -- send coords if change is detected
   if players[avatar.num].x ~= oldPos.x or players[avatar.num].y ~= oldPos.y then
-    client:send(bin:pack({"coords", players[avatar.num].x, players[avatar.num].y}))
+    client:send(bin:pack({"coords", identifier, players[avatar.num].x, players[avatar.num].y}))
     oldPos.x, oldPos.y = players[avatar.num].x, players[avatar.num].y
 
   end

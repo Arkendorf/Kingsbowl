@@ -5,7 +5,7 @@ function servermenu_load()
   slider = {type = ""}
   textBox = ""
   target = nil
-  players = {{name = playerName, id = "host", team = 1, delete = false, image = "prep", frame = 1}}
+  players = {{name = playerName, id = 1, team = 1, delete = false, image = "prep", frame = 1}}
   playerQueue = {false, false, false}
   queue = {}
   port = ""
@@ -16,6 +16,8 @@ function servermenu_load()
   coin = {dt = 0, v = 0, y = 0, frame = 1, result = 1, landed = false}
   start = false
   initialPositions = false
+
+  totalPlayers = 1
 end
 
 function servermenu_canvas()
@@ -99,7 +101,7 @@ function servermenu_update(dt)
           if playerQueue[p].name ~= nil then
             queue[p] = loadPlayerButton(playerQueue[p].name, range(math.ceil(playerQueue[p].dt), 1, playerButtonMax))
           else
-            queue[p] = loadPlayerButton(playerQueue[p].id, range(math.ceil(playerQueue[p].dt), 1, playerButtonMax))
+            queue[p] = loadPlayerButton(tostring(playerQueue[p].id), range(math.ceil(playerQueue[p].dt), 1, playerButtonMax))
           end
         end
       else
@@ -289,18 +291,10 @@ function servermenu_draw()
     if target ~= nil then
       if players[target].team == 1 then
         love.graphics.print(tostring(players[target].name), 37 - math.floor(getPixelWidth(tostring(players[target].name)) / 2), 75)
-        if team[2].playerNum < 6 then
-          love.graphics.print("click to swap", 10, 150)
-        else
-          love.graphics.print("team full", 19, 150)
-        end
+        love.graphics.print(tostring(players[target].id), 37 - math.floor(getPixelWidth(tostring(players[target].id))), 150)
       else
         love.graphics.print(tostring(players[target].name), 212 - math.floor(getPixelWidth(tostring(players[target].name)) / 2), 75)
-        if team[1].playerNum < 6 then
-          love.graphics.print("click to swap", 186, 150)
-        else
-          love.graphics.print("team full", 195, 150)
-        end
+        love.graphics.print(tostring(players[target].id), 212 - math.floor(getPixelWidth(tostring(players[target].id))), 150)
       end
     end
 
@@ -413,16 +407,16 @@ function servermenu_mousepressed(x, y, button)
           if playerQueue[p] ~= false then
             if playerQueue[p].delete == false then
               if x > -5 + 84 * p and x < 11 + 84 * p and y > 245 and y < 245 + 16 then
-                server:send(bin:pack({"disconnect"}), playerQueue[p].id)
+                server:send(bin:pack({"disconnect", playerQueue[p].id}))
               elseif x > 37 + 84 * p and x < 53 + 84 * p and y > 245 and y < 245 + 16 and team[1].playerNum < 6 then
-                server:send(bin:pack({"join"}), playerQueue[p].id)
+                server:send(bin:pack({"join", playerQueue[p].id}))
                 players[#players + 1] = {id = playerQueue[p].id, name = playerQueue[p].name, team = 1, delete = false, image = "dissapear", frame = 18}
                 playerQueue[p].delete = true
                 playerQueue[p].dt = playerButtonMax
                 newPlayer = true
 
               elseif x > 53 + 84 * p and x < 69 + 84 * p and y > 245 and y < 245 + 16 and team[2].playerNum < 6 then
-                server:send(bin:pack({"join"}), playerQueue[p].id)
+                server:send(bin:pack({"join", playerQueue[p].id}))
                 players[#players + 1] = {id = playerQueue[p].id, name = playerQueue[p].name, team = 2, delete = false, image = "dissapear", frame = 18}
                 playerQueue[p].delete = true
                 playerQueue[p].dt = playerButtonMax
@@ -442,8 +436,8 @@ function servermenu_mousepressed(x, y, button)
       end
     elseif button == 2 then
       if target ~= nil then
-        if players[target].id ~= "host" then
-          server:send(bin:pack({"disconnect"}), players[target].id)
+        if players[target].id ~= 1 then
+          server:send(bin:pack({"disconnect", players[target].id}))
         end
       end
     end
@@ -552,51 +546,53 @@ function loadPlayerButton (name, frame)
 end
 
 function server_quit()
-  server:send(bin:pack({"disconnect"}))
+  server:send(bin:pack({"disconnect", "all"}))
 end
 
 function servermenu_onConnect(clientid)
+  totalPlayers = totalPlayers + 1
   playerAdded = false
   for p = 1, #playerQueue do
     if playerQueue[p] == false then
-      playerQueue[p] = {id = clientid, team = 1, delete = false}
+      playerQueue[p] = {id = totalPlayers, team = 1, delete = false}
       playerAdded = true
       break
     end
   end
   if playerAdded == false then
-    playerQueue[#playerQueue + 1] = {id = clientid, team = 1, delete = false}
+    playerQueue[#playerQueue + 1] = {id = totalPlayers, team = 1, delete = false}
   end
-  server:send(bin:pack({"id", clientid}))
+  server:send(bin:pack({"id", totalPlayers}))
 end
 
 function servermenu_onDisconnect(clientid)
-  removed = false
-  for p = 1, #players do
-    if players[p].id == clientid then
-      players[p].delete = true
-      removed = true
-      break
-    end
-  end
-  if removed == false then
-    for p = 1, #playerQueue do
-      if playerQueue[p].id == clientid then
-        playerQueue[p].delete = true
-        playerQueue[p].dt = playerButtonMax
-        break
-      end
-    end
-  end
 end
 
 function servermenu_onReceive(data, clientid)
   data = bin:unpack(data)
   if data["1"] == "name" then
     for p = 1, #playerQueue do
-      if playerQueue[p].id == clientid then
-        playerQueue[p].name = data["2"]
+      if playerQueue[p].id == data["2"] then
+        playerQueue[p].name = data["3"]
         break
+      end
+    end
+  elseif data["1"] == "disconnect" then
+    removed = false
+    for p = 1, #players do
+      if players[p].id == data["2"] then
+        players[p].delete = true
+        removed = true
+        break
+      end
+    end
+    if removed == false then
+      for p = 1, #playerQueue do
+        if playerQueue[p].id == data["2"] then
+          playerQueue[p].delete = true
+          playerQueue[p].dt = playerButtonMax
+          break
+        end
       end
     end
   end

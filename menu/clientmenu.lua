@@ -5,7 +5,7 @@ function clientmenu_load()
   success = nil
   accepted = false
   team = {{r = 255, g = 0, b = 0, name = "Team 1"}, {r = 0, g = 0, b = 255, name = "Team 2"}}
-  players = {{name = playerName, id = "host", team = 1, image = "prep", frame = 1}}
+  players = {{name = playerName, id = 1, team = 1, image = "prep", frame = 1}}
   target = nil
 
   errorMsg = ""
@@ -33,8 +33,8 @@ function clientmenu_update(dt)
       errorMsg = "Unable to connect to server. Check IP"
       textBox = ""
       success = nil
-    elseif success == true and nameSent == false then
-      client:send(bin:pack({"name", playerName}))
+    elseif success == true and nameSent == false and identifier ~= "" then
+      client:send(bin:pack({"name", identifier, playerName}))
       nameSent = true
     end
 
@@ -336,17 +336,23 @@ function connectToServer()
 end
 
 function client_quit()
+  client:send(bin:pack({"disconnect", identifier}))
   client:disconnect()
 end
 
 function clientmenu_onReceive(data)
   data = bin:unpack(data)
   if data["1"] == "disconnect" then
-    client:disconnect()
-    clientmenu_load()
-    errorMsg = "Kicked by server"
+    if data["2"] == identifier or data["2"] == "all" then
+      client:send(bin:pack({"disconnect", identifier}))
+      client:disconnect()
+      clientmenu_load()
+      errorMsg = "Kicked by server"
+    end
   elseif data["1"] == "join" then
-    accepted = true
+    if data["2"] == identifier then
+      accepted = true
+    end
   elseif data["1"] == "teams" then
     team[1] = {name = data["2"], r = data["3"], g = data["4"], b = data["5"]}
     team[2] = {name = data["6"], r = data["7"], g = data["8"], b = data["9"]}
@@ -370,6 +376,12 @@ function clientmenu_onReceive(data)
     client_load()
     gamestate = "client"
   elseif data["1"] == "id" then
-    identifier = data["2"]
+    if identifier == "" then
+      identifier = data["2"]
+    end
+  elseif data["1"] == "late" then
+    client:disconnect()
+    clientmenu_load()
+    errorMsg = "Game has already begun"
   end
 end
