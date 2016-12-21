@@ -273,13 +273,11 @@ function client_onReceive(data)
     end
   elseif data["1"] == "disconnect" then
     if data["2"] == identifier or data["2"] == "all" then
-      -- client:send(bin:pack({"disconnect", identifier}))
-      -- client:disconnect()
-      -- clientmenu_load()
+      client:send(bin:pack({"disconnect", identifier}))
+      client:disconnect()
       clientmenu_load()
       gamestate = "clientmenu"
       errorMsg = "Kicked by server"
-
     end
   end
 end

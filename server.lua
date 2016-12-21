@@ -243,7 +243,6 @@ function server_onConnect(clientid)
 end
 
 function server_onDisconnect(clientid)
-
 end
 
 function server_onReceive(data, clientid)
@@ -280,7 +279,7 @@ function server_onReceive(data, clientid)
   elseif data["1"] == "disconnect" then
     for p = 1, #players do
       if players[p].id == data["2"] then
-        
+
         break
       end
     end

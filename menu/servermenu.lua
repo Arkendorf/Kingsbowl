@@ -566,7 +566,6 @@ function servermenu_onConnect(clientid)
 end
 
 function servermenu_onDisconnect(clientid)
-  totalPlayers = totalPlayers - 1
 end
 
 function servermenu_onReceive(data, clientid)
