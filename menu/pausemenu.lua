@@ -97,12 +97,13 @@ function pausemenu_mousepressed(x, y, button)
       adjustScreen()
       refresh = true
     elseif x >= 175 and x <= 225 and y >= 186 and y <= 202 then
-      if gamestate == "servermenu" then
+      if gamestate == "servermenu" or gamestate == "server" then
         if proceed == true then
-          server:send(bin:pack({"disconnect"}))
+          server:send(bin:pack({"disconnect", "all"}))
         end
-      elseif gamestate == "clientmenu" then
+      elseif gamestate == "clientmenu" or gamestate == "client" then
         if proceed == true then
+          client:send(bin:pack({"disconnect", identifier}))
           client:disconnect()
         end
       end

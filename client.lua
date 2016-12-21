@@ -271,5 +271,15 @@ function client_onReceive(data)
       arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
       arrowShot = true
     end
+  elseif data["1"] == "disconnect" then
+    if data["2"] == identifier or data["2"] == "all" then
+      -- client:send(bin:pack({"disconnect", identifier}))
+      -- client:disconnect()
+      -- clientmenu_load()
+      clientmenu_load()
+      gamestate = "clientmenu"
+      errorMsg = "Kicked by server"
+
+    end
   end
 end

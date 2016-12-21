@@ -118,9 +118,9 @@ function love.textinput(text)
 end
 
 function love.quit()
-  if gamestate == "clientmenu" then
+  if gamestate == "clientmenu" or gamestate == "client" then
     client_quit()
-  elseif gamestate == "servermenu" then
+  elseif gamestate == "servermenu" or gamestate == "server" then
     server_quit()
   end
 end

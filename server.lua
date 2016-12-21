@@ -277,6 +277,13 @@ function server_onReceive(data, clientid)
     arrow = {oldX = players[qb].x, oldY = players[qb].y, startX = players[qb].x, startY = players[qb].y, currentX = players[qb].x, currentY = players[qb].y, theta = math.atan2(data["3"] - players[qb].y, data["2"] - players[qb].x), r = 0, targetX = data["2"], targetY = data["3"], z = 0, angle = 0}
     arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
     arrowShot = true
+  elseif data["1"] == "disconnect" then
+    for p = 1, #players do
+      if players[p].id == data["2"] then
+        
+        break
+      end
+    end
   end
 end
 
