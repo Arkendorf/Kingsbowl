@@ -577,7 +577,7 @@ function servermenu_onReceive(data, clientid)
         break
       end
     end
-  elseif data["1"] == "disconnect" then
+  elseif data["1"] == "left" then
     removed = false
     for p = 1, #players do
       if players[p].id == data["2"] then

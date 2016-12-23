@@ -41,126 +41,167 @@ function client_load()
 end
 
 function client_update(dt)
-  client:update(dt)
-  -- get mouse position and limit it
-  mX, mY = adjust(love.mouse.getPosition())
-  if mX > 400 then mX = 400 end
-  if mX < 0 then mX = 0 end
-  if mY > 300 then mY = 300 end
-  if mY < 0 then mY = 0 end
+  if disconnected == false then
+    client:update(dt)
+    -- get mouse position and limit it
+    mX, mY = adjust(love.mouse.getPosition())
+    if mX > 400 then mX = 400 end
+    if mX < 0 then mX = 0 end
+    if mY > 300 then mY = 300 end
+    if mY < 0 then mY = 0 end
 
-  -- find which player is the "avatar"
-  for p = 1, #players do
-    if players[p].id == identifier then
-      avatar.num = p
-      break
-    end
-  end
-
-  -- move player
-  if love.keyboard.isDown("d") then
-    avatar.xV = avatar.xV + dt * 30
-  end
-  if love.keyboard.isDown("a") then
-    avatar.xV = avatar.xV - dt * 30
-  end
-  if love.keyboard.isDown("w") then
-    avatar.yV = avatar.yV - dt * 30
-  end
-  if love.keyboard.isDown("s") then
-    avatar.yV = avatar.yV + dt * 30
-  end
-  players[avatar.num].x = players[avatar.num].x + avatar.xV
-  players[avatar.num].y = players[avatar.num].y + avatar.yV
-  if avatar.xV > 0 and players[avatar.num].direction == -1 then
-    players[avatar.num].direction = 1
-  elseif avatar.xV < 0 and players[avatar.num].direction == 1 then
-    players[avatar.num].direction = -1
-  end
-  -- confine player to field
-  if players[avatar.num].x > 900 then
-    players[avatar.num].x = 900
-  elseif players[avatar.num].x < -900 then
-    players[avatar.num].x = -900
-  end
-  if players[avatar.num].y > 800 then
-    players[avatar.num].y = 800
-  elseif players[avatar.num].y < 0 then
-    players[avatar.num].y = 0
-  end
-
-  --animate avatar
-  animatePlayer(avatar.num, avatar.xV, avatar.yV)
-
-  avatar.xV = avatar.xV * 0.4
-  avatar.yV = avatar.yV * 0.4
-
-  -- send coords if change is detected
-  if players[avatar.num].x ~= oldPos.x or players[avatar.num].y ~= oldPos.y then
-    client:send(bin:pack({"coords", identifier, players[avatar.num].x, players[avatar.num].y}))
-    oldPos.x, oldPos.y = players[avatar.num].x, players[avatar.num].y
-
-  end
-
-  -- set camera position
-  if math.abs((-1 * warpX(players[avatar.num].x, players[avatar.num].y) - math.floor(mX) + 400) - camera.x) > 1 then
-    camera.x = camera.x + ((-1 * warpX(players[avatar.num].x, players[avatar.num].y) - math.floor(mX) + 400) - camera.x) * 0.4
-  else
-    camera.x = -1 * warpX(players[avatar.num].x, players[avatar.num].y) - math.floor(mX) + 400
-  end
-  if math.abs((warpY(-1 * players[avatar.num].y) - math.floor(mY) + 300) - camera.y) > 1 then
-    camera.y = camera.y + ((warpY(-1 * players[avatar.num].y) - math.floor(mY) + 300) - camera.y) * 0.4
-  else
-    camera.y = warpY(-1 * players[avatar.num].y) - math.floor(mY) + 300
-  end
-
-  --quarterback's target
-  if avatar.num == qb then
-    qbTargetX, qbTargetY = (players[avatar.num].x + math.floor(mX) - 200), (players[avatar.num].y + math.floor(mY) - 150)
-    client:send(bin:pack({"target", qbTargetX, qbTargetY, gameDt}))
-    targetPos[#targetPos + 1] = {qbTargetX, qbTargetY, gameDt}
-    if #targetPos > 200 then
-      targetPos[1] = nil
-    end
-    targetPos = removeNil(targetPos)
-  end
-
-  if arrow.currentX ~= nil and arrow.currentY ~= nil then
-    arrow.oldX = arrow.currentX
-    arrow.oldY = arrow.currentY
-    arrow.oldZ = arrow.z
-    local distance = math.sqrt((arrow.targetX - arrow.currentX) * (arrow.targetX - arrow.currentX) + (arrow.targetY - arrow.currentY) * (arrow.targetY - arrow.currentY))
-    if distance >= 5 then
-      arrow.r = arrow.r + 5
-      arrow.currentX = arrow.startX + arrow.r * math.cos(arrow.theta)
-      arrow.currentY = arrow.startY + arrow.r * math.sin(arrow.theta)
-      if arrow.theta > 180 then
-        arrow.z = (((arrow.distance / 2 - arrow.r) * (arrow.distance / 2 - arrow.r)) * -1 + ((arrow.distance / 2) * (arrow.distance / 2))) / 200
-      else
-        arrow.z = (((arrow.distance / 2 - arrow.r) * (arrow.distance / 2 - arrow.r)) - ((arrow.distance / 2) * (arrow.distance / 2))) / 200
+    --deserters
+    for p = 1, #players do
+      if players[p].delete == true then
+        players[p].frame = players[p].frame + dt * 30
+        if players[p].frame > 18 then
+          if qb == p then
+            local newQb = false
+            for p2 = 1, #players do
+              if players[p2].team == players[p].team and p2 ~= p then
+                if p2 > p then
+                  qb = p2 - 1
+                else
+                  qb = p2
+                end
+                newQb = true
+              end
+              if newQb == false then
+                for p2 = 1, #players do
+                  if p2 ~= p then
+                    if p2 > p then
+                      qb = p2 - 1
+                    else
+                      qb = p2
+                    end
+                  end
+                end
+              end
+            end
+          end
+          players[p] = nil
+        end
       end
-      arrow.angle = math.atan2((arrow.currentY + arrow.z) - (arrow.oldY + arrow.oldZ), arrow.currentX - arrow.oldX)
+    end
+    players = removeNil(players)
+
+    -- find which player is the "avatar"
+    for p = 1, #players do
+      if players[p].id == identifier then
+        avatar.num = p
+        break
+      end
+    end
+
+    -- move player
+    if love.keyboard.isDown("d") then
+      avatar.xV = avatar.xV + dt * 30
+    end
+    if love.keyboard.isDown("a") then
+      avatar.xV = avatar.xV - dt * 30
+    end
+    if love.keyboard.isDown("w") then
+      avatar.yV = avatar.yV - dt * 30
+    end
+    if love.keyboard.isDown("s") then
+      avatar.yV = avatar.yV + dt * 30
+    end
+    players[avatar.num].x = players[avatar.num].x + avatar.xV
+    players[avatar.num].y = players[avatar.num].y + avatar.yV
+    if avatar.xV > 0 and players[avatar.num].direction == -1 then
+      players[avatar.num].direction = 1
+    elseif avatar.xV < 0 and players[avatar.num].direction == 1 then
+      players[avatar.num].direction = -1
+    end
+    -- confine player to field
+    if players[avatar.num].x > 900 then
+      players[avatar.num].x = 900
+    elseif players[avatar.num].x < -900 then
+      players[avatar.num].x = -900
+    end
+    if players[avatar.num].y > 800 then
+      players[avatar.num].y = 800
+    elseif players[avatar.num].y < 0 then
+      players[avatar.num].y = 0
+    end
+
+    --animate avatar
+    animatePlayer(avatar.num, avatar.xV, avatar.yV)
+
+    avatar.xV = avatar.xV * 0.4
+    avatar.yV = avatar.yV * 0.4
+
+    -- send coords if change is detected
+    if players[avatar.num].x ~= oldPos.x or players[avatar.num].y ~= oldPos.y then
+      client:send(bin:pack({"coords", identifier, players[avatar.num].x, players[avatar.num].y}))
+      oldPos.x, oldPos.y = players[avatar.num].x, players[avatar.num].y
+    end
+
+    -- set camera position
+    if math.abs((-1 * warpX(players[avatar.num].x, players[avatar.num].y) - math.floor(mX) + 400) - camera.x) > 1 then
+      camera.x = camera.x + ((-1 * warpX(players[avatar.num].x, players[avatar.num].y) - math.floor(mX) + 400) - camera.x) * 0.4
     else
-      objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY, dt = 0}
-      arrow = {}
+      camera.x = -1 * warpX(players[avatar.num].x, players[avatar.num].y) - math.floor(mX) + 400
     end
-  end
+    if math.abs((warpY(-1 * players[avatar.num].y) - math.floor(mY) + 300) - camera.y) > 1 then
+      camera.y = camera.y + ((warpY(-1 * players[avatar.num].y) - math.floor(mY) + 300) - camera.y) * 0.4
+    else
+      camera.y = warpY(-1 * players[avatar.num].y) - math.floor(mY) + 300
+    end
 
-  --objects
-  for i = 1, #objects do
-    if objects[i].type == "arrow" then
-      objects[i].dt = objects[i].dt + dt
-      if objects[i].dt > 127.5 then
-        objects[i] = nil
+    --quarterback's target
+    if avatar.num == qb then
+      qbTargetX, qbTargetY = (players[avatar.num].x + math.floor(mX) - 200), (players[avatar.num].y + math.floor(mY) - 150)
+      client:send(bin:pack({"target", qbTargetX, qbTargetY, gameDt}))
+      targetPos[#targetPos + 1] = {qbTargetX, qbTargetY, gameDt}
+      if #targetPos > 200 then
+        targetPos[1] = nil
+      end
+      targetPos = removeNil(targetPos)
+    end
+
+    if arrow.currentX ~= nil and arrow.currentY ~= nil then
+      arrow.oldX = arrow.currentX
+      arrow.oldY = arrow.currentY
+      arrow.oldZ = arrow.z
+      local distance = math.sqrt((arrow.targetX - arrow.currentX) * (arrow.targetX - arrow.currentX) + (arrow.targetY - arrow.currentY) * (arrow.targetY - arrow.currentY))
+      if distance >= 5 then
+        arrow.r = arrow.r + 5
+        arrow.currentX = arrow.startX + arrow.r * math.cos(arrow.theta)
+        arrow.currentY = arrow.startY + arrow.r * math.sin(arrow.theta)
+        if arrow.theta > 180 then
+          arrow.z = (((arrow.distance / 2 - arrow.r) * (arrow.distance / 2 - arrow.r)) * -1 + ((arrow.distance / 2) * (arrow.distance / 2))) / 200
+        else
+          arrow.z = (((arrow.distance / 2 - arrow.r) * (arrow.distance / 2 - arrow.r)) - ((arrow.distance / 2) * (arrow.distance / 2))) / 200
+        end
+        arrow.angle = math.atan2((arrow.currentY + arrow.z) - (arrow.oldY + arrow.oldZ), arrow.currentX - arrow.oldX)
+      else
+        objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY, dt = 0}
+        arrow = {}
       end
     end
+
+    --objects
+    for i = 1, #objects do
+      if objects[i].type == "arrow" then
+        objects[i].dt = objects[i].dt + dt
+        if objects[i].dt > 127.5 then
+          objects[i] = nil
+        end
+      end
+    end
+    objects = removeNil(objects)
+
+    gameDt = gameDt + dt
+    --temporary downDt
+    down.dt = gameDt
+  else
+    client:send(bin:pack({"left", identifier}))
+    client:disconnect()
+    clientmenu_load()
+    gamestate = "clientmenu"
+    errorMsg = "Kicked by server"
   end
-  objects = removeNil(objects)
-
-
-  gameDt = gameDt + dt
-  --temporary downDt
-  down.dt = gameDt
 end
 
 function client_draw()
@@ -273,11 +314,16 @@ function client_onReceive(data)
     end
   elseif data["1"] == "disconnect" then
     if data["2"] == identifier or data["2"] == "all" then
-      client:send(bin:pack({"disconnect", identifier}))
-      client:disconnect()
-      clientmenu_load()
-      gamestate = "clientmenu"
-      errorMsg = "Kicked by server"
+      disconnected = true
+    end
+  elseif data["1"] == "left" then
+    for p = 1, #players do
+      if players[p].id == data["2"] then
+          players[p].delete = true
+          players[p].image = "dissapear"
+          players[p].frame = 1
+        break
+      end
     end
   end
 end

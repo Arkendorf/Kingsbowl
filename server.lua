@@ -49,6 +49,41 @@ function server_update(dt)
   if mY > 300 then mY = 300 end
   if mY < 0 then mY = 0 end
 
+  --deserters
+  for p = 1, #players do
+    if players[p].delete == true then
+      players[p].frame = players[p].frame + dt * 30
+      if players[p].frame > 18 then
+        if qb == p then
+          local newQb = false
+          for p2 = 1, #players do
+            if players[p2].team == players[p].team and p2 ~= p then
+              if p2 > p then
+                qb = p2 - 1
+              else
+                qb = p2
+              end
+              newQb = true
+            end
+            if newQb == false then
+              for p2 = 1, #players do
+                if p2 ~= p then
+                  if p2 > p then
+                    qb = p2 - 1
+                  else
+                    qb = p2
+                  end
+                end
+              end
+            end
+          end
+        end
+        players[p] = nil
+      end
+    end
+  end
+  players = removeNil(players)
+
   -- find which player is the "avatar"
   for p = 1, #players do
     if players[p].id == 1 then
@@ -276,10 +311,13 @@ function server_onReceive(data, clientid)
     arrow = {oldX = players[qb].x, oldY = players[qb].y, startX = players[qb].x, startY = players[qb].y, currentX = players[qb].x, currentY = players[qb].y, theta = math.atan2(data["3"] - players[qb].y, data["2"] - players[qb].x), r = 0, targetX = data["2"], targetY = data["3"], z = 0, angle = 0}
     arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
     arrowShot = true
-  elseif data["1"] == "disconnect" then
+  elseif data["1"] == "left" then
+    server:send(bin:pack(data))
     for p = 1, #players do
       if players[p].id == data["2"] then
-
+          players[p].delete = true
+          players[p].image = "dissapear"
+          players[p].frame = 1
         break
       end
     end

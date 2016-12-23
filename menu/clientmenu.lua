@@ -15,6 +15,8 @@ function clientmenu_load()
   start = false
   identifier = ""
   initialPositions = false
+
+  disconnected = false
 end
 
 function clientmenu_canvas()
@@ -23,154 +25,161 @@ function clientmenu_canvas()
 end
 
 function clientmenu_update(dt)
-  if proceed == false then
-    ipBoxLength = range(getPixelWidth(ip) + 6, 94, math.huge)
-  else
-    client:update(dt)
+  if disconnected == false then
+    if proceed == false then
+      ipBoxLength = range(getPixelWidth(ip) + 6, 94, math.huge)
+    else
+      client:update(dt)
 
-    if success == false then
-      proceed = false
-      errorMsg = "Unable to connect to server. Check IP"
-      textBox = ""
-      success = nil
-    elseif success == true and nameSent == false and identifier ~= "" then
-      client:send(bin:pack({"name", identifier, playerName}))
-      nameSent = true
-    end
+      if success == false then
+        proceed = false
+        errorMsg = "Unable to connect to server. Check IP"
+        textBox = ""
+        success = nil
+      elseif success == true and nameSent == false and identifier ~= "" then
+        client:send(bin:pack({"name", identifier, playerName}))
+        nameSent = true
+      end
 
-    -- real stuff
-    x, y = adjust(love.mouse.getPosition())
+      -- real stuff
+      x, y = adjust(love.mouse.getPosition())
 
-    -- find targeted player
+      -- find targeted player
 
-    n1 = 0
-    n2 = 0
-    result = false
-    for p = #players, 1, -1 do
-      if players[p].team == 1 then
-        n1 = n1 + 1
-        if x > 60 + n1 * 10 and x < 60 + n1 * 10 + 16 and y > 150 and y < 182 then
-          result = true
-          target = p
-        end
-      else
-        n2 = n2 + 1
-        if x < 340 - n2 * 10 and x > 340 - n2 * 10 - 16 and y > 150 and y < 182 then
-          result = true
-          target = p
+      n1 = 0
+      n2 = 0
+      result = false
+      for p = #players, 1, -1 do
+        if players[p].team == 1 then
+          n1 = n1 + 1
+          if x > 60 + n1 * 10 and x < 60 + n1 * 10 + 16 and y > 150 and y < 182 then
+            result = true
+            target = p
+          end
+        else
+          n2 = n2 + 1
+          if x < 340 - n2 * 10 and x > 340 - n2 * 10 - 16 and y > 150 and y < 182 then
+            result = true
+            target = p
+          end
         end
       end
-    end
-    if result == false then
-      target = nil
-    end
+      if result == false then
+        target = nil
+      end
 
-    for p = 1, #players do
-      if players[p].delete == true then
-        if players[p].image ~= "dissapear" then
-          players[p].image = "dissapear"
-          players[p].frame = 1
-        else
-          players[p].frame = players[p].frame + dt * 30
-          if players[p].frame > 18 then
-            -- delete player
-            players[p] = nil
-            target = nil
-          end
-        end
-      elseif players[p].image == "dissapear" then
-        if players[p].frame > 0 then
-          players[p].frame = players[p].frame - dt * 30
-        else
-          players[p].image = "prep"
-          players[p].frame = 1
-        end
-      elseif players[p].image == "switch1" then
-        if players[p].frame > 22 then
-          if players[p].team == 1 then
-            players[p].team = 2
+      for p = 1, #players do
+        if players[p].delete == true then
+          if players[p].image ~= "dissapear" then
+            players[p].image = "dissapear"
+            players[p].frame = 1
           else
-            players[p].team = 1
+            players[p].frame = players[p].frame + dt * 30
+            if players[p].frame > 18 then
+              -- delete player
+              players[p] = nil
+              target = nil
+            end
           end
-          players[p].image = "switch2"
-          players[p].frame = 22
+        elseif players[p].image == "dissapear" then
+          if players[p].frame > 0 then
+            players[p].frame = players[p].frame - dt * 30
+          else
+            players[p].image = "prep"
+            players[p].frame = 1
+          end
+        elseif players[p].image == "switch1" then
+          if players[p].frame > 22 then
+            if players[p].team == 1 then
+              players[p].team = 2
+            else
+              players[p].team = 1
+            end
+            players[p].image = "switch2"
+            players[p].frame = 22
+          else
+            players[p].frame = players[p].frame + dt * 30
+          end
+          target = nil
+        elseif players[p].image == "switch2" then
+          if players[p].frame > 0 then
+            players[p].frame = players[p].frame - dt * 30
+          else
+            players[p].image = "prep"
+            players[p].frame = 1
+          end
+          target = nil
+        elseif players[p].image == "unsheathSword" or players[p].image == "grabShield" then
+          if players[p].frame < 13 then
+            players[p].frame = players[p].frame + dt * 12
+          else
+            players[p].frame = 14
+          end
         else
-          players[p].frame = players[p].frame + dt * 30
-        end
-        target = nil
-      elseif players[p].image == "switch2" then
-        if players[p].frame > 0 then
-          players[p].frame = players[p].frame - dt * 30
-        else
-          players[p].image = "prep"
-          players[p].frame = 1
-        end
-        target = nil
-      elseif players[p].image == "unsheathSword" or players[p].image == "grabShield" then
-        if players[p].frame < 13 then
           players[p].frame = players[p].frame + dt * 12
-        else
-          players[p].frame = 14
-        end
-      else
-        players[p].frame = players[p].frame + dt * 12
-        players[p].frame = loop(players[p].frame, 6)
-        if players[p].image == "prep" and coin.landed == true and players[p].frame < 2 then
-          if coin.result == 1 then
-            if players[p].team == 1 then
-              players[p].image = "unsheathSword"
+          players[p].frame = loop(players[p].frame, 6)
+          if players[p].image == "prep" and coin.landed == true and players[p].frame < 2 then
+            if coin.result == 1 then
+              if players[p].team == 1 then
+                players[p].image = "unsheathSword"
+              else
+                players[p].image = "grabShield"
+              end
             else
-              players[p].image = "grabShield"
+              if players[p].team == 1 then
+                players[p].image = "grabShield"
+              else
+                players[p].image = "unsheathSword"
+              end
             end
-          else
-            if players[p].team == 1 then
-              players[p].image = "grabShield"
-            else
-              players[p].image = "unsheathSword"
-            end
+            players[p].frame = 1
           end
-          players[p].frame = 1
         end
       end
-    end
 
-    --coinflip stuff
-    if start == true then
-      target = nil
-      if coin.landed == false then
+      --coinflip stuff
+      if start == true then
+        target = nil
+        if coin.landed == false then
+          if coin.result == 1 then
+            coin.frame = coin.frame + 0.24 * dt * 50
+          else
+            coin.frame = coin.frame + 0.36 * dt * 50
+          end
+          coin.y = coin.y + coin.v
+          coin.v = coin.v + 0.2 * dt * 50
+          if coin.y >= 0 then
+            coin.v = 0
+            coin.y = 0
+            if coin.result == 1 then
+              coin.frame = 1
+            else
+              coin.frame = 7
+            end
+            coin.landed = true
+          end
+        else
+          coin.dt = coin.dt + dt
+        end
+      end
+
+      -- initial positions
+      if coin.landed == true and initialPositions == false then
         if coin.result == 1 then
-          coin.frame = coin.frame + 0.24 * dt * 50
+          team[1].position = "defense"
+          team[2].position = "offense"
         else
-          coin.frame = coin.frame + 0.36 * dt * 50
+          team[1].position = "offense"
+          team[2].position = "defense"
         end
-        coin.y = coin.y + coin.v
-        coin.v = coin.v + 0.2 * dt * 50
-        if coin.y >= 0 then
-          coin.v = 0
-          coin.y = 0
-          if coin.result == 1 then
-            coin.frame = 1
-          else
-            coin.frame = 7
-          end
-          coin.landed = true
-        end
-      else
-        coin.dt = coin.dt + dt
+        initialPositions = true
       end
     end
-
-    -- initial positions
-    if coin.landed == true and initialPositions == false then
-      if coin.result == 1 then
-        team[1].position = "defense"
-        team[2].position = "offense"
-      else
-        team[1].position = "offense"
-        team[2].position = "defense"
-      end
-      initialPositions = true
-    end
+  else
+    client:send(bin:pack({"left", identifier}))
+    client:disconnect()
+    clientmenu_load()
+    errorMsg = "Kicked by server"
   end
 end
 
@@ -336,18 +345,15 @@ function connectToServer()
 end
 
 function client_quit()
-  client:send(bin:pack({"disconnect", identifier}))
-  client:disconnect()
+  client:send(bin:pack({"left", identifier}))
+  disconnected = true
 end
 
 function clientmenu_onReceive(data)
   data = bin:unpack(data)
   if data["1"] == "disconnect" then
     if data["2"] == identifier or data["2"] == "all" then
-      client:send(bin:pack({"disconnect", identifier}))
-      client:disconnect()
-      clientmenu_load()
-      errorMsg = "Kicked by server"
+      disconnected = true
     end
   elseif data["1"] == "join" then
     if data["2"] == identifier then
@@ -380,8 +386,6 @@ function clientmenu_onReceive(data)
       identifier = data["2"]
     end
   elseif data["1"] == "late" then
-    client:disconnect()
-    clientmenu_load()
-    errorMsg = "Game has already begun"
+    disconnected = true
   end
 end
