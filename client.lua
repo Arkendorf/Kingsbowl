@@ -12,16 +12,18 @@ function client_load()
   playerNum[4] = 1
   for p = 1, #players do
     if players[p].team == 1 then
-      players[p].x = (-125 + (playerNum[1] - playerNum[3]) * 10) * 1.25
-      players[p].y = 433
+      players[p].y = 465
+      players[p].x = (-118 + (playerNum[1] - playerNum[3]) * 10) / (players[p].y / 1600 + 0.5)
       players[p].direction = 1
       playerNum[3] = playerNum[3] + 1
     else
-      players[p].x = (125 + (playerNum[2] - playerNum[4]) * -10) * 1.25
-      players[p].y = 433
+      players[p].y = 465
+      players[p].x = (118 + (playerNum[2] - playerNum[4]) * -10) / (players[p].y / 1600 + 0.5)
       players[p].direction = -1
       playerNum[4] = playerNum[4] + 1
     end
+    players[p].frame = 1
+    animatePlayer(p, 0, 0)
   end
 
   camera = {x = 200, y = -50}
@@ -38,6 +40,11 @@ function client_load()
   objects = {}
   particles = {}
   arrowShot = false
+
+  --drawing functions
+  drawFunction = {function(a, b, c, d, e, f, g, h, i, j, k, l, m) love.graphics.setColor(a, b, c, d) love.graphics.draw(e, f, g, h, i, j, k, l, m) end,
+                  function(a, b, c, d, e, f, g, h, i, j, k, l, m) love.graphics.setColor(a, b, c, d) love.graphics.draw(e, g, h, i, j, k, l, m) end,
+                  function(a, b, c, d, e, f, g, h, i, j, k, l, m) love.graphics.setColor(a, b, c, d) love.graphics.print(e, g, h) end}
 end
 
 function client_update(dt)
@@ -176,7 +183,7 @@ function client_update(dt)
         end
         arrow.angle = math.atan2((arrow.currentY + arrow.z) - (arrow.oldY + arrow.oldZ), arrow.currentX - arrow.oldX)
       else
-        objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY, dt = 0}
+        objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY + 16, dt = 0}
         arrow = {}
       end
     end
@@ -205,48 +212,33 @@ function client_update(dt)
 end
 
 function client_draw()
-  love.graphics.push()
-  love.graphics.translate(camera.x, camera.y)
-  love.graphics.draw(fieldImg, -1000, -100)
+  thingsToDraw = {}
 
   --draw objects
   for i = 1, #objects do
     if objects[i].type == "arrow" then
-      love.graphics.setColor(255, 255, 255, 255 - (objects[i].dt * 2))
-      love.graphics.draw(arrowWobble, arrowWobbleQuad[range(math.floor(objects[i].dt * 50), 1, 11)], warpX(objects[i].x, objects[i].y), warpY(objects[i].y), 0, 1, 1, 16, 32)
-      love.graphics.setColor(255, 255, 255, 255)
+      thingsToDraw[#thingsToDraw + 1] = {type = 1, r = 255, g = 255, b = 255, a = 255 - (objects[i].dt * 2), img = arrowWobble, quad = arrowWobbleQuad[range(math.floor(objects[i].dt * 50), 1, 11)], x = warpX(objects[i].x, objects[i].y), y = warpY(objects[i].y), rot = 0, sX = 1, zY = 1, oX = 16, oY = 32}
     end
   end
 
   -- draw players
   for p = 1, #players do
     char = drawChar(players[p].image, players[p].frame)
-    love.graphics.draw(charShadow, warpX(players[p].x, players[p].y), warpY(players[p].y) + 16, 0, 1, 1, 16, 16)
-    love.graphics.draw(char[1], char[2], warpX(players[p].x, players[p].y), warpY(players[p].y), 0, players[p].direction, 1, 16, 16)
-    if players[p].team == 1 then
-      love.graphics.setColor(team[1].r, team[1].g, team[1].b)
-    else
-      love.graphics.setColor(team[2].r, team[2].g, team[2].b)
-    end
-    love.graphics.draw(char[3], char[4], warpX(players[p].x, players[p].y), warpY(players[p].y), 0, players[p].direction, 1, 16, 16)
-    love.graphics.print(players[p].name, warpX(players[p].x, players[p].y) - getPixelWidth(players[p].name) / 2, warpY(players[p].y) - 32)
-    love.graphics.setColor(255, 255, 255)
+    thingsToDraw[#thingsToDraw + 1] = {type = 2, r = 255, g = 255, b = 255, a = 255, img = charShadow, quad = 0, x = warpX(players[p].x, players[p].y), y = warpY(players[p].y) - 1, rot = 0, sX = 1, sY = 1, oX = 16, oY = 15}
+    thingsToDraw[#thingsToDraw + 1] = {type = 1, r = 255, g = 255, b = 255, a = 255, img = char[1], quad = char[2], x = warpX(players[p].x, players[p].y), y = warpY(players[p].y), rot = 0, sX = players[p].direction, sY = 1, oX = 16, oY = 32}
+    thingsToDraw[#thingsToDraw + 1] = {type = 1, r = team[players[p].team].r, g = team[players[p].team].g, b = team[players[p].team].b, a = 255, img = char[3], quad = char[4], x = warpX(players[p].x, players[p].y), y = warpY(players[p].y) + 1, rot = 0, sX = players[p].direction, sY = 1, oX = 16, oY = 33}
+    thingsToDraw[#thingsToDraw + 1] = {type = 3, r = team[players[p].team].r, g = team[players[p].team].g, b = team[players[p].team].b, a = 255, img = players[p].name, quad = 0, x = warpX(players[p].x, players[p].y) - getPixelWidth(players[p].name) / 2, y = warpY(players[p].y) - 48, rot = 0, sX = 0, sY = 0, oX = 0, oY = 0}
   end
 
   -- draw qb targetPos
-  if players[qb].team == 1 then
-    love.graphics.setColor(team[1].r, team[1].g, team[1].b)
-  else
-    love.graphics.setColor(team[2].r, team[2].g, team[2].b)
-  end
   if targetPos[#targetPos] ~= nil then
     if players[avatar.num].team == players[qb].team then
-      love.graphics.draw(arrowTarget, warpX(targetPos[#targetPos][1], targetPos[#targetPos][2]), warpY(targetPos[#targetPos][2]), 0, range(down.dt, 0, 1), range(down.dt, 0, 1), 16, 8)
+      thingsToDraw[#thingsToDraw + 1] = {type = 2, r = team[players[qb].team].r, g = team[players[qb].team].g, b = team[players[qb].team].b, a = 255, img = arrowTarget, quad = 0, x = warpX(targetPos[#targetPos][1], targetPos[#targetPos][2]), y = warpY(targetPos[#targetPos][2]), rot = 0, sX = range(down.dt, 0, 1), sY = range(down.dt, 0, 1), oX = 16, oY = 8}
     else
       for i = 1, #targetPos do
         if targetPos[i + 1] ~= nil then
           if math.abs(targetPos[i][3] - (gameDt - otherTeamDelay)) < math.abs(targetPos[i + 1][3] - (gameDt - otherTeamDelay)) then
-            love.graphics.draw(arrowTarget, warpX(targetPos[i][1], targetPos[i][2]), warpY(targetPos[i][2]), 0, range(down.dt - otherTeamDelay, 0, 1), range(down.dt - otherTeamDelay, 0, 1), 16, 8)
+            thingsToDraw[#thingsToDraw + 1] = {type = 2, r = team[players[qb].team].r, g = team[players[qb].team].g, b = team[players[qb].team].b, a = 255, img = arrowTarget, quad = 0, x = warpX(targetPos[i][1], targetPos[i][2]), y = warpY(targetPos[i][2]), rot = 0, sX = range(down.dt - otherTeamDelay, 0, 1), sY = range(down.dt - otherTeamDelay, 0, 1), oX = 16, oY = 8}
             break
           end
         else
@@ -255,15 +247,26 @@ function client_draw()
       end
     end
   end
-  love.graphics.setColor(255, 255, 255)
 
   -- draw arrow
   if arrow.currentX ~= nil and arrow.currentY ~= nil then
-    love.graphics.draw(arrowImg, warpX(arrow.currentX, arrow.currentY), warpY(arrow.currentY) + arrow.z, arrow.angle, 1, 1, 16, 16)
+    thingsToDraw[#thingsToDraw + 1] = {type = 2, r = 255, g = 255, b = 255, a = 255, img = arrowImg, quad = 0, x = warpX(arrow.currentX, arrow.currentY), y = warpY(arrow.currentY) + arrow.z, rot = arrow.angle, sX = 1, sY = 1, oX = 16, oY = 16}
   end
 
+  sort(thingsToDraw)
+
+  -- acutally drawing
+  love.graphics.push()
+  love.graphics.translate(camera.x, camera.y)
+  love.graphics.draw(fieldImg, -1000, -100)
+
+  for i = 1, #thingsToDraw do
+    drawFunction[thingsToDraw[i].type](thingsToDraw[i].r, thingsToDraw[i].g, thingsToDraw[i].b, thingsToDraw[i].a, thingsToDraw[i].img, thingsToDraw[i].quad, thingsToDraw[i].x, thingsToDraw[i].y, thingsToDraw[i].rot, thingsToDraw[i].sX, thingsToDraw[i].sY, thingsToDraw[i].oX, thingsToDraw[i].oY)
+  end
+  love.graphics.setColor(255, 255, 255)
+
+
   love.graphics.pop()
-  love.graphics.print(identifier)
 end
 
 function client_mousepressed(x, y, button)

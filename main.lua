@@ -2,6 +2,7 @@ require("middleclass")
 require("middleclass-commons")
 require("LUBE")
 require("Binary")
+require("sort")
 
 require("graphics")
 
