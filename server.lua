@@ -30,7 +30,11 @@ function server_load()
   avatar = {num = 0, xV = 0, yV = 0}
   oldPos = {x = 0, y = 0}
 
-  qb = 2
+  if team[1].position == "offense" then
+    qb = findQb(1)
+  else
+    qb = findQb(2)
+  end
   targetPos = {}
   gameDt = 0
   otherTeamDelay = 0.5
@@ -57,39 +61,23 @@ function server_update(dt)
   if mY < 0 then mY = 0 end
 
   --deserters
+  newQb = false
   for p = 1, #players do
     if players[p].delete == true then
       players[p].frame = players[p].frame + dt * 30
       if players[p].frame > 18 then
-        if qb == p then
-          local newQb = false
-          for p2 = 1, #players do
-            if players[p2].team == players[p].team and p2 ~= p then
-              if p2 > p then
-                qb = p2 - 1
-              else
-                qb = p2
-              end
-              newQb = true
-            end
-            if newQb == false then
-              for p2 = 1, #players do
-                if p2 ~= p then
-                  if p2 > p then
-                    qb = p2 - 1
-                  else
-                    qb = p2
-                  end
-                end
-              end
-            end
-          end
+        if p == qb then
+          newQb = true
+          newQbTeam = players[p].team
         end
         players[p] = nil
       end
     end
   end
   players = removeNil(players)
+  if newQb == true then
+    findQb(newQbTeam)
+  end
 
   -- find which player is the "avatar"
   for p = 1, #players do
@@ -188,6 +176,9 @@ function server_update(dt)
     else
       objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY + 16, dt = 0}
       arrow = {}
+      down.num = down.num + 1
+      down.dt = 0
+      arrowShot = false
     end
   end
 
@@ -201,6 +192,21 @@ function server_update(dt)
     end
   end
   objects = removeNil(objects)
+
+  -- local team1Good = false
+  -- local team1Good = false
+  -- for i = 1, #players do
+  --   if players[p].team == 1 then
+  --     team1Good = true
+  --   elseif players[p].team == 2 then
+  --     team2Good = true
+  --   end
+  -- end
+  -- if team1Good == false or team2Good == false then
+  --   server:send(bin:pack({"disconnect", "all"}))
+  --   mainmenu_load()
+  --   gamestate = "menu"
+  -- end
 
   gameDt = gameDt + dt
   --temporary downDt
@@ -246,7 +252,7 @@ function server_draw()
 
   -- draw arrow
   if arrow.currentX ~= nil and arrow.currentY ~= nil then
-    thingsToDraw[#thingsToDraw + 1] = {type = 2, r = 255, g = 255, b = 255, a = 255, img = arrowImg, quad = 0, x = warpX(arrow.currentX, arrow.currentY), y = warpY(arrow.currentY) + arrow.z, rot = arrow.angle, sX = 1, sY = 1, oX = 16, oY = 16}
+    thingsToDraw[#thingsToDraw + 1] = {type = 2, r = 255, g = 255, b = 255, a = 255, img = arrowImg, quad = 0, x = warpX(arrow.currentX, arrow.currentY), y = warpY(arrow.currentY) + arrow.z - 16, rot = arrow.angle, sX = 1, sY = 1, oX = 16, oY = 16}
   end
 
   sort(thingsToDraw)
@@ -358,4 +364,13 @@ function animatePlayer(p, xV, yV)
     end
     players[p].frame = 14
   end
+end
+
+function findQb(team)
+  for p = 1, #players do
+    if players[p].team == team then
+      return p
+    end
+  end
+  return 1
 end
