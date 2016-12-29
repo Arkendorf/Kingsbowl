@@ -40,6 +40,7 @@ function client_load()
   otherTeamDelay = 0.5
 
   down = {num = 1, dt = 0}
+  startNewDown = nil
   arrow = {}
   objects = {}
   particles = {}
@@ -173,9 +174,19 @@ function client_update(dt)
       else
         objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY + 16, dt = 0}
         arrow = {}
+        startNewDown = 2
+      end
+    end
+
+    --new down
+    if startNewDown ~= nil then
+      startNewDown = startNewDown - dt
+      if startNewDown <= 0 then
         down.num = down.num + 1
         down.dt = 0
         arrowShot = false
+
+        startNewDown = nil
       end
     end
 

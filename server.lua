@@ -36,10 +36,12 @@ function server_load()
     qb = findQb(2)
   end
   targetPos = {}
+  targetSize = 0
   gameDt = 0
   otherTeamDelay = 0.5
 
   down = {num = 1, dt = 0}
+  startNewDown = nil
   arrow = {}
   objects = {}
   particles = {}
@@ -149,13 +151,37 @@ function server_update(dt)
 
   --quarterback's target
   if avatar.num == qb then
-    qbTargetX, qbTargetY = (players[avatar.num].x + math.floor(mX) - 200), (players[avatar.num].y + math.floor(mY) - 150)
-    server:send(bin:pack({"target", qbTargetX, qbTargetY, gameDt}))
-    targetPos[#targetPos + 1] = {qbTargetX, qbTargetY, gameDt}
-    if #targetPos > 200 then
-      targetPos[1] = nil
+    if #targetPos > 0 then
+      if arrowShot == false then
+        qbTargetX, qbTargetY = (players[avatar.num].x + math.floor(mX) - 200), (players[avatar.num].y + math.floor(mY) - 150)
+        server:send(bin:pack({"target", qbTargetX, qbTargetY, gameDt}))
+        targetPos[#targetPos + 1] = {qbTargetX, qbTargetY, gameDt}
+        if #targetPos > 200 then
+          targetPos[1] = nil
+        end
+        targetPos = removeNil(targetPos)
+        if players[avatar.num].team == players[qb].team then
+          targetSize = range(down.dt, 0, 1)
+          currentTarget = #targetPos
+        else
+          targetSize = range(down.dt - otherTeamDelay, 0, 1)
+          currentTarget = 1
+          for i = 1, #targetPos do
+            if targetPos[i + 1] ~= nil then
+              if math.abs(targetPos[i][3] - (gameDt - otherTeamDelay)) < math.abs(targetPos[i + 1][3] - (gameDt - otherTeamDelay)) then
+                currentTarget = i
+                break
+              end
+            else
+              break
+            end
+          end
+        end
+      else
+        targetSize = range((targetPos[#targetPos][3] - gameDt) * 2 + 1, 0, 1)
+        currentTarget = #targetPos
+      end
     end
-    targetPos = removeNil(targetPos)
   end
 
   if arrow.currentX ~= nil and arrow.currentY ~= nil then
@@ -176,9 +202,19 @@ function server_update(dt)
     else
       objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY + 16, dt = 0}
       arrow = {}
+      startNewDown = 2
+    end
+  end
+
+  --new down
+  if startNewDown ~= nil then
+    startNewDown = startNewDown - dt
+    if startNewDown <= 0 then
       down.num = down.num + 1
       down.dt = 0
       arrowShot = false
+
+      startNewDown = nil
     end
   end
 
@@ -193,24 +229,24 @@ function server_update(dt)
   end
   objects = removeNil(objects)
 
-  -- local team1Good = false
-  -- local team1Good = false
-  -- for i = 1, #players do
-  --   if players[p].team == 1 then
-  --     team1Good = true
-  --   elseif players[p].team == 2 then
-  --     team2Good = true
-  --   end
-  -- end
-  -- if team1Good == false or team2Good == false then
-  --   server:send(bin:pack({"disconnect", "all"}))
-  --   mainmenu_load()
-  --   gamestate = "menu"
-  -- end
+  --end game if one team has no players
+  local team1Good = false
+  local team2Good = false
+  for p = 1, #players do
+    if players[p].team == 1 then
+      team1Good = true
+    elseif players[p].team == 2 then
+      team2Good = true
+    end
+  end
+  if team1Good == false or team2Good == false then
+    server:send(bin:pack({"disconnect", "all"}))
+    mainmenu_load()
+    gamestate = "menu"
+  end
 
   gameDt = gameDt + dt
-  --temporary downDt
-  down.dt = gameDt
+  down.dt = down.dt + dt
 end
 
 function server_draw()
@@ -233,21 +269,8 @@ function server_draw()
   end
 
   -- draw qb targetPos
-  if targetPos[#targetPos] ~= nil then
-    if players[avatar.num].team == players[qb].team then
-      thingsToDraw[#thingsToDraw + 1] = {type = 2, r = team[players[qb].team].r, g = team[players[qb].team].g, b = team[players[qb].team].b, a = 255, img = arrowTarget, quad = 0, x = warpX(targetPos[#targetPos][1], targetPos[#targetPos][2]), y = warpY(targetPos[#targetPos][2]), rot = 0, sX = range(down.dt, 0, 1), sY = range(down.dt, 0, 1), oX = 16, oY = 8}
-    else
-      for i = 1, #targetPos do
-        if targetPos[i + 1] ~= nil then
-          if math.abs(targetPos[i][3] - (gameDt - otherTeamDelay)) < math.abs(targetPos[i + 1][3] - (gameDt - otherTeamDelay)) then
-            thingsToDraw[#thingsToDraw + 1] = {type = 2, r = team[players[qb].team].r, g = team[players[qb].team].g, b = team[players[qb].team].b, a = 255, img = arrowTarget, quad = 0, x = warpX(targetPos[i][1], targetPos[i][2]), y = warpY(targetPos[i][2]), rot = 0, sX = range(down.dt - otherTeamDelay, 0, 1), sY = range(down.dt - otherTeamDelay, 0, 1), oX = 16, oY = 8}
-            break
-          end
-        else
-          break
-        end
-      end
-    end
+  if #targetPos > 0 then
+    thingsToDraw[#thingsToDraw + 1] = {type = 2, r = team[players[qb].team].r, g = team[players[qb].team].g, b = team[players[qb].team].b, a = 255, img = arrowTarget, quad = 0, x = warpX(targetPos[currentTarget][1], targetPos[currentTarget][2]), y = warpY(targetPos[currentTarget][2]), rot = 0, sX = targetSize, sY = targetSize, oX = 16, oY = 8}
   end
 
   -- draw arrow
