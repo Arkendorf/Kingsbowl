@@ -227,6 +227,32 @@ function client_update(dt)
         down.dt = 0
         arrowShot = false
         startNewDown = nil
+
+        playerNum = {0, 0}
+        for p = 1, #players do
+          if players[p].team == 1 then
+            playerNum[1] = playerNum[1] + 1
+          else
+            playerNum[2] = playerNum[2] + 1
+          end
+        end
+        playerNum[3] = 1
+        playerNum[4] = 1
+        for p = 1, #players do
+          if players[p].team == 1 then
+            players[p].y = 465
+            players[p].x = down.scrim + (-118 + (playerNum[1] - playerNum[3]) * 10) / (players[p].y / 1600 + 0.5)
+            players[p].direction = 1
+            playerNum[3] = playerNum[3] + 1
+          else
+            players[p].y = 465
+            players[p].x = down.scrim + (118 + (playerNum[2] - playerNum[4]) * -10) / (players[p].y / 1600 + 0.5)
+            players[p].direction = -1
+            playerNum[4] = playerNum[4] + 1
+          end
+          players[p].frame = 1
+          animatePlayer(p, 0, 0)
+        end
       end
     end
 
