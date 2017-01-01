@@ -164,7 +164,7 @@ function server_update(dt)
   --quarterback's target
   if avatar.num == qb then
     if arrowShot == false then
-      qbTargetX, qbTargetY = (players[avatar.num].x + math.floor(mX) - 200), (players[avatar.num].y + math.floor(mY) - 150)
+      qbTargetX, qbTargetY = (players[avatar.num].x + (math.floor(mX) - 200) * 2), (players[avatar.num].y + (math.floor(mY) - 150) * 2)
       server:send(bin:pack({"target", qbTargetX, qbTargetY, gameDt}))
       targetPos[#targetPos + 1] = {qbTargetX, qbTargetY, gameDt}
       if #targetPos > 200 then
@@ -334,7 +334,7 @@ end
 function server_mousepressed(x, y, button)
   if button == 1 then
     if qb == avatar.num and arrow.currentX == nil and arrow.currentY == nil and arrowShot == false and down.dt > timeTillStart then
-      arrowTargetX, arrowTargetY = (players[avatar.num].x + math.floor(x) - 200), (players[avatar.num].y + math.floor(y) - 150)
+      arrowTargetX, arrowTargetY = (players[avatar.num].x + (math.floor(mX) - 200) * 2), (players[avatar.num].y + (math.floor(mY) - 150) * 2)
       server:send(bin:pack({"arrow", arrowTargetX, arrowTargetY}))
       arrow = {oldX = players[avatar.num].x, oldY = players[avatar.num].y, startX = players[avatar.num].x, startY = players[avatar.num].y, currentX = players[avatar.num].x, currentY = players[avatar.num].y, theta = math.atan2(arrowTargetY - players[avatar.num].y, arrowTargetX - players[avatar.num].x), r = 0, targetX = arrowTargetX, targetY = arrowTargetY, z = 0, angle = 0}
       arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
