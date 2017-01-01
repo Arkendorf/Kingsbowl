@@ -177,5 +177,9 @@ function drawChar(image, frame)
     return {runSword, runSwordQuad[math.ceil(range(frame, 1, 8))], runSwordOverlay, runSwordOverlayQuad[math.ceil(range(frame, 1, 8))]}
   elseif image == "runShield" then
     return {runShield, runShieldQuad[math.ceil(range(frame, 1, 8))], runShieldOverlay, runShieldOverlayQuad[math.ceil(range(frame, 1, 8))]}
+  elseif image == "bowStill" then
+    return {bowStill, bowStillQuad[1], bowStillOverlay, bowStillOverlayQuad[1]}
+  elseif image == "bowRun" then
+    return {bowRun, bowRunQuad[math.ceil(range(frame, 1, 8))], bowRunOverlay, bowRunOverlayQuad[math.ceil(range(frame, 1, 8))]}
   end
 end

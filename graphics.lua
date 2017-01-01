@@ -42,6 +42,16 @@ function graphics_load()
   grabShieldOverlay = love.graphics.newImage("char/grabShieldOverlay.png")
   grabShieldOverlayQuad = loadSpriteSheet(grabShieldOverlay, 32)
 
+  bowRun = love.graphics.newImage("char/bowRun.png")
+  bowRunQuad = loadSpriteSheet(bowRun, 32)
+  bowRunOverlay = love.graphics.newImage("char/bowRunOverlay.png")
+  bowRunOverlayQuad = loadSpriteSheet(bowRunOverlay, 32)
+
+  bowStill = love.graphics.newImage("char/bowStill.png")
+  bowStillQuad = {love.graphics.newQuad(0, 0, 32, 32, bowStill:getDimensions())}
+  bowStillOverlay = love.graphics.newImage("char/bowStillOverlay.png")
+  bowStillOverlayQuad = {love.graphics.newQuad(0, 0, 32, 32, bowStillOverlay:getDimensions())}
+
   run = love.graphics.newImage("char/runArms.png")
   runQuad = loadSpriteSheet(run, 32)
 

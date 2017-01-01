@@ -212,9 +212,9 @@ function client_update(dt)
         arrow.currentX = arrow.startX + arrow.r * math.cos(arrow.theta)
         arrow.currentY = arrow.startY + arrow.r * math.sin(arrow.theta)
         if arrow.theta > 180 then
-          arrow.z = (((arrow.distance / 2 - arrow.r) * (arrow.distance / 2 - arrow.r)) * -1 + ((arrow.distance / 2) * (arrow.distance / 2))) / 400
+          arrow.z = (((arrow.distance / 2 - arrow.r) * (arrow.distance / 2 - arrow.r)) * -1 + ((arrow.distance / 2) * (arrow.distance / 2))) / 340
         else
-          arrow.z = (((arrow.distance / 2 - arrow.r) * (arrow.distance / 2 - arrow.r)) - ((arrow.distance / 2) * (arrow.distance / 2))) / 400
+          arrow.z = (((arrow.distance / 2 - arrow.r) * (arrow.distance / 2 - arrow.r)) - ((arrow.distance / 2) * (arrow.distance / 2))) / 340
         end
         arrow.angle = math.atan2((arrow.currentY + arrow.z) - (arrow.oldY + arrow.oldZ), arrow.currentX - arrow.oldX)
       else
@@ -235,6 +235,19 @@ function client_update(dt)
         arrowShot = false
         startNewDown = nil
         startAnnounce = {false, false, false}
+
+        if down.num > 4 then
+          down.num = 1
+          if team[1].position == "offense" then
+            team[1].position = "defense"
+            team[2].position = "offense"
+            qb = findQb(2)
+          else
+            team[1].position = "offense"
+            team[2].position = "defense"
+            qb = findQb(1)
+          end
+        end
 
         playerNum = {0, 0}
         for p = 1, #players do
