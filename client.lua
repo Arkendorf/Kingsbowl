@@ -35,6 +35,8 @@ function client_load()
   else
     qb = findQb(2)
   end
+  newQb = false
+  newQbTeam = 1
   targetPos = {}
   targetSize = 0
   currentTarget = 1
@@ -43,6 +45,7 @@ function client_load()
 
   down = {num = 1, dt = 0, scrim = 0}
   startNewDown = nil
+  startAnnounce = {false, false, false}
   timeTillStart = 5
   arrow = {}
   objects = {}
@@ -53,6 +56,9 @@ function client_load()
   drawFunction = {function(a, b, c, d, e, f, g, h, i, j, k, l, m) love.graphics.setColor(a, b, c, d) love.graphics.draw(e, f, g, h, i, j, k, l, m) end,
                   function(a, b, c, d, e, f, g, h, i, j, k, l, m) love.graphics.setColor(a, b, c, d) love.graphics.draw(e, g, h, i, j, k, l, m) end,
                   function(a, b, c, d, e, f, g, h, i, j, k, l, m) love.graphics.setColor(a, b, c, d) love.graphics.print(e, g, h) end}
+
+  message = {}
+  messageDeleteSpeed = 20
 end
 
 function client_update(dt)
@@ -66,7 +72,6 @@ function client_update(dt)
     if mY < 0 then mY = 0 end
 
     --deserters
-    newQb = false
     for p = 1, #players do
       if players[p].delete == true then
         players[p].frame = players[p].frame + dt * 30
@@ -82,6 +87,7 @@ function client_update(dt)
     players = removeNil(players)
     if newQb == true then
       findQb(newQbTeam)
+      newQb = false
     end
 
     -- find which player is the "avatar"
@@ -212,10 +218,11 @@ function client_update(dt)
         end
         arrow.angle = math.atan2((arrow.currentY + arrow.z) - (arrow.oldY + arrow.oldZ), arrow.currentX - arrow.oldX)
       else
+        --incomplete
         objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY + 16, dt = 0}
-        down.scrim = arrow.targetX
         arrow = {}
         startNewDown = 2
+        message[#message + 1] = {players[qb].name .. " threw an incomplete pass!", gameDt}
       end
     end
 
@@ -227,6 +234,7 @@ function client_update(dt)
         down.dt = 0
         arrowShot = false
         startNewDown = nil
+        startAnnounce = {false, false, false}
 
         playerNum = {0, 0}
         for p = 1, #players do
@@ -253,7 +261,28 @@ function client_update(dt)
           players[p].frame = 1
           animatePlayer(p, 0, 0)
         end
+        if down.num == 1 then
+          message[#message + 1] = {down.num .. "st down", gameDt}
+        elseif down.num == 2 then
+          message[#message + 1] = {down.num .. "nd down", gameDt}
+        elseif down.num == 3 then
+          message[#message + 1] = {down.num .. "rd down", gameDt}
+        else
+          message[#message + 1] = {down.num .. "th down", gameDt}
+        end
       end
+    end
+
+    --"3, 2, 1"
+    if down.dt > timeTillStart - 3 and startAnnounce[3] == false then
+      message[#message + 1] = {"3", gameDt}
+      startAnnounce[3] = true
+    elseif down.dt > timeTillStart - 2 and startAnnounce[2] == false then
+      message[#message + 1] = {"2", gameDt}
+      startAnnounce[2] = true
+    elseif down.dt > timeTillStart - 1 and startAnnounce[1] == false then
+      message[#message + 1] = {"1", gameDt}
+      startAnnounce[1] = true
     end
 
     --objects
@@ -266,6 +295,14 @@ function client_update(dt)
       end
     end
     objects = removeNil(objects)
+
+    --messages
+    for i = 1, #message do
+      if (gameDt - message[i][2]) * messageDeleteSpeed >= 255 then
+        message[i] = nil
+      end
+    end
+    message = removeNil(message)
 
     gameDt = gameDt + dt
     down.dt = down.dt + dt
@@ -319,8 +356,16 @@ function client_draw()
   end
   love.graphics.setColor(255, 255, 255)
 
-
   love.graphics.pop()
+
+  --GUI
+  for i = 1, #message do
+    love.graphics.setColor(0, 0, 0, 255 + (message[i][2] - gameDt) * messageDeleteSpeed)
+    love.graphics.rectangle("fill", 3, 299 - ((#message - i + 1) * 12), getPixelWidth(message[i][1]) + 2, 11)
+    love.graphics.setColor(255, 255, 255, 255 + (message[i][2] - gameDt) * messageDeleteSpeed)
+    love.graphics.print(message[i][1], 4, 300 - ((#message - i + 1) * 12))
+    love.graphics.setColor(255, 255, 255)
+  end
 end
 
 function client_mousepressed(x, y, button)
@@ -379,6 +424,7 @@ function client_onReceive(data)
           players[p].delete = true
           players[p].image = "dissapear"
           players[p].frame = 1
+          message[#message + 1] = {players[p].name .. "has disconnected", gameDt}
         break
       end
     end
