@@ -37,6 +37,7 @@ function server_load()
   end
   targetPos = {}
   targetSize = 0
+  currentTarget = 1
   gameDt = 0
   otherTeamDelay = 0.5
 
@@ -151,37 +152,36 @@ function server_update(dt)
 
   --quarterback's target
   if avatar.num == qb then
-    if #targetPos > 0 then
-      if arrowShot == false then
-        qbTargetX, qbTargetY = (players[avatar.num].x + math.floor(mX) - 200), (players[avatar.num].y + math.floor(mY) - 150)
-        server:send(bin:pack({"target", qbTargetX, qbTargetY, gameDt}))
-        targetPos[#targetPos + 1] = {qbTargetX, qbTargetY, gameDt}
-        if #targetPos > 200 then
-          targetPos[1] = nil
-        end
-        targetPos = removeNil(targetPos)
-        if players[avatar.num].team == players[qb].team then
-          targetSize = range(down.dt, 0, 1)
-          currentTarget = #targetPos
-        else
-          targetSize = range(down.dt - otherTeamDelay, 0, 1)
-          currentTarget = 1
-          for i = 1, #targetPos do
-            if targetPos[i + 1] ~= nil then
-              if math.abs(targetPos[i][3] - (gameDt - otherTeamDelay)) < math.abs(targetPos[i + 1][3] - (gameDt - otherTeamDelay)) then
-                currentTarget = i
-                break
-              end
-            else
-              break
-            end
+    if arrowShot == false then
+      qbTargetX, qbTargetY = (players[avatar.num].x + math.floor(mX) - 200), (players[avatar.num].y + math.floor(mY) - 150)
+      server:send(bin:pack({"target", qbTargetX, qbTargetY, gameDt}))
+      targetPos[#targetPos + 1] = {qbTargetX, qbTargetY, gameDt}
+      if #targetPos > 200 then
+        targetPos[1] = nil
+      end
+      targetPos = removeNil(targetPos)
+    end
+  end
+  if arrowShot == false then
+    if players[avatar.num].team == players[qb].team then
+      targetSize = range(down.dt, 0, 1)
+      currentTarget = #targetPos
+    else
+      targetSize = range(down.dt - otherTeamDelay, 0, 1)
+      for i = 1, #targetPos do
+        if targetPos[i + 1] ~= nil then
+          if math.abs(targetPos[i][3] - (gameDt - otherTeamDelay)) < math.abs(targetPos[i + 1][3] - (gameDt - otherTeamDelay)) then
+            currentTarget = i
+            break
           end
+        else
+          break
         end
-      else
-        targetSize = range((targetPos[#targetPos][3] - gameDt) * 2 + 1, 0, 1)
-        currentTarget = #targetPos
       end
     end
+  else
+    targetSize = range((targetPos[#targetPos][3] - gameDt) * 2 + 1, 0, 1)
+    currentTarget = #targetPos
   end
 
   if arrow.currentX ~= nil and arrow.currentY ~= nil then
