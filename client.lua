@@ -41,8 +41,9 @@ function client_load()
   gameDt = 0
   otherTeamDelay = 0.5
 
-  down = {num = 1, dt = 0}
+  down = {num = 1, dt = 0, scrim = 0}
   startNewDown = nil
+  timeTillStart = 5
   arrow = {}
   objects = {}
   particles = {}
@@ -122,6 +123,20 @@ function client_update(dt)
     elseif players[avatar.num].y < 0 then
       players[avatar.num].y = 0
     end
+    -- confine player to line of scrimmage
+    if down.dt < timeTillStart then
+      if players[avatar.num].team == 1 then
+        if players[avatar.num].x > down.scrim then
+          players[avatar.num].x = down.scrim
+          avatar.xV = 0
+        end
+      else
+        if players[avatar.num].x < down.scrim then
+          players[avatar.num].x = down.scrim
+          avatar.xV = 0
+        end
+      end
+    end
 
     --animate avatar
     animatePlayer(avatar.num, avatar.xV, avatar.yV)
@@ -198,6 +213,7 @@ function client_update(dt)
         arrow.angle = math.atan2((arrow.currentY + arrow.z) - (arrow.oldY + arrow.oldZ), arrow.currentX - arrow.oldX)
       else
         objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY + 16, dt = 0}
+        down.scrim = arrow.targetX
         arrow = {}
         startNewDown = 2
       end
@@ -210,7 +226,6 @@ function client_update(dt)
         down.num = down.num + 1
         down.dt = 0
         arrowShot = false
-
         startNewDown = nil
       end
     end
@@ -284,7 +299,7 @@ end
 
 function client_mousepressed(x, y, button)
   if button == 1 then
-    if qb == avatar.num and arrow.currentX == nil and arrow.currentY == nil and arrowShot == false then
+    if qb == avatar.num and arrow.currentX == nil and arrow.currentY == nil and arrowShot == false and down.dt > timeTillStart then
       arrowTargetX, arrowTargetY = (players[avatar.num].x + math.floor(x) - 200), (players[avatar.num].y + math.floor(y) - 150)
       client:send(bin:pack({"arrow", arrowTargetX, arrowTargetY}))
       arrow = {oldX = players[avatar.num].x, oldY = players[avatar.num].y, startX = players[avatar.num].x, startY = players[avatar.num].y, currentX = players[avatar.num].x, currentY = players[avatar.num].y, theta = math.atan2(arrowTargetY - players[avatar.num].y, arrowTargetX - players[avatar.num].x), r = 0, targetX = arrowTargetX, targetY = arrowTargetY, z = 0, angle = 0}

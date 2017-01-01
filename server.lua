@@ -41,8 +41,9 @@ function server_load()
   gameDt = 0
   otherTeamDelay = 0.5
 
-  down = {num = 1, dt = 0}
+  down = {num = 1, dt = 0, scrim = 0}
   startNewDown = nil
+  timeTillStart = 5
   arrow = {}
   objects = {}
   particles = {}
@@ -105,11 +106,6 @@ function server_update(dt)
   end
   players[avatar.num].x = players[avatar.num].x + avatar.xV
   players[avatar.num].y = players[avatar.num].y + avatar.yV
-  if avatar.xV > 0 and players[avatar.num].direction == -1 then
-    players[avatar.num].direction = 1
-  elseif avatar.xV < 0 and players[avatar.num].direction == 1 then
-    players[avatar.num].direction = -1
-  end
   -- confine player to field
   if players[avatar.num].x > 900 then
     players[avatar.num].x = 900
@@ -125,6 +121,21 @@ function server_update(dt)
     players[avatar.num].y = 0
     avatar.yV = 0
   end
+  -- confine player to line of scrimmage
+  if down.dt < timeTillStart then
+    if players[avatar.num].team == 1 then
+      if players[avatar.num].x > down.scrim then
+        players[avatar.num].x = down.scrim
+        avatar.xV = 0
+      end
+    else
+      if players[avatar.num].x < down.scrim then
+        players[avatar.num].x = down.scrim
+        avatar.xV = 0
+      end
+    end
+  end
+
 
   --animate avatar
   animatePlayer(avatar.num, avatar.xV, avatar.yV)
@@ -201,6 +212,7 @@ function server_update(dt)
       arrow.angle = math.atan2((arrow.currentY + arrow.z) - (arrow.oldY + arrow.oldZ), arrow.currentX - arrow.oldX)
     else
       objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY + 16, dt = 0}
+      down.scrim = arrow.targetX
       arrow = {}
       startNewDown = 2
     end
@@ -296,7 +308,7 @@ end
 
 function server_mousepressed(x, y, button)
   if button == 1 then
-    if qb == avatar.num and arrow.currentX == nil and arrow.currentY == nil and arrowShot == false then
+    if qb == avatar.num and arrow.currentX == nil and arrow.currentY == nil and arrowShot == false and down.dt > timeTillStart then
       arrowTargetX, arrowTargetY = (players[avatar.num].x + math.floor(x) - 200), (players[avatar.num].y + math.floor(y) - 150)
       server:send(bin:pack({"arrow", arrowTargetX, arrowTargetY}))
       arrow = {oldX = players[avatar.num].x, oldY = players[avatar.num].y, startX = players[avatar.num].x, startY = players[avatar.num].y, currentX = players[avatar.num].x, currentY = players[avatar.num].y, theta = math.atan2(arrowTargetY - players[avatar.num].y, arrowTargetX - players[avatar.num].x), r = 0, targetX = arrowTargetX, targetY = arrowTargetY, z = 0, angle = 0}
@@ -323,11 +335,6 @@ function server_onReceive(data, clientid)
         local tempYV = data["4"] - players[p].y
         players[p].x = data["3"]
         players[p].y = data["4"]
-        if tempXV > 0 and players[p].direction == -1 then
-          players[p].direction = 1
-        elseif tempXV < 0 and players[p].direction == 1 then
-          players[p].direction = -1
-        end
         animatePlayer(p, tempXV, tempYV)
         break
       end
@@ -367,6 +374,11 @@ function warpY(y)
 end
 
 function animatePlayer(p, xV, yV)
+  if xV > 0 and players[p].direction == -1 then
+    players[p].direction = 1
+  elseif xV < 0 and players[p].direction == 1 then
+    players[p].direction = -1
+  end
   local teamPos = team[players[p].team].position
   if math.abs(xV) > 0.1 or math.abs(yV) > 0.1 then
     if teamPos == "offense" then
