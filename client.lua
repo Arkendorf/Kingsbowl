@@ -55,9 +55,9 @@ function client_load()
   arrowShot = false
 
   --drawing functions
-  drawFunction = {function(a, b, c, d, e, f, g, h, i, j, k, l, m) love.graphics.setColor(a, b, c, d) love.graphics.draw(e, f, g, h, i, j, k, l, m) end,
-                  function(a, b, c, d, e, f, g, h, i, j, k, l, m) love.graphics.setColor(a, b, c, d) love.graphics.draw(e, g, h, i, j, k, l, m) end,
-                  function(a, b, c, d, e, f, g, h, i, j, k, l, m) love.graphics.setColor(a, b, c, d) love.graphics.print(e, g, h) end}
+  drawFunction = {function(a, b, c, d, e, f, g, h, i, j, k, l, m, o) love.graphics.setColor(a, b, c, d) love.graphics.draw(e, f, g, h + i, j, k, l, m, o) end,
+                  function(a, b, c, d, e, f, g, h, i, j, k, l, m, o) love.graphics.setColor(a, b, c, d) love.graphics.draw(e, g, h + i, j, k, l, m, o) end,
+                  function(a, b, c, d, e, f, g, h, i, j, k, l, m, o) love.graphics.setColor(a, b, c, d) love.graphics.print(e, g, h + i) end}
 
   message = {}
   messageDeleteSpeed = 20
@@ -300,11 +300,17 @@ function client_update(dt)
 
     --objects
     for i = 1, #objects do
-      if objects[i].type == "arrow" then
-        objects[i].dt = objects[i].dt + dt
-        if objects[i].dt > 127.5 then
-          objects[i] = nil
+      objects[i].dt = objects[i].dt + dt
+      if objects[i].dt > 127.5 then
+        objects[i] = nil
+      end
+      if objects[i].type == "drop" then
+        if objects[i].z >= 10 then
+          objects[i].zV = objects[i].bounce
+          objects[i].bounce = objects[i].bounce / 2
         end
+        objects[i].z = objects[i].z + objects[i].zV
+        objects[i].zV = objects[i].zV + 0.5
       end
     end
     objects = removeNil(objects)
@@ -342,27 +348,29 @@ function client_draw()
   --draw objects
   for i = 1, #objects do
     if objects[i].type == "arrow" then
-      thingsToDraw[#thingsToDraw + 1] = {type = 1, r = 255, g = 255, b = 255, a = 255 - (objects[i].dt * 2), img = arrowWobble, quad = arrowWobbleQuad[range(math.floor(objects[i].dt * 50), 1, 11)], x = warpX(objects[i].x, objects[i].y), y = warpY(objects[i].y), rot = 0, sX = 1, zY = 1, oX = 16, oY = 32}
+      thingsToDraw[#thingsToDraw + 1] = {type = 1, r = 255, g = 255, b = 255, a = 255 - (objects[i].dt * 2), img = arrowWobble, quad = arrowWobbleQuad[range(math.floor(objects[i].dt * 50), 1, 11)], x = warpX(objects[i].x, objects[i].y), y = warpY(objects[i].y), z = 0, rot = 0, sX = 1, zY = 1, oX = 16, oY = 32}
+    elseif objects[i].type == "drop" then
+      thingsToDraw[#thingsToDraw + 1] = {type = 1, r = 255, g = 255, b = 255, a = 255 - (objects[i].dt * 2), img = pDropImg, quad = pDropQuad[objects[i].subType], x = warpX(objects[i].x, objects[i].y), y = warpY(objects[i].y), z = math.floor(objects[i].z), rot = 0, sX = 1, zY = 1, oX = 16, oY = 34}
     end
   end
 
   -- draw players
   for p = 1, #players do
     char = drawChar(players[p].image, players[p].frame)
-    thingsToDraw[#thingsToDraw + 1] = {type = 2, r = 255, g = 255, b = 255, a = 255, img = charShadow, quad = 0, x = warpX(players[p].x, players[p].y), y = warpY(players[p].y) - 1, rot = 0, sX = 1, sY = 1, oX = 16, oY = 15}
-    thingsToDraw[#thingsToDraw + 1] = {type = 1, r = 255, g = 255, b = 255, a = 255, img = char[1], quad = char[2], x = warpX(players[p].x, players[p].y), y = warpY(players[p].y), rot = 0, sX = players[p].direction, sY = 1, oX = 16, oY = 32}
-    thingsToDraw[#thingsToDraw + 1] = {type = 1, r = team[players[p].team].r, g = team[players[p].team].g, b = team[players[p].team].b, a = 255, img = char[3], quad = char[4], x = warpX(players[p].x, players[p].y), y = warpY(players[p].y) + 1, rot = 0, sX = players[p].direction, sY = 1, oX = 16, oY = 33}
-    thingsToDraw[#thingsToDraw + 1] = {type = 3, r = team[players[p].team].r, g = team[players[p].team].g, b = team[players[p].team].b, a = 255, img = players[p].name, quad = 0, x = warpX(players[p].x, players[p].y) - getPixelWidth(players[p].name) / 2, y = warpY(players[p].y) - 48, rot = 0, sX = 0, sY = 0, oX = 0, oY = 0}
+    thingsToDraw[#thingsToDraw + 1] = {type = 2, r = 255, g = 255, b = 255, a = 255, img = charShadow, quad = 0, x = warpX(players[p].x, players[p].y), y = warpY(players[p].y) - 1, z = 0, rot = 0, sX = 1, sY = 1, oX = 16, oY = 15}
+    thingsToDraw[#thingsToDraw + 1] = {type = 1, r = 255, g = 255, b = 255, a = 255, img = char[1], quad = char[2], x = warpX(players[p].x, players[p].y), y = warpY(players[p].y), z = 0, rot = 0, sX = players[p].direction, sY = 1, oX = 16, oY = 32}
+    thingsToDraw[#thingsToDraw + 1] = {type = 1, r = team[players[p].team].r, g = team[players[p].team].g, b = team[players[p].team].b, a = 255, img = char[3], quad = char[4], x = warpX(players[p].x, players[p].y), y = warpY(players[p].y) + 1, z = 0, rot = 0, sX = players[p].direction, sY = 1, oX = 16, oY = 33}
+    thingsToDraw[#thingsToDraw + 1] = {type = 3, r = team[players[p].team].r, g = team[players[p].team].g, b = team[players[p].team].b, a = 255, img = players[p].name, quad = 0, x = warpX(players[p].x, players[p].y) - getPixelWidth(players[p].name) / 2, y = warpY(players[p].y) - 48, z = 0, rot = 0, sX = 0, sY = 0, oX = 0, oY = 0}
   end
 
   -- draw qb targetPos
   if #targetPos > 0 then
-    thingsToDraw[#thingsToDraw + 1] = {type = 2, r = team[players[qb].team].r, g = team[players[qb].team].g, b = team[players[qb].team].b, a = 255, img = arrowTarget, quad = 0, x = warpX(targetPos[currentTarget][1], targetPos[currentTarget][2]), y = warpY(targetPos[currentTarget][2]), rot = 0, sX = targetSize, sY = targetSize, oX = 16, oY = 8}
+    thingsToDraw[#thingsToDraw + 1] = {type = 2, r = team[players[qb].team].r, g = team[players[qb].team].g, b = team[players[qb].team].b, a = 255, img = arrowTarget, quad = 0, x = warpX(targetPos[currentTarget][1], targetPos[currentTarget][2]), y = warpY(targetPos[currentTarget][2]), z = 0, rot = 0, sX = targetSize, sY = targetSize, oX = 16, oY = 8}
   end
 
   -- draw arrow
   if arrow.currentX ~= nil and arrow.currentY ~= nil then
-    thingsToDraw[#thingsToDraw + 1] = {type = 2, r = 255, g = 255, b = 255, a = 255, img = arrowImg, quad = 0, x = warpX(arrow.currentX, arrow.currentY), y = warpY(arrow.currentY) + arrow.z - 16, rot = arrow.angle, sX = 1, sY = 1, oX = 16, oY = 16}
+    thingsToDraw[#thingsToDraw + 1] = {type = 2, r = 255, g = 255, b = 255, a = 255, img = arrowImg, quad = 0, x = warpX(arrow.currentX, arrow.currentY), y = warpY(arrow.currentY), z = math.floor(arrow.z) - 16, rot = arrow.angle, sX = 1, sY = 1, oX = 16, oY = 16}
   end
 
   sort(thingsToDraw)
@@ -379,7 +387,7 @@ function client_draw()
   love.graphics.line(math.floor(down.goal), 400, math.floor(down.goal) / 2, 0)
 
   for i = 1, #thingsToDraw do
-    drawFunction[thingsToDraw[i].type](thingsToDraw[i].r, thingsToDraw[i].g, thingsToDraw[i].b, thingsToDraw[i].a, thingsToDraw[i].img, thingsToDraw[i].quad, thingsToDraw[i].x, thingsToDraw[i].y, thingsToDraw[i].rot, thingsToDraw[i].sX, thingsToDraw[i].sY, thingsToDraw[i].oX, thingsToDraw[i].oY)
+    drawFunction[thingsToDraw[i].type](thingsToDraw[i].r, thingsToDraw[i].g, thingsToDraw[i].b, thingsToDraw[i].a, thingsToDraw[i].img, thingsToDraw[i].quad, thingsToDraw[i].x, thingsToDraw[i].y, thingsToDraw[i].z, thingsToDraw[i].rot, thingsToDraw[i].sX, thingsToDraw[i].sY, thingsToDraw[i].oX, thingsToDraw[i].oY)
   end
   love.graphics.setColor(255, 255, 255)
 
@@ -403,8 +411,7 @@ function client_mousepressed(x, y, button)
       arrow = {oldX = players[avatar.num].x, oldY = players[avatar.num].y, startX = players[avatar.num].x, startY = players[avatar.num].y, currentX = players[avatar.num].x, currentY = players[avatar.num].y, theta = math.atan2(arrowTargetY - players[avatar.num].y, arrowTargetX - players[avatar.num].x), r = 0, targetX = arrowTargetX, targetY = arrowTargetY, z = 0, angle = 0}
       arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
       arrowShot = true
-      players[qb].image = "dropBow"
-      players[qb].frame = 1
+      dropBow()
     end
   end
 end
@@ -442,8 +449,7 @@ function client_onReceive(data)
       arrow = {oldX = players[qb].x, oldY = players[qb].y, startX = players[qb].x, startY = players[qb].y, currentX = players[qb].x, currentY = players[qb].y, theta = math.atan2(data["3"] - players[qb].y, data["2"] - players[qb].x), r = 0, targetX = data["2"], targetY = data["3"], z = 0, angle = 0}
       arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
       arrowShot = true
-      players[qb].image = "dropBow"
-      players[qb].frame = 1
+      dropBow()
     end
   elseif data["1"] == "disconnect" then
     if data["2"] == identifier or data["2"] == "all" then
