@@ -181,5 +181,7 @@ function drawChar(image, frame)
     return {bowStill, bowStillQuad[1], bowStillOverlay, bowStillOverlayQuad[1]}
   elseif image == "bowRun" then
     return {bowRun, bowRunQuad[math.ceil(range(frame, 1, 8))], bowRunOverlay, bowRunOverlayQuad[math.ceil(range(frame, 1, 8))]}
+  elseif image == "dropBow" then
+    return {grabShield, grabShieldQuad[math.ceil(range(frame, 1, 14))], grabShieldOverlay, grabShieldOverlayQuad[math.ceil(range(frame, 1, 14))]}
   end
 end

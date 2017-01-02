@@ -1,4 +1,5 @@
 function server_load()
+  love.graphics.setLineWidth(3)
   -- initial positions
   playerNum = {0, 0}
   for p = 1, #players do
@@ -44,6 +45,7 @@ function server_load()
   otherTeamDelay = 0.5
 
   down = {num = 1, dt = 0, scrim = 0}
+  down.goal = findGoal()
   startNewDown = nil
   startAnnounce = {false, false, false}
   timeTillStart = 5
@@ -117,18 +119,21 @@ function server_update(dt)
   end
 
   -- move player
-  if love.keyboard.isDown("d") then
-    avatar.xV = avatar.xV + dt * 30
+  if players[avatar.num].image ~= "dropBow" then
+    if love.keyboard.isDown("d") then
+      avatar.xV = avatar.xV + dt * 30
+    end
+    if love.keyboard.isDown("a") then
+      avatar.xV = avatar.xV - dt * 30
+    end
+    if love.keyboard.isDown("w") then
+      avatar.yV = avatar.yV - dt * 30
+    end
+    if love.keyboard.isDown("s") then
+      avatar.yV = avatar.yV + dt * 30
+    end
   end
-  if love.keyboard.isDown("a") then
-    avatar.xV = avatar.xV - dt * 30
-  end
-  if love.keyboard.isDown("w") then
-    avatar.yV = avatar.yV - dt * 30
-  end
-  if love.keyboard.isDown("s") then
-    avatar.yV = avatar.yV + dt * 30
-  end
+
   players[avatar.num].x = players[avatar.num].x + avatar.xV
   players[avatar.num].y = players[avatar.num].y + avatar.yV
   -- confine player to field
@@ -174,16 +179,8 @@ function server_update(dt)
   end
 
   -- set camera position
-  if math.abs((-1 * warpX(players[avatar.num].x, players[avatar.num].y) - math.floor(mX) + 400) - camera.x) > 1 then
-    camera.x = camera.x + ((-1 * warpX(players[avatar.num].x, players[avatar.num].y) - math.floor(mX) + 400) - camera.x) * 0.4
-  else
-    camera.x = -1 * warpX(players[avatar.num].x, players[avatar.num].y) - math.floor(mX) + 400
-  end
-  if math.abs((warpY(-1 * players[avatar.num].y) - math.floor(mY) + 300) - camera.y) > 1 then
-    camera.y = camera.y + ((warpY(-1 * players[avatar.num].y) - math.floor(mY) + 300) - camera.y) * 0.4
-  else
-    camera.y = warpY(-1 * players[avatar.num].y) - math.floor(mY) + 300
-  end
+  camera.x = -1 * warpX(players[avatar.num].x, players[avatar.num].y) - math.floor(mX) + 400
+  camera.y = warpY(-1 * players[avatar.num].y) - math.floor(mY) + 300
 
   --quarterback's target
   if avatar.num == qb then
@@ -246,7 +243,9 @@ function server_update(dt)
   --new down
   if startNewDown ~= nil then
     startNewDown = startNewDown - dt
+    -- setting up the new down
     if startNewDown <= 0 then
+      players[qb].image = "bowStill"
       down.num = down.num + 1
       down.dt = 0
       arrowShot = false
@@ -264,6 +263,7 @@ function server_update(dt)
           team[2].position = "defense"
           qb = findQb(1)
         end
+        down.goal = findGoal()
       end
 
       playerNum = {0, 0}
@@ -334,6 +334,14 @@ function server_update(dt)
   end
   message = removeNil(message)
 
+  -- qb drop bow
+  if players[qb].image == "dropBow" then
+    players[qb].frame = players[qb].frame + dt * 12
+    if players[qb].frame > 14 then
+      players[qb].image = "grabShield"
+    end
+  end
+
   gameDt = gameDt + dt
   down.dt = down.dt + dt
 end
@@ -372,7 +380,13 @@ function server_draw()
   -- acutally drawing
   love.graphics.push()
   love.graphics.translate(camera.x, camera.y)
+
+  --draw field / lines
   love.graphics.draw(fieldImg, -1000, -100)
+  love.graphics.setColor(55, 55, 255)
+  love.graphics.line(math.floor(down.scrim), 400, math.floor(down.scrim) / 2, 0)
+  love.graphics.setColor(255, 55, 55)
+  love.graphics.line(math.floor(down.goal), 400, math.floor(down.goal) / 2, 0)
 
   for i = 1, #thingsToDraw do
     drawFunction[thingsToDraw[i].type](thingsToDraw[i].r, thingsToDraw[i].g, thingsToDraw[i].b, thingsToDraw[i].a, thingsToDraw[i].img, thingsToDraw[i].quad, thingsToDraw[i].x, thingsToDraw[i].y, thingsToDraw[i].rot, thingsToDraw[i].sX, thingsToDraw[i].sY, thingsToDraw[i].oX, thingsToDraw[i].oY)
@@ -399,6 +413,8 @@ function server_mousepressed(x, y, button)
       arrow = {oldX = players[avatar.num].x, oldY = players[avatar.num].y, startX = players[avatar.num].x, startY = players[avatar.num].y, currentX = players[avatar.num].x, currentY = players[avatar.num].y, theta = math.atan2(arrowTargetY - players[avatar.num].y, arrowTargetX - players[avatar.num].x), r = 0, targetX = arrowTargetX, targetY = arrowTargetY, z = 0, angle = 0}
       arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
       arrowShot = true
+      players[qb].image = "dropBow"
+      players[qb].frame = 1
     end
   end
 end
@@ -436,6 +452,8 @@ function server_onReceive(data, clientid)
     arrow = {oldX = players[qb].x, oldY = players[qb].y, startX = players[qb].x, startY = players[qb].y, currentX = players[qb].x, currentY = players[qb].y, theta = math.atan2(data["3"] - players[qb].y, data["2"] - players[qb].x), r = 0, targetX = data["2"], targetY = data["3"], z = 0, angle = 0}
     arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
     arrowShot = true
+    players[qb].image = "dropBow"
+    players[qb].frame = 1
   elseif data["1"] == "left" then
     server:send(bin:pack(data))
     for p = 1, #players do
@@ -460,35 +478,37 @@ function warpY(y)
 end
 
 function animatePlayer(p, xV, yV)
-  if xV > 0 and players[p].direction == -1 then
-    players[p].direction = 1
-  elseif xV < 0 and players[p].direction == 1 then
-    players[p].direction = -1
-  end
-  local teamPos = team[players[p].team].position
-  if math.abs(xV) > 0.1 or math.abs(yV) > 0.1 then
-    if p == qb and arrowShot == false then
-      players[p].image = "bowRun"
-    elseif teamPos == "offense" then
-      players[p].image = "runShield"
-    elseif teamPos == "defense" then
-      players[p].image = "runSword"
+  if players[p].image ~= "dropBow" then
+    if xV > 0 and players[p].direction == -1 then
+      players[p].direction = 1
+    elseif xV < 0 and players[p].direction == 1 then
+      players[p].direction = -1
     end
-    if math.abs(xV) > math.abs(yV) then
-      players[p].frame = loop(players[p].frame + math.abs(xV) / 2, 8)
+    local teamPos = team[players[p].team].position
+    if math.abs(xV) > 0.1 or math.abs(yV) > 0.1 then
+      if p == qb and arrowShot == false then
+        players[p].image = "bowRun"
+      elseif teamPos == "offense" then
+        players[p].image = "runShield"
+      elseif teamPos == "defense" then
+        players[p].image = "runSword"
+      end
+      if math.abs(xV) > math.abs(yV) then
+        players[p].frame = loop(players[p].frame + math.abs(xV) / 2, 8)
+      else
+        players[p].frame = loop(players[p].frame + math.abs(yV) / 2, 8)
+      end
     else
-      players[p].frame = loop(players[p].frame + math.abs(yV) / 2, 8)
-    end
-  else
-    if p == qb and arrowShot == false then
-      players[p].image = "bowStill"
-      players[p].frame = 1
-    elseif teamPos == "offense" then
-      players[p].image = "grabShield"
-      players[p].frame = 14
-    elseif teamPos == "defense" then
-      players[p].image = "unsheathSword"
-      players[p].frame = 14
+      if p == qb and arrowShot == false then
+        players[p].image = "bowStill"
+        players[p].frame = 1
+      elseif teamPos == "offense" then
+        players[p].image = "grabShield"
+        players[p].frame = 14
+      elseif teamPos == "defense" then
+        players[p].image = "unsheathSword"
+        players[p].frame = 14
+      end
     end
   end
 end
@@ -500,4 +520,12 @@ function findQb(team)
     end
   end
   return 1
+end
+
+function findGoal()
+  if team[1].position == "offense" then
+    return down.scrim + 149
+  else
+    return down.scrim - 149
+  end
 end
