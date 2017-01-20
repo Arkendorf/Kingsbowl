@@ -89,17 +89,24 @@ function client_update(dt)
 
     -- move player
     if players[avatar.num].image ~= "dropBow" then
+      if avatar.num == possesion then
+        speed =  20
+      elseif team[players[avatar.num].team].position == "offense" then
+        speed = 40
+      else
+        speed = 30
+      end
       if love.keyboard.isDown("d") then
-        avatar.xV = avatar.xV + dt * 30
+        avatar.xV = avatar.xV + dt * speed
       end
       if love.keyboard.isDown("a") then
-        avatar.xV = avatar.xV - dt * 30
+        avatar.xV = avatar.xV - dt * speed
       end
       if love.keyboard.isDown("w") then
-        avatar.yV = avatar.yV - dt * 30
+        avatar.yV = avatar.yV - dt * speed
       end
       if love.keyboard.isDown("s") then
-        avatar.yV = avatar.yV + dt * 30
+        avatar.yV = avatar.yV + dt * speed
       end
     end
 
@@ -216,15 +223,6 @@ function client_update(dt)
                   possible[#possible + 1] = p
                 end
               end
-            end
-          end
-          if #possible > 0 then
-            possesion = possible[math.random(1, #possible)]
-            arrow = {}
-            if players[possesion].team == players[qb].team then
-              message[#message + 1] = {players[possesion].name .. " caught the ball!", gameDt}
-            else
-              message[#message + 1] = {players[possesion].name .. " intercepted the ball!", gameDt}
             end
           end
         end
@@ -493,5 +491,6 @@ function client_onReceive(data)
     else
       message[#message + 1] = {players[possesion].name .. " intercepted the ball!", gameDt}
     end
+    animatePlayer(possesion, 0, 0)
   end
 end

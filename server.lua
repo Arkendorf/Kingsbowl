@@ -121,17 +121,24 @@ function server_update(dt)
 
   -- move player
   if players[avatar.num].image ~= "dropBow" then
+    if avatar.num == possesion then
+      speed =  20
+    elseif team[players[avatar.num].team].position == "offense" then
+      speed = 40
+    else
+      speed = 30
+    end
     if love.keyboard.isDown("d") then
-      avatar.xV = avatar.xV + dt * 30
+      avatar.xV = avatar.xV + dt * speed
     end
     if love.keyboard.isDown("a") then
-      avatar.xV = avatar.xV - dt * 30
+      avatar.xV = avatar.xV - dt * speed
     end
     if love.keyboard.isDown("w") then
-      avatar.yV = avatar.yV - dt * 30
+      avatar.yV = avatar.yV - dt * speed
     end
     if love.keyboard.isDown("s") then
-      avatar.yV = avatar.yV + dt * 30
+      avatar.yV = avatar.yV + dt * speed
     end
   end
 
@@ -252,13 +259,14 @@ function server_update(dt)
         if #possible > 0 then
           item = math.random(1, #possible)
           server:send(bin:pack({"posses", possible[item]}))
-          possesion = possible[item]          
+          possesion = possible[item]
           arrow = {}
           if players[possesion].team == players[qb].team then
             message[#message + 1] = {players[possesion].name .. " caught the ball!", gameDt}
           else
             message[#message + 1] = {players[possesion].name .. " intercepted the ball!", gameDt}
           end
+          animatePlayer(possesion, 0, 0)
         end
       end
     else
@@ -530,12 +538,12 @@ function animatePlayer(p, xV, yV)
     if math.abs(xV) > 0.1 or math.abs(yV) > 0.1 then
       if p == qb and arrowShot == false then
         players[p].image = "bowRun"
+      elseif p ~= qb and p == possesion then
+        players[p].image = "limp"
       elseif teamPos == "offense" then
         players[p].image = "runShield"
       elseif teamPos == "defense" then
         players[p].image = "runSword"
-      elseif p ~= qb and p == possesion then
-        players[p].image = "limp"
       end
       if math.abs(xV) > math.abs(yV) then
         players[p].frame = loop(players[p].frame + math.abs(xV) / 2, 8)
@@ -546,15 +554,15 @@ function animatePlayer(p, xV, yV)
       if p == qb and arrowShot == false then
         players[p].image = "bowStill"
         players[p].frame = 1
+      elseif p ~= qb and p == possesion then
+        players[p].image = "limp"
+        players[p].frame = 1
       elseif teamPos == "offense" then
         players[p].image = "grabShield"
         players[p].frame = 14
       elseif teamPos == "defense" then
         players[p].image = "unsheathSword"
         players[p].frame = 14
-      elseif p ~= qb and p == possesion then
-        players[p].image = "limp"
-        players[p].frame = 1
       end
     end
   end
