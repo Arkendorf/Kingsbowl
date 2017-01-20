@@ -31,12 +31,6 @@ function client_load()
   avatar = {num = 0, xV = 0, yV = 0}
   oldPos = {x = 0, y = 0}
 
-  if team[1].position == "offense" then
-    qb = findQb(1)
-  else
-    qb = findQb(2)
-  end
-  possesion = qb
   newQb = false
   newQbTeam = 1
   targetPos = {}
@@ -79,19 +73,11 @@ function client_update(dt)
       if players[p].delete == true then
         players[p].frame = players[p].frame + dt * 30
         if players[p].frame > 18 then
-          if p == qb then
-            newQb = true
-            newQbTeam = players[p].team
-          end
           players[p] = nil
         end
       end
     end
     players = removeNil(players)
-    if newQb == true then
-      findQb(newQbTeam)
-      newQb = false
-    end
 
     -- find which player is the "avatar"
     for p = 1, #players do
@@ -269,11 +255,9 @@ function client_update(dt)
           if team[1].position == "offense" then
             team[1].position = "defense"
             team[2].position = "offense"
-            qb = findQb(2)
           else
             team[1].position = "offense"
             team[2].position = "defense"
-            qb = findQb(1)
           end
           down.goal = findGoal()
         end
@@ -498,5 +482,16 @@ function client_onReceive(data)
     end
   elseif data["1"] == "qb" then
     qb = data["2"]
+    if gameDt < 1 then
+      possesion = qb
+    end
+  elseif data["1"] == "posses" then
+    possesion = data["2"]
+    arrow = {}
+    if players[possesion].team == players[qb].team then
+      message[#message + 1] = {players[possesion].name .. " caught the ball!", gameDt}
+    else
+      message[#message + 1] = {players[possesion].name .. " intercepted the ball!", gameDt}
+    end
   end
 end

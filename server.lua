@@ -250,7 +250,9 @@ function server_update(dt)
           end
         end
         if #possible > 0 then
-          possesion = possible[math.random(1, #possible)]
+          item = math.random(1, #possible)
+          server:send(bin:pack({"posses", possible[item]}))
+          possesion = possible[item]          
           arrow = {}
           if players[possesion].team == players[qb].team then
             message[#message + 1] = {players[possesion].name .. " caught the ball!", gameDt}
@@ -567,8 +569,8 @@ function findQb(team)
   end
   if # possible > 0 then
     item = math.random(1, #possible)
+      server:send(bin:pack({"qb", possible[item]}))
     return possible[item]
-    server:send(bin:pack({"qb", possible[item]}))
   else
     return 1
   end
