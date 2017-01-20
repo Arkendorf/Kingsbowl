@@ -36,6 +36,7 @@ function client_load()
   else
     qb = findQb(2)
   end
+  possesion = qb
   newQb = false
   newQbTeam = 1
   targetPos = {}
@@ -214,6 +215,33 @@ function client_update(dt)
           arrow.z = (((arrow.distance / 2 - arrow.r) * (arrow.distance / 2 - arrow.r)) - ((arrow.distance / 2) * (arrow.distance / 2))) / 340
         end
         arrow.angle = math.atan2((arrow.currentY + arrow.z) - (arrow.oldY + arrow.oldZ), arrow.currentX - arrow.oldX)
+
+        --check if arrow is caught
+        if arrow.z < 16 then
+          possible = {}
+          for p = 1, #players do
+            if p ~= qb then
+              if team[players[p].team].position == "offense" then
+                if math.sqrt((players[p].x - arrow.currentX) * (players[p].x - arrow.currentX) + (players[p].y - arrow.currentY) * (players[p].y - arrow.currentY)) < 16 then
+                  possible[#possible + 1] = p
+                end
+              else
+                if math.sqrt((players[p].x - arrow.currentX) * (players[p].x - arrow.currentX) + (players[p].y - arrow.currentY) * (players[p].y - arrow.currentY)) < 8 then
+                  possible[#possible + 1] = p
+                end
+              end
+            end
+          end
+          if #possible > 0 then
+            possesion = possible[math.random(1, #possible)]
+            arrow = {}
+            if players[possesion].team == players[qb].team then
+              message[#message + 1] = {players[possesion].name .. " caught the ball!", gameDt}
+            else
+              message[#message + 1] = {players[possesion].name .. " intercepted the ball!", gameDt}
+            end
+          end
+        end
       else
         --incomplete
         objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY + 16, dt = 0}
@@ -234,6 +262,7 @@ function client_update(dt)
         arrowShot = false
         startNewDown = nil
         startAnnounce = {false, false, false}
+        possesion = qb
 
         if down.num > 4 then
           down.num = 1
@@ -412,6 +441,7 @@ function client_mousepressed(x, y, button)
       arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
       arrowShot = true
       dropBow()
+      possesion = 0
     end
   end
 end
@@ -450,6 +480,7 @@ function client_onReceive(data)
       arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
       arrowShot = true
       dropBow()
+      possesion = 0
     end
   elseif data["1"] == "disconnect" then
     if data["2"] == identifier or data["2"] == "all" then
@@ -465,5 +496,7 @@ function client_onReceive(data)
         break
       end
     end
+  elseif data["1"] == "qb" then
+    qb = data["2"]
   end
 end

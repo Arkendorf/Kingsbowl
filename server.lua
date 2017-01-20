@@ -36,6 +36,7 @@ function server_load()
   else
     qb = findQb(2)
   end
+  possesion = qb
   newQb = false
   newQbTeam = 1
   targetPos = {}
@@ -231,6 +232,33 @@ function server_update(dt)
         arrow.z = (((arrow.distance / 2 - arrow.r) * (arrow.distance / 2 - arrow.r)) - ((arrow.distance / 2) * (arrow.distance / 2))) / 340
       end
       arrow.angle = math.atan2((arrow.currentY + arrow.z) - (arrow.oldY + arrow.oldZ), arrow.currentX - arrow.oldX)
+
+      --check if arrow is caught
+      if arrow.z < 16 then
+        possible = {}
+        for p = 1, #players do
+          if p ~= qb then
+            if team[players[p].team].position == "offense" then
+              if math.sqrt((players[p].x - arrow.currentX) * (players[p].x - arrow.currentX) + (players[p].y - arrow.currentY) * (players[p].y - arrow.currentY)) < 16 then
+                possible[#possible + 1] = p
+              end
+            else
+              if math.sqrt((players[p].x - arrow.currentX) * (players[p].x - arrow.currentX) + (players[p].y - arrow.currentY) * (players[p].y - arrow.currentY)) < 8 then
+                possible[#possible + 1] = p
+              end
+            end
+          end
+        end
+        if #possible > 0 then
+          possesion = possible[math.random(1, #possible)]
+          arrow = {}
+          if players[possesion].team == players[qb].team then
+            message[#message + 1] = {players[possesion].name .. " caught the ball!", gameDt}
+          else
+            message[#message + 1] = {players[possesion].name .. " intercepted the ball!", gameDt}
+          end
+        end
+      end
     else
       --incomplete
       objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY + 16, dt = 0}
@@ -251,6 +279,7 @@ function server_update(dt)
       arrowShot = false
       startNewDown = nil
       startAnnounce = {false, false, false}
+      possesion = qb
 
       if down.num > 4 then
         down.num = 1
@@ -411,6 +440,8 @@ function server_draw()
     love.graphics.print(message[i][1], 4, 300 - ((#message - i + 1) * 12))
     love.graphics.setColor(255, 255, 255)
   end
+
+  love.graphics.print(tostring(possesion))
 end
 
 function server_mousepressed(x, y, button)
@@ -422,6 +453,7 @@ function server_mousepressed(x, y, button)
       arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
       arrowShot = true
       dropBow()
+      possesion = 0
     end
   end
 end
@@ -460,6 +492,7 @@ function server_onReceive(data, clientid)
     arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
     arrowShot = true
     dropBow()
+    possesion = 0
 
   elseif data["1"] == "left" then
     server:send(bin:pack(data))
@@ -499,6 +532,8 @@ function animatePlayer(p, xV, yV)
         players[p].image = "runShield"
       elseif teamPos == "defense" then
         players[p].image = "runSword"
+      elseif p ~= qb and p == possesion then
+        players[p].image = "limp"
       end
       if math.abs(xV) > math.abs(yV) then
         players[p].frame = loop(players[p].frame + math.abs(xV) / 2, 8)
@@ -515,18 +550,28 @@ function animatePlayer(p, xV, yV)
       elseif teamPos == "defense" then
         players[p].image = "unsheathSword"
         players[p].frame = 14
+      elseif p ~= qb and p == possesion then
+        players[p].image = "limp"
+        players[p].frame = 1
       end
     end
   end
 end
 
 function findQb(team)
+  possible = {}
   for p = 1, #players do
     if players[p].team == team then
-      return p
+      possible[#possible + 1] = p
     end
   end
-  return 1
+  if # possible > 0 then
+    item = math.random(1, #possible)
+    return possible[item]
+    server:send(bin:pack({"qb", possible[item]}))
+  else
+    return 1
+  end
 end
 
 function findGoal()
