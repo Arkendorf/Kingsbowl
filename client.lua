@@ -362,6 +362,7 @@ function client_draw()
       thingsToDraw[#thingsToDraw + 1] = {type = 1, r = 255, g = 255, b = 255, a = 255 - (objects[i].dt * 2), img = arrowWobble, quad = arrowWobbleQuad[range(math.floor(objects[i].dt * 50), 1, 11)], x = warpX(objects[i].x, objects[i].y), y = warpY(objects[i].y), z = 0, rot = 0, sX = 1, zY = 1, oX = 16, oY = 32}
     elseif objects[i].type == "drop" then
       thingsToDraw[#thingsToDraw + 1] = {type = 1, r = 255, g = 255, b = 255, a = 255 - (objects[i].dt * 2), img = pDropImg, quad = pDropQuad[objects[i].subType], x = warpX(objects[i].x, objects[i].y), y = warpY(objects[i].y), z = math.floor(objects[i].z), rot = 0, sX = 1, zY = 1, oX = 16, oY = 34}
+      thingsToDraw[#thingsToDraw + 1] = {type = 1, r = team[objects[i].team].r, g = team[objects[i].team].g, b = team[objects[i].team].b, a = 255 - (objects[i].dt * 2), img = pDropImg, quad = pDropQuad[objects[i].subType + 3], x = warpX(objects[i].x, objects[i].y), y = warpY(objects[i].y) + 1, z = math.floor(objects[i].z), rot = 0, sX = 1, zY = 1, oX = 16, oY = 35}
     end
   end
 
@@ -488,8 +489,10 @@ function client_onReceive(data)
     arrow = {}
     if players[possesion].team == players[qb].team then
       message[#message + 1] = {players[possesion].name .. " caught the ball!", gameDt}
+      objects[#objects + 1] = {type = "drop", subType = 2, x = players[possesion].x, y = players[possesion].y + 2, dt = 0, zV = 0, z = 0, bounce = -5, team = players[possesion].team}
     else
       message[#message + 1] = {players[possesion].name .. " intercepted the ball!", gameDt}
+      objects[#objects + 1] = {type = "drop", subType = 1, x = players[possesion].x, y = players[possesion].y + 2, dt = 0, zV = 0, z = 0, bounce = -5, team = players[possesion].team}
     end
     animatePlayer(possesion, 0, 0)
   end
