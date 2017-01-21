@@ -318,10 +318,22 @@ function client_update(dt)
       if objects[i].type == "drop" then
         if objects[i].z >= 10 then
           objects[i].zV = objects[i].bounce
-          objects[i].bounce = objects[i].bounce / 2
+          objects[i].bounce = objects[i].bounce / 4
         end
         objects[i].z = objects[i].z + objects[i].zV
         objects[i].zV = objects[i].zV + 0.5
+      elseif objects[i].type == "blood" then
+        if objects[i].mode == 1 then
+          objects[i].z = objects[i].z + objects[i].zV
+          objects[i].zV = objects[i].zV + 0.5
+          objects[i].x = objects[i].x + objects[i].xV
+          objects[i].xV = objects[i].xV * 0.9
+          objects[i].y = objects[i].y + objects[i].yV
+          objects[i].yV = objects[i].yV * 0.9
+          if objects[i].z >= 10 then
+            objects[i].mode = 2
+          end
+        end
       end
     end
     objects = removeNil(objects)
@@ -363,6 +375,8 @@ function client_draw()
     elseif objects[i].type == "drop" then
       thingsToDraw[#thingsToDraw + 1] = {type = 1, r = 255, g = 255, b = 255, a = 255 - (objects[i].dt * 2), img = pDropImg, quad = pDropQuad[objects[i].subType], x = warpX(objects[i].x, objects[i].y), y = warpY(objects[i].y), z = math.floor(objects[i].z), rot = 0, sX = 1, zY = 1, oX = 16, oY = 34}
       thingsToDraw[#thingsToDraw + 1] = {type = 1, r = team[objects[i].team].r, g = team[objects[i].team].g, b = team[objects[i].team].b, a = 255 - (objects[i].dt * 2), img = pDropImg, quad = pDropQuad[objects[i].subType + 3], x = warpX(objects[i].x, objects[i].y), y = warpY(objects[i].y) + 1, z = math.floor(objects[i].z), rot = 0, sX = 1, zY = 1, oX = 16, oY = 35}
+    elseif objects[i].type == "blood" then
+      thingsToDraw[#thingsToDraw + 1] = {type = 1, r = 255, g = 255, b = 255, a = 255 - (objects[i].dt * 2), img = bloodDrop, quad = bloodDropQuad[objects[i].mode], x = warpX(objects[i].x, objects[i].y), y = warpY(objects[i].y), z = math.floor(objects[i].z), rot = 0, sX = 1, zY = 1, oX = 16, oY = 16}
     end
   end
 
@@ -495,5 +509,8 @@ function client_onReceive(data)
       objects[#objects + 1] = {type = "drop", subType = 1, x = players[possesion].x, y = players[possesion].y + 2, dt = 0, zV = 0, z = 0, bounce = -5, team = players[possesion].team}
     end
     animatePlayer(possesion, 0, 0)
+    for i = 1, gore do
+      objects[#objects + 1] = {type = "blood", x = players[possesion].x, y = players[possesion].y + 2, dt = 0, zV = -3, z = 0, mode = 1, xV = math.random(-3, 3), yV = math.random(-3, 3)}
+    end
   end
 end

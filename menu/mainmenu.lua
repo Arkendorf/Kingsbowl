@@ -117,6 +117,9 @@ function range(num, min, max)
   end
 end
 
+function round(x)
+  return x + 0.5 - (x + 0.5) % 1
+end
 
 function loop(num, max)
   if num > max then

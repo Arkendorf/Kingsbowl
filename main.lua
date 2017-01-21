@@ -28,6 +28,7 @@ function love.load()
   love.graphics.setLineWidth(1)
   pause = false
   mainScreen = love.graphics.newCanvas(400, 300)
+  gore = 3
 end
 
 function love.update(dt)

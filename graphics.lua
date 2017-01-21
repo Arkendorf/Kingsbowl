@@ -18,7 +18,8 @@ function graphics_load()
   arrowWobbleQuad =loadSpriteSheet(arrowWobble, 32)
 
   bloodDrop = love.graphics.newImage("art/bloodDrop.png")
-
+  bloodDropQuad = loadSpriteSheet(bloodDrop, 32)
+  
   pDropImg = love.graphics.newImage("art/drops.png")
   pDropQuad = loadSpriteSheet(pDropImg, 32)
 
