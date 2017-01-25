@@ -19,7 +19,7 @@ function graphics_load()
 
   bloodDrop = love.graphics.newImage("art/bloodDrop.png")
   bloodDropQuad = loadSpriteSheet(bloodDrop, 32)
-  
+
   pDropImg = love.graphics.newImage("art/drops.png")
   pDropQuad = loadSpriteSheet(pDropImg, 32)
 
@@ -57,6 +57,26 @@ function graphics_load()
   bowStillQuad = {love.graphics.newQuad(0, 0, 32, 32, bowStill:getDimensions())}
   bowStillOverlay = love.graphics.newImage("char/bowStillOverlay.png")
   bowStillOverlayQuad = {love.graphics.newQuad(0, 0, 32, 32, bowStillOverlay:getDimensions())}
+
+  dead = love.graphics.newImage("char/dead.png")
+  deadQuad = loadSpriteSheet(dead, 32)
+  deadOverlay = love.graphics.newImage("char/deadOverlay.png")
+  deadOverlayQuad = loadSpriteSheet(deadOverlay, 32)
+
+  shieldUp = love.graphics.newImage("char/shieldUp.png")
+  shieldUpQuad = loadSpriteSheet(shieldUp, 32)
+  shieldUpOverlay = love.graphics.newImage("char/shieldUpOverlay.png")
+  shieldUpOverlayQuad = loadSpriteSheet(shieldUpOverlay, 32)
+
+  shieldUpRun = love.graphics.newImage("char/shieldUpRun.png")
+  shieldUpRunQuad = loadSpriteSheet(shieldUpRun, 32)
+  shieldUpRunOverlay = love.graphics.newImage("char/shieldUpRunOverlay.png")
+  shieldUpRunOverlayQuad = loadSpriteSheet(shieldUpRunOverlay, 32)
+
+  swordAttack = love.graphics.newImage("char/swordAttack.png")
+  swordAttackQuad = loadSpriteSheet(swordAttack, 32, 64)
+  swordAttackOverlay = love.graphics.newImage("char/swordAttackOverlay.png")
+  swordAttackOverlayQuad = loadSpriteSheet(swordAttackOverlay, 32, 64)
 
   run = love.graphics.newImage("char/runArms.png")
   runQuad = loadSpriteSheet(run, 32)
@@ -142,11 +162,14 @@ function graphics_load()
   fieldImg = love.graphics.newImage("field.png")
 end
 
-function loadSpriteSheet(image, size)
+function loadSpriteSheet(image, size, size2)
+  if size2 == nil then
+    size2 = size
+  end
   table = {}
   for h = 0, (image:getHeight() / size) - 1 do
-    for w = 0, (image:getWidth() / size) - 1 do
-      table[#table + 1] = love.graphics.newQuad(w * size, h * size, size, size, image:getDimensions())
+    for w = 0, (image:getWidth() / size2) - 1 do
+      table[#table + 1] = love.graphics.newQuad(w * size2, h * size, size2, size, image:getDimensions())
     end
   end
   return table
