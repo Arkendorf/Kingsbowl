@@ -23,6 +23,7 @@ function client_load()
       players[p].direction = -1
       playerNum[4] = playerNum[4] + 1
     end
+    players[p].action = 0
     players[p].frame = 1
     animatePlayer(p, 0, 0)
   end
@@ -88,8 +89,8 @@ function client_update(dt)
     end
 
     -- move player
-    if players[avatar.num].image ~= "dropBow" then
-      if avatar.num == possesion then
+    if players[avatar.num].image ~= "dropBow" and players[avatar.num].action ~= 1 and players[avatar.num].action ~= 3 and players[avatar.num].action ~= 4 and players[avatar.num].action ~= 5 then
+      if avatar.num == possesion or players[avatar.num].action == 2 then
         speed =  20
       elseif team[players[avatar.num].team].position == "offense" then
         speed = 40
@@ -228,7 +229,7 @@ function client_update(dt)
         end
       else
         --incomplete
-        objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY + 16, dt = 0}
+        objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY, dt = 0}
         arrow = {}
         startNewDown = 2
         message[#message + 1] = {players[qb].name .. " threw an incomplete pass!", gameDt}
@@ -246,7 +247,6 @@ function client_update(dt)
         arrowShot = false
         startNewDown = nil
         startAnnounce = {false, false, false}
-        possesion = qb
 
         if down.num > 4 then
           down.num = 1
@@ -259,6 +259,8 @@ function client_update(dt)
           end
           down.goal = findGoal()
         end
+
+        possesion = qb
 
         playerNum = {0, 0}
         for p = 1, #players do
@@ -282,6 +284,7 @@ function client_update(dt)
             players[p].direction = -1
             playerNum[4] = playerNum[4] + 1
           end
+          players[p].action = 0
           players[p].frame = 1
           animatePlayer(p, 0, 0)
         end
@@ -351,6 +354,39 @@ function client_update(dt)
       players[qb].frame = players[qb].frame + dt * 12
       if players[qb].frame > 14 then
         players[qb].image = "grabShield"
+      end
+    end
+
+    --actions
+    if love.mouse.isDown(1) == false and players[avatar.num].action == 2 then
+      client:send(bin:pack({"noshield", avatar.num}))
+    end
+    for p = 1, #players do
+      if players[p].action > 0 then
+        if players[p].action == 1 then
+          players[p].frame = players[p].frame + dt * 30
+          if players[p].frame > 4 then
+            players[p].action = 2
+          end
+        elseif players[p].action == 3 then
+          players[p].frame = players[p].frame - dt * 30
+          if players[p].frame < 1 then
+            players[p].action = 0
+            players[p].frame = 1
+          end
+        elseif players[p].action == 4 then
+          players[p].frame = players[p].frame + dt * 30
+          if players[p].frame > 4 then
+            players[p].action = 5
+            players[p].frame = 4
+          end
+        elseif players[p].action == 5 then
+          players[p].frame = players[p].frame - dt * 30
+          if players[p].frame < 1 then
+            players[p].action = 0
+
+          end
+        end
       end
     end
 
@@ -431,14 +467,20 @@ end
 
 function client_mousepressed(x, y, button)
   if button == 1 then
-    if qb == avatar.num and arrow.currentX == nil and arrow.currentY == nil and arrowShot == false and down.dt > timeTillStart then
-      arrowTargetX, arrowTargetY = (players[avatar.num].x + (math.floor(mX) - 200) * 2), (players[avatar.num].y + (math.floor(mY) - 150) * 2)
-      client:send(bin:pack({"arrow", arrowTargetX, arrowTargetY}))
-      arrow = {oldX = players[avatar.num].x, oldY = players[avatar.num].y, startX = players[avatar.num].x, startY = players[avatar.num].y, currentX = players[avatar.num].x, currentY = players[avatar.num].y, theta = math.atan2(arrowTargetY - players[avatar.num].y, arrowTargetX - players[avatar.num].x), r = 0, targetX = arrowTargetX, targetY = arrowTargetY, z = 0, angle = 0}
-      arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
-      arrowShot = true
-      dropBow()
-      possesion = 0
+    if down.dt > timeTillStart then
+      if qb == avatar.num and arrow.currentX == nil and arrow.currentY == nil and arrowShot == false then
+        arrowTargetX, arrowTargetY = (players[avatar.num].x + (math.floor(mX) - 200) * 2), (players[avatar.num].y + (math.floor(mY) - 150) * 2)
+        client:send(bin:pack({"arrow", arrowTargetX, arrowTargetY}))
+        arrow = {oldX = players[avatar.num].x, oldY = players[avatar.num].y, startX = players[avatar.num].x, startY = players[avatar.num].y, currentX = players[avatar.num].x, currentY = players[avatar.num].y, theta = math.atan2(arrowTargetY - players[avatar.num].y, arrowTargetX - players[avatar.num].x), r = 0, targetX = arrowTargetX, targetY = arrowTargetY, z = 0, angle = 0}
+        arrow.distance = math.sqrt((arrow.targetX - arrow.startX) * (arrow.targetX - arrow.startX) + (arrow.targetY - arrow.startY) * (arrow.targetY - arrow.startY))
+        arrowShot = true
+        dropBow()
+        possesion = 0
+      elseif team[players[avatar.num].team].position == "offense" then
+        client:send(bin:pack({"shielding", avatar.num}))
+      elseif team[players[avatar.num].team].position == "defense" and players[avatar.num].image ~= "dropBow"  and players[avatar.num].image ~= "dropBow" then
+        client:send(bin:pack({"slicing", avatar.num}))
+      end
     end
   end
 end
@@ -471,6 +513,18 @@ function client_onReceive(data)
       end
       targetPos = removeNil(targetPos)
     end
+  elseif data["1"] == "slicing" then
+    players[data["2"]].action = 4
+    players[data["2"]].image = "swordAttack"
+    players[data["2"]].frame = 1
+  elseif data["1"] == "shielding" then
+    players[data["2"]].action = 1
+    players[data["2"]].image = "shieldUp"
+    players[data["2"]].frame = 1
+  elseif data["1"] == "noshield" then
+    players[data["2"]].action = 3
+    players[data["2"]].image = "shieldUp"
+    players[data["2"]].frame = 4
   elseif data["1"] == "arrow" then
     if qb ~= avatar.num then
       arrow = {oldX = players[qb].x, oldY = players[qb].y, startX = players[qb].x, startY = players[qb].y, currentX = players[qb].x, currentY = players[qb].y, theta = math.atan2(data["3"] - players[qb].y, data["2"] - players[qb].x), r = 0, targetX = data["2"], targetY = data["3"], z = 0, angle = 0}

@@ -186,5 +186,13 @@ function drawChar(image, frame)
     return {grabShield, grabShieldQuad[math.ceil(range(frame, 1, 14))], grabShieldOverlay, grabShieldOverlayQuad[math.ceil(range(frame, 1, 14))]}
   elseif image == "limp" then
     return {limp, limpQuad[math.ceil(range(frame, 1, 8))], limpOverlay, limpOverlayQuad[math.ceil(range(frame, 1, 8))]}
+  elseif image == "shieldUp" then
+    return {shieldUp, shieldUpQuad[math.ceil(range(frame, 1, 4))], shieldUpOverlay, shieldUpOverlayQuad[math.ceil(range(frame, 1, 4))]}
+  elseif image == "shieldUp" then
+    return {dead, deadQuad[math.ceil(range(frame, 1, 4))], deadOverlay, deadOverlayQuad[math.ceil(range(frame, 1, 4))]}
+  elseif image == "shieldUpRun" then
+    return {shieldUpRun, shieldUpRunQuad[math.ceil(range(frame, 1, 8))], shieldUpRunOverlay, shieldUpRunOverlayQuad[math.ceil(range(frame, 1, 8))]}
+  elseif image == "swordAttack" then
+    return {swordAttack, swordAttackQuad[math.ceil(range(frame, 1, 8))], swordAttackOverlay, swordAttackOverlayQuad[math.ceil(range(frame, 1, 8))]}
   end
 end
