@@ -31,7 +31,6 @@ function server_load()
 
   camera = {x = 200, y = -50}
   avatar = {num = 0, xV = 0, yV = 0}
-  oldPos = {x = 0, y = 0}
 
   if team[1].position == "offense" then
     qb = findQb(1)
@@ -185,11 +184,8 @@ function server_update(dt)
   avatar.xV = avatar.xV * 0.4
   avatar.yV = avatar.yV * 0.4
 
-  -- send coords if change is detected
-  if players[avatar.num].x ~= oldPos.x or players[avatar.num].y ~= oldPos.y then
-    server:send(bin:pack({"coords", 1, players[avatar.num].x, players[avatar.num].y}))
-    oldPos.x, oldPos.y = players[avatar.num].x, players[avatar.num].y
-  end
+  -- send coords
+  server:send(bin:pack({"coords", 1, players[avatar.num].x, players[avatar.num].y}))
 
   -- set camera position
   camera.x = -1 * warpX(players[avatar.num].x, players[avatar.num].y) - math.floor(mX) + 400
@@ -293,16 +289,16 @@ function server_update(dt)
     startNewDown = startNewDown - dt
 
     --revive the dead
-    if startNewDown <= newDownBuffer - 1 then
-      for p = 1, #players do
-        if players[p].action == 6 then
-           players[p].frame = players[p].frame - dt * 32
-           if players[p].frame < 1 then
-             players[p].action = 0
-           end
-         end
-       end
-     end
+    -- if startNewDown <= newDownBuffer - 1 then
+    --   for p = 1, #players do
+    --     if players[p].action == 6 then
+    --        players[p].frame = players[p].frame - dt * 32
+    --        if players[p].frame < 1 then
+    --          players[p].action = 0
+    --        end
+    --      end
+    --    end
+    --  end
 
     -- setting up the new down
     if startNewDown <= 0 then
@@ -474,10 +470,10 @@ function server_update(dt)
         possible = {}
         for p2 = 1, #players do
           if players[p2].team ~= players[p].team and players[p].action ~= 6 then
-
             if players[p].direction == 1 then
               if math.sqrt((players[p2].x - players[p].x - 16) * (players[p2].x - players[p].x - 16) + (players[p2].y - players[p].y) * (players[p2].y - players[p].y)) < 16 then
                 if players[p2].action == 1 or players[p2].action == 2 or players[p2].action == 3 then
+                  server:send(bin:pack({"interrupt", p}))
                   possible = {}
                   players[p].action = 5
                   players[p].frame = 4
@@ -501,7 +497,7 @@ function server_update(dt)
           end
           if #possible > 0 then
             item = possible[math.random(1, #possible)]
-            server:send(bin:pack({"dead", possible[item]}))
+            server:send(bin:pack({"dead", item}))
             players[item].action = 6
             players[item].image = "dead"
             players[item].frame = 1

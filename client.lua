@@ -31,7 +31,6 @@ function client_load()
 
   camera = {x = 200, y = -50}
   avatar = {num = 0, xV = 0, yV = 0}
-  oldPos = {x = 0, y = 0}
 
   newQb = false
   newQbTeam = 1
@@ -154,11 +153,8 @@ function client_update(dt)
     avatar.xV = avatar.xV * 0.4
     avatar.yV = avatar.yV * 0.4
 
-    -- send coords if change is detected
-    if players[avatar.num].x ~= oldPos.x or players[avatar.num].y ~= oldPos.y then
-      client:send(bin:pack({"coords", identifier, players[avatar.num].x, players[avatar.num].y}))
-      oldPos.x, oldPos.y = players[avatar.num].x, players[avatar.num].y
-    end
+    -- send coords
+    client:send(bin:pack({"coords", identifier, players[avatar.num].x, players[avatar.num].y}))
 
     -- set camera position
     camera.x = -1 * warpX(players[avatar.num].x, players[avatar.num].y) - math.floor(mX) + 400
@@ -245,16 +241,16 @@ function client_update(dt)
       startNewDown = startNewDown - dt
 
       --revive the dead
-      if startNewDown <= newDownBuffer - 1 then
-        for p = 1, #players do
-          if players[p].action == 6 then
-             players[p].frame = players[p].frame - dt * 32
-             if players[p].frame < 1 then
-               players[p].action = 0
-             end
-           end
-         end
-       end
+      -- if startNewDown <= newDownBuffer - 1 then
+      --   for p = 1, #players do
+      --     if players[p].action == 6 then
+      --        players[p].frame = players[p].frame - dt * 32
+      --        if players[p].frame < 1 then
+      --          players[p].action = 0
+      --        end
+      --      end
+      --    end
+      --  end
 
       -- setting up the new down
       if startNewDown <= 0 then
@@ -592,6 +588,9 @@ function client_onReceive(data)
     for i = 1, gore * 2 do
       objects[#objects + 1] = {type = "blood", x = players[item].x, y = players[item].y, dt = 0, zV = -3, z = 0, mode = 1, xV = math.random(-3, 3), yV = math.random(-3, 3)}
     end
+  elseif data["1"] == "interrupt" then
+    players[data["2"]].action = 5
+    players[data["2"]].frame = 4
   elseif data["1"] == "disconnect" then
     if data["2"] == identifier or data["2"] == "all" then
       disconnected = true
