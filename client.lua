@@ -25,6 +25,7 @@ function client_load()
     end
     players[p].action = 0
     players[p].frame = 1
+    players[p].pause = 0
     animatePlayer(p, 0, 0)
   end
 
@@ -89,7 +90,7 @@ function client_update(dt)
     end
 
     -- move player
-    if players[avatar.num].image ~= "dropBow" and players[avatar.num].action ~= 1 and players[avatar.num].action ~= 3 and players[avatar.num].action ~= 4 and players[avatar.num].action ~= 5 then
+    if players[avatar.num].pause <= 0 then
       if avatar.num == possesion or players[avatar.num].action == 2 then
         speed =  20
       elseif team[players[avatar.num].team].position == "offense" then
@@ -286,6 +287,7 @@ function client_update(dt)
           end
           players[p].action = 0
           players[p].frame = 1
+          players[p].pause = 0
           animatePlayer(p, 0, 0)
         end
         if down.num == 1 then
@@ -354,6 +356,7 @@ function client_update(dt)
       players[qb].frame = players[qb].frame + dt * 12
       if players[qb].frame > 14 then
         players[qb].image = "grabShield"
+        players[qb].pause = 0
       end
     end
 
@@ -367,12 +370,14 @@ function client_update(dt)
           players[p].frame = players[p].frame + dt * 30
           if players[p].frame > 4 then
             players[p].action = 2
+            players[p].pause = 0
           end
         elseif players[p].action == 3 then
           players[p].frame = players[p].frame - dt * 30
           if players[p].frame < 1 then
             players[p].action = 0
             players[p].frame = 1
+            players[p].pause = 0
           end
         elseif players[p].action == 4 then
           players[p].frame = players[p].frame + dt * 30
@@ -384,9 +389,16 @@ function client_update(dt)
           players[p].frame = players[p].frame - dt * 30
           if players[p].frame < 1 then
             players[p].action = 0
-
+            players[p].pause = 0
           end
         end
+      end
+    end
+
+    --tick down pauses
+    for p = 1, #players do
+      if players[p].pause > 0 and players[p].pause < 1000 then
+        players[p].pause = players[p].pause - dt
       end
     end
 
@@ -478,7 +490,7 @@ function client_mousepressed(x, y, button)
         possesion = 0
       elseif team[players[avatar.num].team].position == "offense" then
         client:send(bin:pack({"shielding", avatar.num}))
-      elseif team[players[avatar.num].team].position == "defense" and players[avatar.num].image ~= "dropBow"  and players[avatar.num].image ~= "dropBow" then
+      elseif team[players[avatar.num].team].position == "defense" and players[avatar.num].image ~= "dropBow" then
         client:send(bin:pack({"slicing", avatar.num}))
       end
     end
@@ -517,14 +529,17 @@ function client_onReceive(data)
     players[data["2"]].action = 4
     players[data["2"]].image = "swordAttack"
     players[data["2"]].frame = 1
+    players[data["2"]].pause = 1000
   elseif data["1"] == "shielding" then
     players[data["2"]].action = 1
     players[data["2"]].image = "shieldUp"
     players[data["2"]].frame = 1
+    players[data["2"]].pause = 1000
   elseif data["1"] == "noshield" then
     players[data["2"]].action = 3
     players[data["2"]].image = "shieldUp"
     players[data["2"]].frame = 4
+    players[data["2"]].pause = 1000
   elseif data["1"] == "arrow" then
     if qb ~= avatar.num then
       arrow = {oldX = players[qb].x, oldY = players[qb].y, startX = players[qb].x, startY = players[qb].y, currentX = players[qb].x, currentY = players[qb].y, theta = math.atan2(data["3"] - players[qb].y, data["2"] - players[qb].x), r = 0, targetX = data["2"], targetY = data["3"], z = 0, angle = 0}
