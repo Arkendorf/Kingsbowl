@@ -46,6 +46,7 @@ function client_load()
   startNewDown = nil
   startAnnounce = {false, false, false}
   timeTillStart = 5
+  newDownBuffer = 2
   arrow = {}
   objects = {}
   particles = {}
@@ -146,7 +147,9 @@ function client_update(dt)
     end
 
     --animate avatar
-    animatePlayer(avatar.num, avatar.xV, avatar.yV)
+    if players[avatar.num].pause <= 0 then
+      animatePlayer(avatar.num, avatar.xV, avatar.yV)
+    end
 
     avatar.xV = avatar.xV * 0.4
     avatar.yV = avatar.yV * 0.4
@@ -232,7 +235,7 @@ function client_update(dt)
         --incomplete
         objects[#objects + 1] = {type = "arrow", x = arrow.targetX, y = arrow.targetY, dt = 0}
         arrow = {}
-        startNewDown = 2
+        startNewDown = newDownBuffer
         message[#message + 1] = {players[qb].name .. " threw an incomplete pass!", gameDt}
       end
     end
@@ -240,6 +243,19 @@ function client_update(dt)
     --new down
     if startNewDown ~= nil then
       startNewDown = startNewDown - dt
+
+      --revive the dead
+      if startNewDown <= newDownBuffer - 1 then
+        for p = 1, #players do
+          if players[p].action == 6 then
+             players[p].frame = players[p].frame - dt * 32
+             if players[p].frame < 1 then
+               players[p].action = 0
+             end
+           end
+         end
+       end
+
       -- setting up the new down
       if startNewDown <= 0 then
         players[qb].image = "bowStill"
@@ -391,6 +407,10 @@ function client_update(dt)
             players[p].action = 0
             players[p].pause = 0
           end
+        elseif players[p].action == 6 then
+          if players[p].frame < 4 then
+            players[p].frame = players[p].frame + dt * 16
+          end
         end
       end
     end
@@ -431,7 +451,9 @@ function client_draw()
   -- draw players
   for p = 1, #players do
     char = drawChar(players[p].image, players[p].frame)
-    thingsToDraw[#thingsToDraw + 1] = {type = 2, r = 255, g = 255, b = 255, a = 255, img = charShadow, quad = 0, x = warpX(players[p].x, players[p].y), y = warpY(players[p].y) - 1, z = 0, rot = 0, sX = 1, sY = 1, oX = 16, oY = 15}
+    if players[p].action ~= 6 then
+      thingsToDraw[#thingsToDraw + 1] = {type = 2, r = 255, g = 255, b = 255, a = 255, img = charShadow, quad = 0, x = warpX(players[p].x, players[p].y), y = warpY(players[p].y) - 1, z = 0, rot = 0, sX = 1, sY = 1, oX = 16, oY = 15}
+    end
     thingsToDraw[#thingsToDraw + 1] = {type = 1, r = 255, g = 255, b = 255, a = 255, img = char[1], quad = char[2], x = warpX(players[p].x, players[p].y), y = warpY(players[p].y), z = 0, rot = 0, sX = players[p].direction, sY = 1, oX = 16, oY = 32}
     thingsToDraw[#thingsToDraw + 1] = {type = 1, r = team[players[p].team].r, g = team[players[p].team].g, b = team[players[p].team].b, a = 255, img = char[3], quad = char[4], x = warpX(players[p].x, players[p].y), y = warpY(players[p].y) + 1, z = 0, rot = 0, sX = players[p].direction, sY = 1, oX = 16, oY = 33}
     thingsToDraw[#thingsToDraw + 1] = {type = 3, r = team[players[p].team].r, g = team[players[p].team].g, b = team[players[p].team].b, a = 255, img = players[p].name, quad = 0, x = warpX(players[p].x, players[p].y) - getPixelWidth(players[p].name) / 2, y = warpY(players[p].y) - 48, z = 0, rot = 0, sX = 0, sY = 0, oX = 0, oY = 0}
@@ -548,6 +570,28 @@ function client_onReceive(data)
       dropBow()
       possesion = 0
     end
+  elseif data["1"] == "dead" then
+    item = data["2"]
+    players[item].action = 6
+    players[item].image = "dead"
+    players[item].frame = 1
+    players[item].direction = 1
+    players[item].pause = 1000
+    --if guy with ball is killed
+    if item == possesion then
+      message[#message + 1] = {players[possesion].name .. " was tackled!", gameDt}
+      down.scrim = players[possesion].x
+      if possesion == qb then
+        objects[#objects + 1] = {type = "drop", subType = 3, x = players[item].x, y = players[item].y + 2, dt = 0, zV = 0, z = 0, bounce = -5, team = players[item].team}
+      end
+      possesion = 0
+      startNewDown = newDownBuffer
+    else
+      objects[#objects + 1] = {type = "drop", subType = 2, x = players[item].x, y = players[item].y + 2, dt = 0, zV = 0, z = 0, bounce = -5, team = players[item].team}
+    end
+    for i = 1, gore * 2 do
+      objects[#objects + 1] = {type = "blood", x = players[item].x, y = players[item].y, dt = 0, zV = -3, z = 0, mode = 1, xV = math.random(-3, 3), yV = math.random(-3, 3)}
+    end
   elseif data["1"] == "disconnect" then
     if data["2"] == identifier or data["2"] == "all" then
       disconnected = true
@@ -579,7 +623,7 @@ function client_onReceive(data)
     end
     animatePlayer(possesion, 0, 0)
     for i = 1, gore do
-      objects[#objects + 1] = {type = "blood", x = players[possesion].x, y = players[possesion].y + 2, dt = 0, zV = -3, z = 0, mode = 1, xV = math.random(-3, 3), yV = math.random(-3, 3)}
+      objects[#objects + 1] = {type = "blood", x = players[possesion].x, y = players[possesion].y, dt = 0, zV = -3, z = 0, mode = 1, xV = math.random(-3, 3), yV = math.random(-3, 3)}
     end
   end
 end
