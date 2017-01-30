@@ -29,6 +29,8 @@ function client_load()
     animatePlayer(p, 0, 0)
   end
 
+  qbHasPos = true
+
   camera = {x = 200, y = -50}
   avatar = {num = 0, xV = 0, yV = 0}
 
@@ -266,14 +268,14 @@ function client_update(dt)
           if team[1].position == "offense" then
             team[1].position = "defense"
             team[2].position = "offense"
+            qbHasPos = true
           else
             team[1].position = "offense"
             team[2].position = "defense"
+            qbHasPos = true
           end
           down.goal = findGoal()
         end
-
-        possesion = qb
 
         playerNum = {0, 0}
         for p = 1, #players do
@@ -506,9 +508,9 @@ function client_mousepressed(x, y, button)
         arrowShot = true
         dropBow()
         possesion = 0
-      elseif team[players[avatar.num].team].position == "offense" then
+      elseif team[players[avatar.num].team].position == "offense" and avatar.num ~= possesion then
         client:send(bin:pack({"shielding", avatar.num}))
-      elseif team[players[avatar.num].team].position == "defense" and players[avatar.num].image ~= "dropBow" then
+      elseif team[players[avatar.num].team].position == "defense" and players[avatar.num].image ~= "dropBow" and avatar.num ~= possesion then
         client:send(bin:pack({"slicing", avatar.num}))
       end
     end
@@ -607,8 +609,9 @@ function client_onReceive(data)
     end
   elseif data["1"] == "qb" then
     qb = data["2"]
-    if gameDt < 1 then
+    if qbHasPos == true then
       possesion = qb
+      qbHasPos = false
     end
   elseif data["1"] == "posses" then
     possesion = data["2"]

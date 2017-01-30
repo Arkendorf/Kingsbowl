@@ -614,13 +614,13 @@ function server_mousepressed(x, y, button)
         arrowShot = true
         dropBow()
         possesion = 0
-      elseif team[players[avatar.num].team].position == "offense" then
+      elseif team[players[avatar.num].team].position == "offense" and avatar.num ~= possesion then
         server:send(bin:pack({"shielding", avatar.num}))
         players[avatar.num].action = 1
         players[avatar.num].image = "shieldUp"
         players[avatar.num].frame = 1
         players[avatar.num].pause = 1000
-      elseif team[players[avatar.num].team].position == "defense" and players[avatar.num].image ~= "dropBow" then
+      elseif team[players[avatar.num].team].position == "defense" and players[avatar.num].image ~= "dropBow" and  and avatar.num ~= possesion then
         server:send(bin:pack({"slicing", avatar.num}))
         players[avatar.num].action = 4
         players[avatar.num].image = "swordAttack"
