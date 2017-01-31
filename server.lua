@@ -507,6 +507,19 @@ function server_update(dt)
             if item == possesion then
               message[#message + 1] = {players[possesion].name .. " was tackled!", gameDt}
               down.scrim = players[possesion].x
+              if players[possesion].team == 1 then
+                if down.scrim > down.goal then
+                  down.num = 0
+                  down.dt = 0
+                  down.goal = findGoal()
+                end
+              else
+                if down.scrim < down.goal then
+                  down.num = 0
+                  down.dt = 0
+                  down.goal = findGoal()
+                end
+              end
               if possesion == qb then
                 objects[#objects + 1] = {type = "drop", subType = 3, x = players[item].x, y = players[item].y + 2, dt = 0, zV = 0, z = 0, bounce = -5, team = players[item].team}
               end
