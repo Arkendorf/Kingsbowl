@@ -318,16 +318,23 @@ function server_update(dt)
     startNewDown = startNewDown - dt
 
     --revive the dead
-    -- if startNewDown <= newDownBuffer - 1 then
-    --   for p = 1, #players do
-    --     if players[p].action == 6 then
-    --        players[p].frame = players[p].frame - dt * 32
-    --        if players[p].frame < 1 then
-    --          players[p].action = 0
-    --        end
-    --      end
-    --    end
-    --  end
+    if startNewDown <= newDownBuffer - 1 then
+      for p = 1, #players do
+        if players[p].action == 6 then
+           players[p].frame = players[p].frame - dt * 32
+           if players[p].frame < 1 then
+             players[p].action = 0
+             if team[players[p].team].position == "offense" then
+               players[p].image = "dropSword"
+             else
+               players[p].image = "dropShield"
+             end
+             players[p].frame = 1
+             players[p].pause = 1000
+           end
+         end
+       end
+     end
 
     -- setting up the new down
     if startNewDown <= 0 then
