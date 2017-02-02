@@ -580,9 +580,7 @@ function client_onReceive(data)
   elseif data["1"] == "target" then
     if qb ~= avatar.num then
       targetPos[#targetPos + 1] = {data["2"], data["3"], data["4"]}
-      if #targetPos > 200 then
-        targetPos[1] = nil
-      end
+      targetPos[1] = nil
       targetPos = removeNil(targetPos)
     end
   elseif data["1"] == "slicing" then

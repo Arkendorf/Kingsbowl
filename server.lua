@@ -198,9 +198,7 @@ function server_update(dt)
       qbTargetX, qbTargetY = (players[avatar.num].x + (math.floor(mX) - 200) * 2), (players[avatar.num].y + (math.floor(mY) - 150) * 2)
       server:send(bin:pack({"target", qbTargetX, qbTargetY, gameDt}))
       targetPos[#targetPos + 1] = {qbTargetX, qbTargetY, gameDt}
-      if #targetPos > 200 then
-        targetPos[1] = nil
-      end
+      targetPos[1] = nil
       targetPos = removeNil(targetPos)
     end
   end
