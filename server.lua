@@ -64,6 +64,7 @@ function server_load()
 
   message = {}
   messageDeleteSpeed = 20
+  turnover = false
 end
 
 function server_update(dt)
@@ -266,8 +267,36 @@ function server_update(dt)
             message[#message + 1] = {players[possesion].name .. " caught the ball!", gameDt}
             objects[#objects + 1] = {type = "drop", subType = 2, x = players[possesion].x, y = players[possesion].y + 2, dt = 0, zV = 0, z = 0, bounce = -5, team = players[possesion].team}
           else
+            turnover = true
             message[#message + 1] = {players[possesion].name .. " intercepted the ball!", gameDt}
             objects[#objects + 1] = {type = "drop", subType = 1, x = players[possesion].x, y = players[possesion].y + 2, dt = 0, zV = 0, z = 0, bounce = -5, team = players[possesion].team}
+
+            down.num = 1
+            if team[1].position == "offense" then
+              team[1].position = "defense"
+              team[2].position = "offense"
+              qb = findQb(2)
+            else
+              team[1].position = "offense"
+              team[2].position = "defense"
+              qb = findQb(1)
+            end
+            down.goal = findGoal()
+            for p = 1, #players do
+              if p ~= possesion then
+                if team[players[p].team].position == "offense" then
+                  players[p].image = "dropSword"
+                  players[p].frame = 1
+                  players[p].pause = 1000
+                  objects[#objects + 1] = {type = "drop", subType = 1, x = players[p].x, y = players[p].y + 2, dt = 0, zV = 0, z = 0, bounce = -5, team = players[p].team}
+                else
+                  players[p].image = "dropShield"
+                  players[p].frame = 1
+                  players[p].pause = 1000
+                  objects[#objects + 1] = {type = "drop", subType = 2, x = players[p].x, y = players[p].y + 2, dt = 0, zV = 0, z = 0, bounce = -5, team = players[p].team}
+                end
+              end
+            end
           end
           animatePlayer(possesion, 0, 0)
           for i = 1, gore do
@@ -302,6 +331,7 @@ function server_update(dt)
 
     -- setting up the new down
     if startNewDown <= 0 then
+      turnover = false
       players[qb].image = "bowStill"
       down.num = down.num + 1
       down.dt = 0
@@ -321,6 +351,21 @@ function server_update(dt)
           qb = findQb(1)
         end
         down.goal = findGoal()
+        for p = 1, #players do
+          if p ~= possesion then
+            if team[players[p].team].position == "offense" then
+              players[p].image = "dropSword"
+              players[p].frame = 1
+              players[p].pause = 1000
+              objects[#objects + 1] = {type = "drop", subType = 1, x = players[p].x, y = players[p].y + 2, dt = 0, zV = 0, z = 0, bounce = -5, team = players[p].team}
+            else
+              players[p].image = "dropShield"
+              players[p].frame = 1
+              players[p].pause = 1000
+              objects[#objects + 1] = {type = "drop", subType = 2, x = players[p].x, y = players[p].y + 2, dt = 0, zV = 0, z = 0, bounce = -5, team = players[p].team}
+            end
+          end
+        end
       end
 
       possesion = qb
@@ -413,12 +458,26 @@ function server_update(dt)
   end
   message = removeNil(message)
 
-  -- qb drop bow
-  if players[qb].image == "dropBow" then
-    players[qb].frame = players[qb].frame + dt * 12
-    if players[qb].frame > 14 then
-      players[qb].image = "grabShield"
-      players[qb].pause = 0
+  -- qb drop bow / players drop stuff
+  for p = 1, #players do
+    if players[p].image == "dropBow" then
+      players[p].frame = players[p].frame + dt * 12
+      if players[p].frame > 14 then
+        players[p].image = "grabShield"
+        players[p].pause = 0
+      end
+    elseif players[p].image == "dropShield" then
+      players[p].frame = players[p].frame + dt * 12
+      if players[p].frame > 14 then
+        players[p].image = "unsheathSword"
+        players[p].pause = 0
+      end
+    elseif players[p].image == "dropSword" then
+      players[p].frame = players[p].frame + dt * 12
+      if players[p].frame > 14 then
+        players[p].image = "grabShield"
+        players[p].pause = 0
+      end
     end
   end
 
@@ -730,6 +789,8 @@ function animatePlayer(p, xV, yV)
         players[p].image = "bowRun"
       elseif p ~= qb and p == possesion then
         players[p].image = "limp"
+      elseif turnover == true and p == possesion then
+        players[p].image = "limp"
       elseif teamPos == "offense" then
         if players[p].action == 2 then
           players[p].image = "shieldUpRun"
@@ -749,6 +810,9 @@ function animatePlayer(p, xV, yV)
         players[p].image = "bowStill"
         players[p].frame = 1
       elseif p ~= qb and p == possesion then
+        players[p].image = "limp"
+        players[p].frame = 1
+      elseif turnover == true and p == possesion then
         players[p].image = "limp"
         players[p].frame = 1
       elseif teamPos == "offense" then
