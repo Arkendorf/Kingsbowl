@@ -302,7 +302,7 @@ function server_update(dt)
           end
           animatePlayer(possesion, 0, 0)
           for i = 1, gore do
-            objects[#objects + 1] = {type = "blood", x = players[possesion].x, y = players[possesion].y, dt = 0, zV = -3, z = 0, mode = 1, xV = math.random(-3, 3), yV = math.random(-3, 3)}
+            objects[#objects + 1] = {type = "blood", x = players[possesion].x, y = players[possesion].y, dt = 0, zV = -2, z = -16, mode = 1, xV = math.random(-3, 3), yV = math.random(-6, 0)}
           end
         end
       end
@@ -446,7 +446,7 @@ function server_update(dt)
     elseif objects[i].type == "blood" then
       if objects[i].mode == 1 then
         objects[i].z = objects[i].z + objects[i].zV
-        objects[i].zV = objects[i].zV + 0.5
+        objects[i].zV = objects[i].zV + 0.2
         objects[i].x = objects[i].x + objects[i].xV
         objects[i].xV = objects[i].xV * 0.9
         objects[i].y = objects[i].y + objects[i].yV
@@ -597,7 +597,7 @@ function server_update(dt)
               objects[#objects + 1] = {type = "drop", subType = 2, x = players[item].x, y = players[item].y + 2, dt = 0, zV = 0, z = 0, bounce = -5, team = players[item].team}
             end
             for i = 1, gore * 2 do
-              objects[#objects + 1] = {type = "blood", x = players[item].x, y = players[item].y, dt = 0, zV = -3, z = 0, mode = 1, xV = math.random(-3, 3), yV = math.random(-3, 3)}
+              objects[#objects + 1] = {type = "blood", x = players[item].x, y = players[item].y, dt = 0, zV = -2, z = -16, mode = 1, xV = math.random(-3, 3), yV = math.random(-6, 0)}
             end
           end
         end
@@ -614,12 +614,14 @@ function server_update(dt)
 
   if possesion ~= 0 then
     if players[possesion].team == 1 and players[possesion].x >= 750 and startNewDown == nil then
+      server:send(bin:pack({"td", 1}))
       message[#message + 1] = {players[possesion].name .. " scored!", gameDt}
       scoreboard[1] = scoreboard[1] + 7
       startNewDown = newDownBuffer
       down.scrim = 0
       down.num = 4
     elseif players[possesion].team == 2 and players[possesion].x <= -750 and startNewDown == nil then
+      server:send(bin:pack({"td", 2}))
       message[#message + 1] = {players[possesion].name .. " scored!", gameDt}
       scoreboard[1] = scoreboard[1] + 7
       startNewDown = newDownBuffer
@@ -886,9 +888,9 @@ end
 
 function findGoal()
   if team[1].position == "offense" then
-    return down.scrim + 149
+    return down.scrim + 150
   else
-    return down.scrim - 149
+    return down.scrim - 150
   end
 end
 

@@ -372,7 +372,7 @@ function client_update(dt)
       elseif objects[i].type == "blood" then
         if objects[i].mode == 1 then
           objects[i].z = objects[i].z + objects[i].zV
-          objects[i].zV = objects[i].zV + 0.5
+          objects[i].zV = objects[i].zV + 0.2
           objects[i].x = objects[i].x + objects[i].xV
           objects[i].xV = objects[i].xV * 0.9
           objects[i].y = objects[i].y + objects[i].yV
@@ -459,22 +459,6 @@ function client_update(dt)
     for p = 1, #players do
       if players[p].pause > 0 and players[p].pause < 1000 then
         players[p].pause = players[p].pause - dt
-      end
-    end
-
-    if possesion ~= 0 then
-      if players[possesion].team == 1 and players[possesion].x >= 750 and startNewDown == nil then
-        message[#message + 1] = {players[possesion].name .. " scored!", gameDt}
-        scoreboard[1] = scoreboard[1] + 7
-        startNewDown = newDownBuffer
-        down.scrim = 0
-        down.num = 4
-      elseif players[possesion].team == 2 and players[possesion].x <= -750 and startNewDown == nil then
-        message[#message + 1] = {players[possesion].name .. " scored!", gameDt}
-        scoreboard[1] = scoreboard[1] + 7
-        startNewDown = newDownBuffer
-        down.scrim = 0
-        down.num = 4
       end
     end
 
@@ -673,7 +657,7 @@ function client_onReceive(data)
       objects[#objects + 1] = {type = "drop", subType = 2, x = players[item].x, y = players[item].y + 2, dt = 0, zV = 0, z = 0, bounce = -5, team = players[item].team}
     end
     for i = 1, gore * 2 do
-      objects[#objects + 1] = {type = "blood", x = players[item].x, y = players[item].y, dt = 0, zV = -3, z = 0, mode = 1, xV = math.random(-3, 3), yV = math.random(-3, 3)}
+      objects[#objects + 1] = {type = "blood", x = players[item].x, y = players[item].y, dt = 0, zV = -2, z = -16, mode = 1, xV = math.random(-3, 3), yV = math.random(-6, 0)}
     end
   elseif data["1"] == "interrupt" then
     players[data["2"]].action = 5
@@ -692,6 +676,12 @@ function client_onReceive(data)
         break
       end
     end
+  elseif data["1"] == "td" then
+    message[#message + 1] = {players[possesion].name .. " scored!", gameDt}
+    scoreboard[data["2"]] = scoreboard[data["2"]] + 7
+    startNewDown = newDownBuffer
+    down.scrim = 0
+    down.num = 4
   elseif data["1"] == "qb" then
     qb = data["2"]
     if qbHasPos == true then
@@ -736,7 +726,7 @@ function client_onReceive(data)
     end
     animatePlayer(possesion, 0, 0)
     for i = 1, gore do
-      objects[#objects + 1] = {type = "blood", x = players[possesion].x, y = players[possesion].y, dt = 0, zV = -3, z = 0, mode = 1, xV = math.random(-3, 3), yV = math.random(-3, 3)}
+      objects[#objects + 1] = {type = "blood", x = players[possesion].x, y = players[possesion].y, dt = 0, zV = -2, z = -16, mode = 1, xV = math.random(-3, 3), yV = math.random(-6, 0)}
     end
   end
 end
