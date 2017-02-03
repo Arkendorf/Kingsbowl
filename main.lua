@@ -97,7 +97,9 @@ function love.mousepressed(x, y, button)
 end
 
 function love.keypressed(key)
-  if gamestate == "servermenu" then
+  if pause == true then
+    pausemenu_keypressed(key)
+  elseif gamestate == "servermenu" then
     servermenu_keypressed(key)
   elseif gamestate == "clientmenu" then
     clientmenu_keypressed(key)
@@ -112,7 +114,9 @@ function love.keypressed(key)
 end
 
 function love.textinput(text)
-  if gamestate == "servermenu" then
+  if pause == true then
+    pausemenu_textinput(text)
+  elseif gamestate == "servermenu" then
     servermenu_textinput(text)
   elseif gamestate == "clientmenu" then
     clientmenu_textinput(text)

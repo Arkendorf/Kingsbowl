@@ -512,7 +512,7 @@ function client_draw()
     end
     thingsToDraw[#thingsToDraw + 1] = {type = 1, r = 255, g = 255, b = 255, a = 255, img = char[1], quad = char[2], x = warpX(players[p].x, players[p].y), y = warpY(players[p].y), z = 0, rot = 0, sX = players[p].direction, sY = 1, oX = 16, oY = 32}
     thingsToDraw[#thingsToDraw + 1] = {type = 1, r = team[players[p].team].r, g = team[players[p].team].g, b = team[players[p].team].b, a = 255, img = char[3], quad = char[4], x = warpX(players[p].x, players[p].y), y = warpY(players[p].y) + 1, z = 0, rot = 0, sX = players[p].direction, sY = 1, oX = 16, oY = 33}
-    thingsToDraw[#thingsToDraw + 1] = {type = 3, r = team[players[p].team].r, g = team[players[p].team].g, b = team[players[p].team].b, a = 255, img = players[p].name, quad = 0, x = warpX(players[p].x, players[p].y) - getPixelWidth(players[p].name) / 2, y = warpY(players[p].y) - 48, z = 0, rot = 0, sX = 0, sY = 0, oX = 0, oY = 0}
+    thingsToDraw[#thingsToDraw + 1] = {type = 3, r = team[players[p].team].r, g = team[players[p].team].g, b = team[players[p].team].b, a = 255, img = players[p].name, quad = 0, x = warpX(players[p].x, players[p].y) - math.floor(getPixelWidth(players[p].name) / 2), y = warpY(players[p].y) - 48, z = 0, rot = 0, sX = 0, sY = 0, oX = 0, oY = 0}
   end
 
   -- draw qb targetPos
@@ -559,7 +559,7 @@ function client_draw()
   love.graphics.draw(scoreboardImg, scoreboardBanner2, 200, 0)
   love.graphics.setColor(255, 255, 255)
   love.graphics.print(tostring(scoreboard[2]), 250 - math.floor(getPixelWidth(tostring(scoreboard[2])) / 2), 14)
-  
+
   for i = 1, #message do
     love.graphics.setColor(0, 0, 0, 255 + (message[i][2] - gameDt) * messageDeleteSpeed)
     love.graphics.rectangle("fill", 3, 299 - ((#message - i + 1) * 12), getPixelWidth(message[i][1]) + 2, 11)

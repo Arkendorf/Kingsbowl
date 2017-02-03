@@ -655,7 +655,7 @@ function server_draw()
     end
     thingsToDraw[#thingsToDraw + 1] = {type = 1, r = 255, g = 255, b = 255, a = 255, img = char[1], quad = char[2], x = warpX(players[p].x, players[p].y), y = warpY(players[p].y), z = 0, rot = 0, sX = players[p].direction, sY = 1, oX = 16, oY = 32}
     thingsToDraw[#thingsToDraw + 1] = {type = 1, r = team[players[p].team].r, g = team[players[p].team].g, b = team[players[p].team].b, a = 255, img = char[3], quad = char[4], x = warpX(players[p].x, players[p].y), y = warpY(players[p].y) + 1, z = 0, rot = 0, sX = players[p].direction, sY = 1, oX = 16, oY = 33}
-    thingsToDraw[#thingsToDraw + 1] = {type = 3, r = team[players[p].team].r, g = team[players[p].team].g, b = team[players[p].team].b, a = 255, img = players[p].name, quad = 0, x = warpX(players[p].x, players[p].y) - getPixelWidth(players[p].name) / 2, y = warpY(players[p].y) - 48, z = 0, rot = 0, sX = 0, sY = 0, oX = 0, oY = 0}
+    thingsToDraw[#thingsToDraw + 1] = {type = 3, r = team[players[p].team].r, g = team[players[p].team].g, b = team[players[p].team].b, a = 255, img = players[p].name, quad = 0, x = warpX(players[p].x, players[p].y) - math.floor(getPixelWidth(players[p].name) / 2), y = warpY(players[p].y) - 48, z = 0, rot = 0, sX = 0, sY = 0, oX = 0, oY = 0}
   end
 
   -- draw qb targetPos
