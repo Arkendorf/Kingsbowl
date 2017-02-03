@@ -102,6 +102,11 @@ function graphics_load()
   coinShadeImg = love.graphics.newImage("menu/shadow.png")
   coinShadeQuad = loadSpriteSheet(coinShadeImg, 32)
 
+  scoreboardImg = love.graphics.newImage("gui/scoreboard.png")
+  scoreboardBase = love.graphics.newQuad(0, 0, 400, 64, scoreboardImg:getDimensions())
+  scoreboardBanner1 = love.graphics.newQuad(0, 64, 400, 64, scoreboardImg:getDimensions())
+  scoreboardBanner2 = love.graphics.newQuad(200, 64, 400, 64, scoreboardImg:getDimensions())
+
   sliderImg = love.graphics.newImage("gui/slider.png")
   bar = love.graphics.newQuad(0, 2, 50, 2, sliderImg:getDimensions())
   knob = love.graphics.newQuad(50, 0, 2, 6, sliderImg:getDimensions())
@@ -160,6 +165,8 @@ function graphics_load()
   end
 
   fieldImg = love.graphics.newImage("field.png")
+  fieldOverlayImg = love.graphics.newImage("fieldOverlay.png")
+  fieldOverlayQuad = {love.graphics.newQuad(0, 0, 1000, 600, fieldOverlayImg:getDimensions()), love.graphics.newQuad(1000, 0, 1000, 600, fieldOverlayImg:getDimensions())}
 end
 
 function loadSpriteSheet(image, size, size2)

@@ -379,7 +379,8 @@ function servermenu_mousepressed(x, y, button)
       if x >= 175 and x <= 225 and y >= 197 and y <= 213 and team[1].playerNum > 0 and team[2].playerNum > 0 then
         start = true
         coin.v = -5
-        coin.result = math.floor(math.random(1, 2) + 0.5)
+        -- coin.result = math.floor(math.random(1, 2) + 0.5)
+        coin.result = 2
         server:send(bin:pack({"coin", coin.result}))
       elseif x >= 87 + team[1].r / 5.10 and x <= 87 + team[1].r / 5.10 + 2 and y >= 72 and y <= 72 + 6 then
         slider = {type = "r1", xPos = x, yPos = y, old = team[1].r}

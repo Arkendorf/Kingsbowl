@@ -61,6 +61,8 @@ function client_load()
   message = {}
   messageDeleteSpeed = 20
   turnover = false
+
+  scoreboard = {0, 0}
 end
 
 function client_update(dt)
@@ -460,6 +462,22 @@ function client_update(dt)
       end
     end
 
+    if possesion ~= 0 then
+      if players[possesion].team == 1 and players[possesion].x >= 750 and startNewDown == nil then
+        message[#message + 1] = {players[possesion].name .. " scored!", gameDt}
+        scoreboard[1] = scoreboard[1] + 7
+        startNewDown = newDownBuffer
+        down.scrim = 0
+        down.num = 4
+      elseif players[possesion].team == 2 and players[possesion].x <= -750 and startNewDown == nil then
+        message[#message + 1] = {players[possesion].name .. " scored!", gameDt}
+        scoreboard[1] = scoreboard[1] + 7
+        startNewDown = newDownBuffer
+        down.scrim = 0
+        down.num = 4
+      end
+    end
+
     gameDt = gameDt + dt
     down.dt = down.dt + dt
   else
@@ -515,6 +533,10 @@ function client_draw()
 
   --draw field / lines
   love.graphics.draw(fieldImg, -1000, -100)
+  love.graphics.setColor(team[2].r, team[2].g, team[2].b)
+  love.graphics.draw(fieldOverlayImg, fieldOverlayQuad[1], -1000, -100, 0)
+  love.graphics.setColor(team[1].r, team[1].g, team[1].b)
+  love.graphics.draw(fieldOverlayImg, fieldOverlayQuad[2], 0, -100, 0)
   love.graphics.setColor(55, 55, 255)
   love.graphics.line(math.floor(down.scrim), 400, math.floor(down.scrim) / 2, 0)
   love.graphics.setColor(255, 55, 55)
@@ -528,6 +550,16 @@ function client_draw()
   love.graphics.pop()
 
   --GUI
+  love.graphics.draw(scoreboardImg, scoreboardBase, 0, 0)
+  love.graphics.setColor(team[1].r, team[1].g, team[1].b)
+  love.graphics.draw(scoreboardImg, scoreboardBanner1, 0, 0)
+  love.graphics.setColor(255, 255, 255)
+  love.graphics.print(tostring(scoreboard[1]), 150 - math.floor(getPixelWidth(tostring(scoreboard[1])) / 2), 14)
+  love.graphics.setColor(team[2].r, team[2].g, team[2].b)
+  love.graphics.draw(scoreboardImg, scoreboardBanner2, 200, 0)
+  love.graphics.setColor(255, 255, 255)
+  love.graphics.print(tostring(scoreboard[2]), 250 - math.floor(getPixelWidth(tostring(scoreboard[2])) / 2), 14)
+  
   for i = 1, #message do
     love.graphics.setColor(0, 0, 0, 255 + (message[i][2] - gameDt) * messageDeleteSpeed)
     love.graphics.rectangle("fill", 3, 299 - ((#message - i + 1) * 12), getPixelWidth(message[i][1]) + 2, 11)
@@ -580,7 +612,9 @@ function client_onReceive(data)
   elseif data["1"] == "target" then
     if qb ~= avatar.num then
       targetPos[#targetPos + 1] = {data["2"], data["3"], data["4"]}
-      targetPos[1] = nil
+      if #targetPos > 200 then
+        targetPos[1] = nil
+      end
       targetPos = removeNil(targetPos)
     end
   elseif data["1"] == "slicing" then
