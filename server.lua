@@ -713,8 +713,8 @@ function server_draw()
     love.graphics.setColor(255, 255, 255)
   end
 
-   love.graphics.print("FPS: "..tostring(love.timer.getFPS( )), 10, 10)
-   love.graphics.print("Gametime: "..tostring(gameDt), 10, 10)
+   love.graphics.print("FPS: "..tostring(love.timer.getFPS()), 10, 10)
+   love.graphics.print("Gametime: "..math.floor(tostring(gameDt)), 10, 26)
 end
 
 function server_mousepressed(x, y, button)
