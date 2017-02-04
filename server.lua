@@ -433,9 +433,6 @@ function server_update(dt)
   --objects
   for i = 1, #objects do
     objects[i].dt = objects[i].dt + dt
-    if objects[i].dt > 127.5 then
-      objects[i] = nil
-    end
     if objects[i].type == "drop" then
       if objects[i].z >= 10 then
         objects[i].zV = objects[i].bounce
@@ -455,6 +452,9 @@ function server_update(dt)
           objects[i].mode = 2
         end
       end
+    end
+    if objects[i].dt > 127 then
+      objects[i] = nil
     end
   end
   objects = removeNil(objects)
